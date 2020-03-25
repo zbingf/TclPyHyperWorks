@@ -1,3 +1,4 @@
+
 namespace eval ::rectangularBox {
 	variable beamIdNum 1
 	variable propertiesNum 1
@@ -5,6 +6,8 @@ namespace eval ::rectangularBox {
 	variable materialsName steel1
 	variable elementsizeset1 30
 }
+
+# 获取当前文件路径
 set filepath [file dirname [info script]]
 puts $filepath
 
@@ -152,6 +155,7 @@ proc pythonBeamCreate {datalist} {
 # ————————————————————————————————————————————
 proc isCuboid {solidLoc} {
 	# 矩形钢 计算
+	# p判断是否为矩形钢, 并导出数据
 	*createmark points 1 "by solids" $solidLoc
 	set pData [hm_getmark points 1]
 	set locData []
@@ -193,11 +197,10 @@ proc isCuboid {solidLoc} {
 	}
 }
 
-
 # ————————————————————————————————————————————
 ## main function
 proc solidsCal {solidsId} {
-	# 单个 solid 设置
+	# 单个 solid 设置计算
 	*createmark solids 1 "by id only" $solidsId
 	set calComp "calTemp"
 	set targetComp "endTemp"
