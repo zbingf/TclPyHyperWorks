@@ -1,9 +1,10 @@
 
-proc compEdit {type} {
+proc comp_edit {type} {
 	if {[string equal $type "front"]} {
 		*createmarkpanel comps 1 "select the comps"
-		set str [hm_getstring "front=" "input string"]
 		set compsId [hm_getmark comps 1]
+		if {$compsId == []} { return [] }
+		set str [hm_getstring "front=" "input string"]
 		foreach compId $compsId {
 			set compName [hm_entityinfo name comps $compId]
 			set fullStr "$str $compName"
@@ -13,8 +14,9 @@ proc compEdit {type} {
 	}
 	if {[string equal $type "rear"]} {
 		*createmarkpanel comps 1 "select the comps"
-		set str [hm_getstring "rear=" "input string"]
 		set compsId [hm_getmark comps 1]
+		if {$compsId == []} { return [] }
+		set str [hm_getstring "rear=" "input string"]
 		foreach compId $compsId {
 			set compName [hm_entityinfo name comps $compId]
 			set fullStr "$compName $str"
@@ -24,11 +26,12 @@ proc compEdit {type} {
 	}
 	if {[string equal $type "replace"]} {
 		*createmarkpanel comps 1 "select the comps"
-
+		set compsId [hm_getmark comps 1]
+		if {$compsId == []} { return [] }
 		set inputStr [hm_getstring "oldString newString=" "input string"]
 		set oldString [lindex $inputStr 0]
 		set newString [lindex $inputStr 1]
-		set compsId [hm_getmark comps 1]
+		
 
 		foreach compId $compsId {
 			set compName [hm_entityinfo name comps $compId]
