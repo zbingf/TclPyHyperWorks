@@ -1,4 +1,3 @@
-
 namespace eval ::rectangularBox {
 	variable beamIdNum 1
 	variable propertiesNum 1
@@ -6,6 +5,10 @@ namespace eval ::rectangularBox {
 	variable materialsName steel1
 	variable elementsizeset1 30
 }
+set filepath [file dirname [info script]]
+puts $filepath
+
+global filepath
 # 子函数
 # ————————————————————————————————————————————
 # 数值处理
@@ -160,7 +163,10 @@ proc isCuboid {solidLoc} {
 	set len1 [expr [llength $locData]/3]
 	# 长方体 矩形钢
 	if {$len1==16} {
-		set test [exec python37 funHyperWorks.py isRectangularBox $locData]
+		global filepath
+		# [format "%s/funHyperWorks.py" $filepath]
+		set temp [format "%s/funHyperWorks.py" $filepath]
+		set test [exec python $temp isRectangularBox $locData]
 		puts $test
 		eval "set datalist \"$test\"" 
 		if {[expr [lindex $datalist 0] ==True]} {
