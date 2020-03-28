@@ -1,3 +1,8 @@
+# 梁单元生成
+# 识别矩形钢
+# 针对16点计算,规则矩形钢
+# 
+
 
 namespace eval ::rectangularBox {
 	variable beamIdNum 1
