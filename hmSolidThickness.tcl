@@ -1,5 +1,6 @@
 # 测量实体厚度
 # 抽中面
+# 分配component
 
 proc value_cal {value} {
 	# 数值处理,四舍六入五保留
@@ -70,75 +71,103 @@ proc surf_thickness {surf_id solid_id comp_name_midsurf} {
 	} else {
 		set thickness [format "%.1f" [lindex [lindex [hm_getsurfacethicknessvalues nodes $node_id] 0] 1]]
 	}
-	return thickness
+	return $thickness
 }
 
 proc main_thickness {} {
 	# 开始
 	start_end
-	set solid_id0 [hm_getmark solids 1]
 
-	foreach solid_id $solid_id0 {
-		# 显示设置
-		*setsurfacenormalsdisplaytype 1
-		*normalsoff
-		# 选择
-		*createmark surfaces 1 "by solids" $solid_id
-		# 创建 - 中面
-		*midsurface_extract_10 surfaces 1 -1 0 1 1 0 0 2 0 0 10 0 10 -2 undefined 0 0 1
-		# 赋值 comp_name_midsurf
-		set comp_name_midsurf "Middle Surface"
-		# 获取 -中面
-		*createmark surfaces 1 "by comp name" $comp_name_midsurf
-		if {[hm_getmark surfs 1] == []} {
-			# 中面为空,删除中面并进行标记
-			# 获取对应 solid
-			*createmark solids 1 $solid_id
-			# 显示 solid id
-			*numbersmark solids 1 1
-			# 中面获取
-			*createmark comps 1 $comp_name_midsurf
-			# 删除中面
-			*deletemark comps 1
-			continue
-		}
-		# 中面mark 赋值 surf_id1
-		set surf_id1 [hm_getmark surfs 1]
-		# 首个 surfid 对应的厚度
-		set thickness [surf_thickness [lindex $surf_id1 0] $solid_id $comp_name_midsurf]
-		if {$thickness != []} {
-			set t0 $thickness
-		} else { continue }
-		# 厚度数值处理
-		set t0 [value_cal $t0]
-		# 清除所有temp nodes
-		*nodecleartempmark
-		# 清理 nodes mark
-		*clearmark nodes 1
-		# 赋初值
-		set i_flag 0
-		# 检索各中面
-		foreach surf_id $surf_id1 {
-			set thickness [surf_thickness $surf_id $solid_id []]
+	*createmarkpanel solids 1 "select solid"
+	while {[hm_getmark solids 1] != []} {
+		set solid_id0 [hm_getmark solids 1]
+
+		foreach solid_id $solid_id0 {
+			# 显示设置
+			*setsurfacenormalsdisplaytype 1
+			*normalsoff
+			# 选择
+			*createmark surfaces 1 "by solids" $solid_id
+			# 创建 - 中面
+			*midsurface_extract_10 surfaces 1 -1 0 1 1 0 0 2 0 0 10 0 10 -2 undefined 0 0 1
+			# 赋值 comp_name_midsurf
+			set comp_name_midsurf "Middle Surface"
+			# 获取 -中面
+			*createmark surfaces 1 "by comp name" $comp_name_midsurf
+			if {[hm_getmark surfs 1] == []} {
+				# 中面为空,删除中面并进行标记
+				# 获取对应 solid
+				*createmark solids 1 $solid_id
+				# 显示 solid id
+				*numbersmark solids 1 1
+				# 中面获取
+				*createmark comps 1 $comp_name_midsurf
+				# 删除中面
+				*deletemark comps 1
+				continue
+			}
+			# 中面mark 赋值 surf_id1
+			set surf_id1 [hm_getmark surfs 1]
+			# 首个 surfid 对应的厚度
+			set thickness [surf_thickness [lindex $surf_id1 0] $solid_id $comp_name_midsurf]
 			if {$thickness != []} {
-				set t1 $thickness
-			} else {
-				set i_flag 1
-				break
-			}
+				set t0 $thickness
+			} else { continue }
 			# 厚度数值处理
-			set t1 [value_cal $t1]
+			set t0 [value_cal $t0]
+			# 清除所有temp nodes
 			*nodecleartempmark
+			# 清理 nodes mark
 			*clearmark nodes 1
-			if {$t1 != $t0} {
-				set i_flag 1
-				break
+			# 赋初值
+			set i_flag 0
+			# 检索各中面
+			foreach surf_id $surf_id1 {
+				set thickness [surf_thickness $surf_id $solid_id []]
+				if {$thickness != []} {
+					set t1 $thickness
+				} else {
+					set i_flag 1
+					break
+				}
+				# 厚度数值处理
+				set t1 [value_cal $t1]
+				*nodecleartempmark
+				*clearmark nodes 1
+				# 判断 t0 != t1 只要一个不等则该体厚度不一致
+				if {$t1 != $t0} {
+					# 不相等则 i_flag=1
+					set i_flag 1
+					break
+				}
 			}
+			if {$i_flag == 0} {
+				# compo 名称拼接
+				set stringN2 [join [linsert $t0 1 MM] []]
+				if {[hm_entityinfo exist comps $stringN2 -byname]} {
+					# component已经创建,直接移动零部件
+					*createmark solids 1 $solid_id
+					*movemark solids 1 $stringN2
+				} else {
+					# component 尚未创建
+					*collectorcreateonly component "component1" "" 16
+					*renamecollector components "component1" $stringN2
+					# 移动
+					*createmark solids 1 $solid_id
+					*movemark solids 1 $stringN2
+				}
+				*clearmark solids 1
+			}
+			# 删除中面 component
+			*createmark comps 1 $comp_name_midsurf
+			*deletemark comps 1
 		}
-		if {$i_flag == 0} {
-			# compo 名称拼接
-			
-		}
-
+		# 重头计算
+		*createmarkpanel solids 1 "select solid"
 	}
+	# 结束
+	start_end	
 }
+
+# 调用
+main_thickness

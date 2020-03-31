@@ -10,9 +10,6 @@ def test(inputData,num):
 
 
 
-
-
-
 calType=str(sys.argv[1])
 
 verN=len(sys.argv)
