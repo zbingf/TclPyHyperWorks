@@ -3,7 +3,6 @@
 # 针对16点计算,规则矩形钢
 # 
 
-
 namespace eval ::rectangularBox {
 	variable beamIdNum 1
 	variable propertiesNum 1

@@ -30,7 +30,6 @@ foreach i {1 2 3 4 5 6 7} {
 	pack .f.top.0.$i -side left -anchor nw
 }
 
-
 # 2层-1列
 button .f.top.1.1 -text "加前缀" -command [format "source %s/hmCompEdit.tcl;comp_edit front" $filepath] -bg #99ff99 -width 10
 button .f.top.1.2 -text "加后缀" -command [format "source %s/hmCompEdit.tcl;comp_edit rear" $filepath] -bg #99ff99 -width 10
@@ -42,11 +41,15 @@ foreach i {1 2 3} {
 # 2层-2列
 button .f.top.2.1 -text "矩形钢" -command [format "source %s/hmRectangularBox.tcl" $filepath] -bg #99ff99 -width 10
 button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickness.tcl" $filepath] -bg #99ff99 -width 10
-button .f.top.2.3 -text "悬架提载创建" -command [format "source %s/hmForSusLoad.tcl" $filepath] -bg #99ff99 -width 10
-foreach i {1 2 3} {
+foreach i {1 2} {
 	pack .f.top.2.$i -side top -anchor nw -padx 5 -pady 1
 }
-
+# 3层-1列
+button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/hmMnfSet.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.3.2 -text "悬架提载创建" -command [format "source %s/hmSusLoadSet.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1 2} {
+	pack .f.top.3.$i -side top -anchor nw -padx 5 -pady 1
+}
 
 
 # ----d
