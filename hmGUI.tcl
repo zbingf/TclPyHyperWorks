@@ -21,8 +21,8 @@ foreach i {1 2 3 4 5 6 7 8 9} {
 # 2层-0行
 label .f.top.0.1 -text "CompEdit" -width 13 -height 1
 label .f.top.0.2 -text "梁单元" -width 13 -height 1
-label .f.top.0.3 -text "材料属性" -width 12 -height 1
-label .f.top.0.4 -text "刚度分析" -width 13 -height 1
+label .f.top.0.3 -text "分析设置" -width 12 -height 1
+label .f.top.0.4 -text "材料属性" -width 13 -height 1
 label .f.top.0.5 -text "强度分析" -width 13 -height 1
 label .f.top.0.6 -text "其他分析" -width 12 -height 1
 label .f.top.0.7 -text "其他插件" -width 26 -height 1
@@ -44,13 +44,18 @@ button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickn
 foreach i {1 2} {
 	pack .f.top.2.$i -side top -anchor nw -padx 5 -pady 1
 }
-# 3层-1列
+# 2层-3列
 button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/hmMnfSet.tcl" $filepath] -bg #99ff99 -width 10
 button .f.top.3.2 -text "悬架提载创建" -command [format "source %s/hmSusLoadSet.tcl" $filepath] -bg #99ff99 -width 10
-foreach i {1 2} {
+button .f.top.3.3 -text "模态分析设置" -command [format "source %s/hmModalSet.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1 2 3} {
 	pack .f.top.3.$i -side top -anchor nw -padx 5 -pady 1
 }
-
+# 2层-4列
+button .f.top.4.1 -text "材料创建" -command [format "source %s/hmMaterials.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1} {
+	pack .f.top.4.$i -side top -anchor nw -padx 5 -pady 1
+}
 
 # ----d
 button .f.bottom.button -text "return" -command hm_exitpanel -bg #C06060 -width 10
