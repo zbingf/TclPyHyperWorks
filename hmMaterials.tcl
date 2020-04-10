@@ -31,10 +31,10 @@ set filepath [file dirname [info script]]
 
 
 # properties
-*collectorcreate properties "steel_shell_1mm" "steel" 11
-*createmark properties 1  "steel_shell_1mm"
-*dictionaryload properties 1 [format "%s/sets/optistruct" $filepath] "PSHELL"
-*attributeupdatedouble properties 1 95 1 0 0 4.44
+# *collectorcreate properties "steel_shell_1mm" "steel" 11
+# *createmark properties 1  "steel_shell_1mm"
+# *dictionaryload properties 1 [format "%s/sets/optistruct" $filepath] "PSHELL"
+# *attributeupdatedouble properties 1 95 1 0 0 4.44
 
 
 
