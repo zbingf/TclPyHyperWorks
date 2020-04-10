@@ -1,17 +1,27 @@
-# cmf_read.py
+'''
+	cmf_read.py
+	读取cmf文件
+	获取并处理成 tcl语言
+'''
+
 
 import os.path 
+
 class CmfFile:
+
+	del_list = ['*viewset','*rotateabout']
+
 	def __init__(self,filepath):
 		self.filepath = filepath
 		self.start_time = os.path.getmtime(filepath)
 		self.listlast = self.cmf_file_read()
 		self.listupdata = ''
+
 	def is_updata(self):
 		''' 
 			根据文件修改时间判断文件是否变更
 		'''
-		current_time = os.path.getmtime(filepath)
+		current_time = os.path.getmtime(self.filepath)
 		if self.start_time != current_time:
 			# 时间变更
 			self.start_time = current_time
@@ -29,6 +39,9 @@ class CmfFile:
 		return False
 
 	def cmf_file_read(self):
+		'''
+			读取文件
+		'''
 		filepath  = self.filepath
 		with open(filepath,'r') as f:
 			str1 = f.read()
@@ -38,7 +51,7 @@ class CmfFile:
 		str1 = str1.replace(',',' ')
 		list1 = str1.split('\n')
 		list2 = []
-		del_list = ['*viewset','*rotateabout']
+		del_list = self.del_list
 		for line in list1:
 			logic1 = True
 			# 判断命令行是否在删除之列
@@ -55,8 +68,8 @@ class CmfFile:
 		return list2
 
 if __name__ == '__main__':
-	filepath = r'C:\Users\ABing\Documents\command.cmf'
-	cmf = CmfFile(filepath)
+	cmfpath = r'C:\Users\ABing\Documents\command.cmf'
+	cmf = CmfFile(cmfpath)
 	print('\n'.join(cmf.listlast))
 	while True:
 		if cmf.is_updata():

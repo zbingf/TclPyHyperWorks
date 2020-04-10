@@ -1,4 +1,5 @@
 
+
 proc comp_edit {type} {
 	if {[string equal $type "front"]} {
 		*createmarkpanel comps 1 "select the comps"

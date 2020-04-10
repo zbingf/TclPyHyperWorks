@@ -1,6 +1,9 @@
-# hyperview 后处理
+# -------------------------------------
 # hvContour.tcl
+# hyperview 后处理 代码
 # 调用 source [join "[pwd] HW_code/hvContour.tcl" "/"]
+# -------------------------------------
+
 proc contourPlot {data_type component} {
 	hwi OpenStack
 	set currentTIme [clock seconds]

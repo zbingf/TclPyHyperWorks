@@ -1,6 +1,10 @@
+# -------------------------------------
 # hmMaterials.tcl
+# 设置材料属性
+# 设置前会删除原有材料/属性
+# -------------------------------------
 
-# 删除原有卡片\载荷\工况
+# 删除原有材料/属性
 hm_blockerrormessages 1
 *createmark materials 1 all
 catch {*deletemark materials 1}

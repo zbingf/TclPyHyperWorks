@@ -1,3 +1,8 @@
+
+# -------------------------------------
+
+# -------------------------------------
+
 import sys
 import numpy
 import itertools,math
@@ -14,15 +19,18 @@ def removeDup(inputData):
 			str1=str1+' '+temp
 	str1=str1[1:]
 	return str1
+
 def dis_2Point(n1,n2,arrLoc):
 	# 两点间距
 	arrX,arrY,arrZ=arrLoc[0],arrLoc[1],arrLoc[2]
 	disTemp=((arrX[n1]-arrX[n2])**2+(arrY[n1]-arrY[n2])**2+(arrZ[n1]-arrZ[n2])**2)**0.5
 	return disTemp
+
 def diff_2Point(n1,n2,arrLoc):
 	# 矢量 n2 → n1
 	arrX,arrY,arrZ=arrLoc[0],arrLoc[1],arrLoc[2]
 	return [arrX[n1]-arrX[n2],arrY[n1]-arrY[n2],arrZ[n1]-arrZ[n2]]
+
 def dis_pointToLine(n1,n2,n3,arrLoc):
 	# 点到直线距离
 	d12=dis_2Point(n1,n2,arrLoc)
@@ -32,6 +40,7 @@ def dis_pointToLine(n1,n2,n3,arrLoc):
 	s=(p*(p-d12)*(p-d13)*(p-d23))**0.5
 	h=s*2/d23
 	return round(h*100)/100
+
 def fun_face3Point(n1,n2,n3,arrLoc):
 	# 3点确定面
 	# 
@@ -46,6 +55,7 @@ def fun_face3Point(n1,n2,n3,arrLoc):
 	C=numpy.linalg.det(numpy.array([[x1,y1],[x2,y2]]))
 	D=-numpy.linalg.det(numpy.array([[n1x,n1y,n1z],[x1,y1,z1],[x2,y2,z2]]))
 	return A,B,C,D
+
 def v_face3Point(n1,n2,n3,arrLoc):
 	# 3点确定 法向量
 	xList,yList,zList=arrLoc[0].tolist(),arrLoc[1].tolist(),arrLoc[2].tolist()
@@ -56,6 +66,7 @@ def v_face3Point(n1,n2,n3,arrLoc):
 	y=(n2z-n1z)*(n3x-n1x)-(n3z-n1z)*(n2x-n1x)
 	z=(n2x-n1x)*(n3y-n1y)-(n3x-n1x)*(n2y-n1y)
 	return x,y,z
+
 def dis_pointToFace(n,n1,n2,n3,arrLoc):
 	# 点到面距离
 	xList,yList,zList=arrLoc[0].tolist(),arrLoc[1].tolist(),arrLoc[2].tolist()
@@ -88,6 +99,7 @@ def angle_2V(vPlane1,vPlane2):
 		cosTheta=1
 	angleTheta=(math.acos(cosTheta))*180/(math.pi)
 	return angleTheta
+
 def v_perpendicular(vPlane1,vPlane2,tolerance):
 	# 垂直判断
 	angleTheta=angle_2V(vPlane1,vPlane2)
@@ -95,6 +107,7 @@ def v_perpendicular(vPlane1,vPlane2,tolerance):
 		return True
 	else:
 		return False
+
 def dis_C8_2(numList,arrLoc,maxlength):
 	# 8 点间距离不超过 maxlength
 	if len(numList)!=8:
@@ -109,6 +122,7 @@ def dis_C8_2(numList,arrLoc,maxlength):
 		return True
 	else:
 		return False
+
 # ————————————————————————————————————————————————
 class pointJudge:
 	# 点判定
@@ -448,6 +462,7 @@ class pointJudge:
 
 
 def isRectangularBox(inputData):
+	# 矩形钢判定
 	try:
 		a=pointJudge(inputData)
 		res=a.rectangularBoxCal()

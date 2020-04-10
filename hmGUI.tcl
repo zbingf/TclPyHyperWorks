@@ -1,5 +1,9 @@
-# Auto_GUI.tcl
+# -------------------------------------
+# hmGUi.tcl
 # source E:/github/For_Hyperworks/hmGUI.tcl
+# 创建gui界面,调用其他代码
+# -------------------------------------
+
 set filepath [file dirname [info script]]
 puts $filepath
 
