@@ -1,1 +1,2 @@
 *.tcl linguist-language=tcl
+*.py linguist-language=tcl
