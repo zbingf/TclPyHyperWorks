@@ -27,7 +27,7 @@ label .f.top.0.1 -text "CompEdit" -width 13 -height 1
 label .f.top.0.2 -text "梁单元" -width 13 -height 1
 label .f.top.0.3 -text "分析设置" -width 12 -height 1
 label .f.top.0.4 -text "材料属性" -width 13 -height 1
-label .f.top.0.5 -text "强度分析" -width 13 -height 1
+label .f.top.0.5 -text "瞬态-模态分析" -width 13 -height 1
 label .f.top.0.6 -text "其他分析" -width 12 -height 1
 label .f.top.0.7 -text "其他插件" -width 26 -height 1
 foreach i {1 2 3 4 5 6 7} {
@@ -60,6 +60,13 @@ button .f.top.4.1 -text "材料创建" -command [format "source %s/hmMaterials.t
 foreach i {1} {
 	pack .f.top.4.$i -side top -anchor nw -padx 5 -pady 1
 }
+# 2层-5列
+button .f.top.5.1 -text "del-OMIT" -command [format "source %s/hmTransientModal1.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.2 -text "del-RIGID" -command [format "source %s/hmTransientModal2.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1 2} {
+	pack .f.top.5.$i -side top -anchor nw -padx 5 -pady 1
+}
+
 
 # ----d
 button .f.bottom.button -text "return" -command hm_exitpanel -bg #C06060 -width 10
