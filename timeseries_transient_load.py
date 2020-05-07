@@ -291,6 +291,7 @@ def csvfile(filepath):
 def create_rbe2_default(idlist):
 	'''
 		创建 RBE2 连接各加载点
+		名称 : GRID_AUTO
 	'''
 	str_start = 'GRID    {}        0.0     0.0     0.0   \n'.format(INIT_GRID_ID)+\
 		'$HMNAME COMP            {}"GRID_AUTO" \n'.format(INIT_COMP_ID)+\

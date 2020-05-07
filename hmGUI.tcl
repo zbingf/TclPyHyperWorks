@@ -61,9 +61,11 @@ foreach i {1} {
 	pack .f.top.4.$i -side top -anchor nw -padx 5 -pady 1
 }
 # 2层-5列
-button .f.top.5.1 -text "del-OMIT" -command [format "source %s/hmTransientModal1.tcl" $filepath] -bg #99ff99 -width 10
-button .f.top.5.2 -text "del-RIGID" -command [format "source %s/hmTransientModal2.tcl" $filepath] -bg #99ff99 -width 10
-foreach i {1 2} {
+button .f.top.5.1 -text "Nastran" -command [format "source %s/hmTransientModalNastran.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.2 -text "OptiStruct" -command [format "source %s/hmTransientModalOptiStruct.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.3 -text "del-OMIT" -command [format "source %s/hmTransientModal1.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.4 -text "del-RIGID" -command [format "source %s/hmTransientModal2.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1 2 3 4} {
 	pack .f.top.5.$i -side top -anchor nw -padx 5 -pady 1
 }
 
