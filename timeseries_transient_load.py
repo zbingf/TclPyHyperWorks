@@ -5,16 +5,16 @@
 创建TLOAD1 TABLED1 DAREA
 所需数据
 '''
-INIT_ELEMENT_ID = 99900000
-INIT_GRID_ID = 99800000
-INIT_TABLED1_ID = 99700000
-INIT_TLOAD1_ID = 99600000
-INIT_DAREA_ID = 99500000
-INIT_TSTEP_ID = 99400000 
-INIT_COMP_ID = 99300000 # COMP 编号
-INIT_DLOAD_ID = 99200000  # DLOAD 编号
-INIT_TABDMP1_ID = 99100000
-INIT_FORCE_ID = 99000000
+INIT_ELEMENT_ID = 99900000 # ELEMENT 单元
+INIT_GRID_ID = 99800000 # GRID 节点
+INIT_TABLED1_ID = 99700000 # TABLED1 
+INIT_TLOAD1_ID = 99600000 # TLOAD1
+INIT_DAREA_ID = 99500000 # DAREA
+INIT_TABDMP1_ID = 99400000 # TABDMP1
+INIT_FORCE_ID = 99300000 # 
+INIT_TSTEP_ID = 99200000 # TSTEP
+INIT_COMP_ID = 99100000 # COMP 编号
+INIT_DLOAD_ID = 99000000  # DLOAD 编号
 
 
 def create_force_1_comp(load_id,name,grid_id,v,color=5):
@@ -209,6 +209,7 @@ def strfloat8(value,isright=True):
 		输入整数
 		输出 长度8 的整数字符
 	'''
+	# try:
 	strvalue = str(value)
 	valuelen = len(strvalue)
 	intlen = len(str(int(value)))
@@ -223,7 +224,7 @@ def strfloat8(value,isright=True):
 				if value == int(value):
 					strvalue = str(round(value,8-intlen-1))
 				else:
-					strvalue = str(round(value,8-intlen,2))
+					strvalue = str(round(value,8-intlen-1))
 		else:
 			# 数值过大
 			print('warning')
@@ -235,7 +236,10 @@ def strfloat8(value,isright=True):
 		str1 = strvalue.rjust(8,' ') 
 	else:
 		str1 = strvalue.ljust(8,' ') 
-	# print(str1)
+		# print(str1)
+	# except:
+	# 	record_file(value)
+	# 	pass
 	return str1
 
 def strint8(value,isright=True):

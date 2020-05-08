@@ -111,3 +111,11 @@ set idnum_1 [hm_getmark loadsteps 1]
 *attributeupdateint loadsteps $idnum_1 4577 1 2 0 1
 *attributeupdateint loadsteps $idnum_1 4582 1 2 0 1
 *attributeupdatestring loadsteps $idnum_1 4580 1 2 0 "PUNCH"
+
+
+
+# 更改 EIGRL_1 节点
+*createmark loadcols 1  "EIGRL_1"
+set idnum [hm_getmark loadcols 1]
+set eigrl_1_id 98900000
+*setvalue loadcols id=$idnum id={loadcols $eigrl_1_id}
