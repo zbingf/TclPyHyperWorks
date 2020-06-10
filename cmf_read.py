@@ -6,6 +6,7 @@
 
 
 import os.path 
+import time
 
 class CmfFile:
 
@@ -72,6 +73,7 @@ if __name__ == '__main__':
 	cmf = CmfFile(cmfpath)
 	print('\n'.join(cmf.listlast))
 	while True:
+		time.sleep(0.1)
 		if cmf.is_updata():
 			print('\n'.join(cmf.listupdata))
 			print('\n')
