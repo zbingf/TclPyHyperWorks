@@ -2,6 +2,7 @@
 	cmf_read.py
 	读取cmf文件
 	获取并处理成 tcl语言
+	2020/03
 '''
 
 
@@ -9,7 +10,7 @@ import os.path
 import time
 
 class CmfFile:
-
+	# hypermesh 命令记录 文件 cmf 的读取
 	del_list = ['*viewset','*rotateabout']
 
 	def __init__(self,filepath):
@@ -46,7 +47,7 @@ class CmfFile:
 		filepath  = self.filepath
 		with open(filepath,'r') as f:
 			str1 = f.read()
-
+		# 数据转化处理
 		str1 = str1.replace('(',' ')
 		str1 = str1.replace(')',' ')
 		str1 = str1.replace(',',' ')
@@ -69,11 +70,12 @@ class CmfFile:
 		return list2
 
 if __name__ == '__main__':
+	# 输入 cmf 文件路径
 	cmfpath = r'C:\Users\ABing\Documents\command.cmf'
 	cmf = CmfFile(cmfpath)
 	print('\n'.join(cmf.listlast))
 	while True:
-		time.sleep(0.1)
+		time.sleep(0.1) # 检索间隔
 		if cmf.is_updata():
 			print('\n'.join(cmf.listupdata))
 			print('\n')

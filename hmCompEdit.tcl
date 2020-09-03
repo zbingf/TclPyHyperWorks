@@ -1,4 +1,8 @@
-
+# -------------------------------------
+# hypermesh
+# 针对component 名称进行更改
+# 可增加前缀 、 后缀 、 替换
+# -------------------------------------
 
 proc comp_edit {type} {
 	if {[string equal $type "front"]} {
@@ -46,9 +50,9 @@ proc comp_edit {type} {
 		puts "compEdit rear"
 		puts "compEdit replace"
 	}
-	# 指定替换字符
-	# 增加前缀
-	# 增加后缀
+	# 指定替换字符 replace
+	# 增加前缀 front
+	# 增加后缀 rear
 
 }
 

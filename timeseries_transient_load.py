@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 '''
-瞬态分析-模态法
-加载数据处理
-创建TLOAD1 TABLED1 DAREA
-所需数据
+	瞬态分析-模态法
+	加载数据处理
+	创建TLOAD1 TABLED1 DAREA
+	所需数据
 '''
 INIT_ELEMENT_ID = 99900000 # ELEMENT 单元
 INIT_GRID_ID = 99800000 # GRID 节点

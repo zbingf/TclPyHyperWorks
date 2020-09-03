@@ -1,7 +1,9 @@
 # -------------------------------------
-# hmGUi.tcl
+# hypermesh 13.0
+# 二次开发菜单，运行时创建GUI界面
+# 根据各个按钮，调用其他代码
 # source E:/github/For_Hyperworks/hmGUI.tcl
-# 创建gui界面,调用其他代码
+
 # -------------------------------------
 
 set filepath [file dirname [info script]]

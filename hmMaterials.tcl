@@ -1,7 +1,9 @@
 # -------------------------------------
 # hmMaterials.tcl
+# hypermeh 13.0
 # 设置材料属性
-# 设置前会删除原有材料/属性
+# 设置前会!删除!原有材料/属性
+# 调用文件夹目录下的子文件夹sets中的 optistruct
 # -------------------------------------
 
 # 删除原有材料/属性
@@ -15,7 +17,7 @@ hm_blockerrormessages 0
 # 当前文件路径
 set filepath [file dirname [info script]]
 
-# materials
+# materials 材料卡片
 *collectorcreate materials "steel" "" 11
 *createmark materials 1  "steel"
 *dictionaryload materials 1 [format "%s/sets/optistruct" $filepath] "MAT1"
@@ -23,7 +25,7 @@ set filepath [file dirname [info script]]
 *attributeupdatedouble materials 1 3 1 1 0 0.3
 *attributeupdatedouble materials 1 4 1 1 0 7.85e-009
 
-# properties
+# properties 属性卡片
 *collectorcreate properties "steel_solid" "steel" 11
 *createmark properties 1  "steel_solid"
 *dictionaryload properties 1 [format "%s/sets/optistruct" $filepath] "PSOLID"
