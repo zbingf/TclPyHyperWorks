@@ -1,0 +1,47 @@
+*begin("version 13.0.0.119  12-27-2020  14:33:52")
+*menufilterset("*")
+*menufilterdisable()
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*quit() "12-27-2020  14:33:58"
+
+*begin("version 13.0.0.119  12-27-2020  14:34:25")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*begin("version 13.0.0.119  12-27-2020  14:35:08")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*quit() "12-27-2020  14:35:08"
+
+*begin("version 13.0.0.119  12-27-2020  14:38:26")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*quit() "12-27-2020  14:38:26"
+
+*quit() "12-27-2020  14:38:40"
+
+*begin("version 13.0.0.119  12-27-2020  14:38:45")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*quit() "12-27-2020  14:38:45"
+
+*begin("version 13.0.0.119  12-27-2020  14:47:36")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*quit() "12-27-2020  14:47:36"
+
+*begin("version 13.0.0.119  12-27-2020  14:59:10")
+*templatefileset("D:/software/Altair/13.0/templates/feoutput/nastran/general")
+*menufilterset("*")
+*menufilterdisable()
+*readfile("D:/document/hypermesh/test_13.hm")
+*setgeomrefinelevel(1)
+*writefile("D:/document/hypermesh/test1_13.hm",1)
+*quit() "12-27-2020  14:59:10"
+

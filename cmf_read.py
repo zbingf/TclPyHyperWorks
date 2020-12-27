@@ -2,12 +2,43 @@
 	cmf_read.py
 	读取cmf文件
 	获取并处理成 tcl语言
+	适用于 hypermesh 13.0
 	2020/03
 '''
 
 
 import os.path 
 import time
+# import pysnooper
+
+
+def command_tcl_path_search(): # 定位command路径
+	'''
+
+	'''
+	import glob,re
+	fullPath=''
+	for npath in range(0,5):
+		# 5级 文件夹搜索 adams放置路径
+		for n in ['C']:
+			locPath=r'\*'*npath
+			searchPath=r'{}:{}\*\Documents\command.cmf'.format(n,locPath)
+			# print(searchPath)
+			fullSearch=glob.glob(searchPath)
+			if fullSearch:
+				fullPath=fullSearch[0]
+				break
+		if fullPath:
+			break
+	
+	# print(fullPath)
+
+	# 路径如果存在空格, 批处理调用
+	# 则需加上双引号
+	if re.search(r'\s',fullPath):
+		fullPath = '\"'+fullPath+'\"'
+	return fullPath
+
 
 class CmfFile:
 	# hypermesh 命令记录 文件 cmf 的读取
@@ -19,6 +50,7 @@ class CmfFile:
 		self.listlast = self.cmf_file_read()
 		self.listupdata = ''
 
+	# @pysnooper.snoop()
 	def is_updata(self):
 		''' 
 			根据文件修改时间判断文件是否变更
@@ -69,16 +101,23 @@ class CmfFile:
 		self.listfile = list2
 		return list2
 
+
+
 if __name__ == '__main__':
 	# 输入 cmf 文件路径
-	cmfpath = r'C:\Users\ABing\Documents\command.cmf'
+	# cmfpath = r'C:\Users\ABING\Documents\command.cmf'
+
+	cmfpath = command_tcl_path_search()
+	print(cmfpath)
 	cmf = CmfFile(cmfpath)
 	print('\n'.join(cmf.listlast))
 	while True:
-		time.sleep(0.1) # 检索间隔
+		time.sleep(1) # 检索间隔
 		if cmf.is_updata():
 			print('\n'.join(cmf.listupdata))
 			print('\n')
 		else:
 			pass
+
+	# print()
 

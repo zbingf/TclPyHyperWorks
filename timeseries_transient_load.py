@@ -401,7 +401,9 @@ def write_bdf_file(bdfpath,csvpath,tabled1s):
 	writefile(bdfpath,stroutput)
 
 
+# 目标数据
 list1 = [1,2,3,4,5,6,7,8,9,10]
+# 目标存储路径
 bdfpath = r'E:\workspace\nastran\test.bdf'
 csvpath = r'E:\workspace\nastran\test.csv'
 tabled1s = {'id':[n+1 for n in range(12)],'name':['test_{}'.format(n+1) for n in range(12)],

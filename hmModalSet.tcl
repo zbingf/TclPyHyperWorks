@@ -33,18 +33,20 @@ set filepath [file dirname [info script]]
 
 
 # loadstep
-*createmark loadcols 1  "EIGRL_1"
+*createmark loadcols 2  "EIGRL_1"
 *createmark outputblocks 1
 *createmark groups 1
 *loadstepscreate "normal_modes" 1
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 4143 1 1 0 1
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 4709 1 1 0 3
-*attributeupdateentity loadsteps [hm_getmark loadcols 1] 4966 1 1 0 loadcols [hm_getmark loadcols 1]
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 3800 1 1 0 0
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 707 1 1 0 0
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 2396 1 1 0 0
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 8134 1 1 0 0
-*attributeupdateint loadsteps [hm_getmark loadcols 1] 2160 1 1 0 0
+# 赋予loadsteps
+*createmark loadsteps 1  "normal_modes"
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 4143 1 1 0 1
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 4709 1 1 0 3
+*attributeupdateentity loadsteps [hm_getmark loadsteps 1] 4966 1 1 0 loadcols [hm_getmark loadcols 2]
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 3800 1 1 0 0
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 707 1 1 0 0
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 2396 1 1 0 0
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 8134 1 1 0 0
+*attributeupdateint loadsteps [hm_getmark loadsteps 1] 2160 1 1 0 0
 
 
 

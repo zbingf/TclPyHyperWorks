@@ -1,0 +1,1 @@
+python cmf_read.py
