@@ -7,31 +7,58 @@
 
 proc contourPlot {data_type component} {
 	hwi OpenStack
-	set currentTIme [clock seconds]
+	catch {	
+		# hwISession 创建
+		hwi GetSessionHandle sessObj
+	}
+	catch {	
+		# hwIProject 创建
+		sessObj GetProjectHandle proObj
+	}
+	catch {	
+		# hwIPage 创建
+		proObj GetPageHandle pagObj [proObj GetActivePage]
+	}
+	catch {	
+		# hwIWindow 创建
+		pagObj GetWindowHandle winObj [pagObj GetActiveWindow]
+	}
+	catch {	
+		# 获取 Client , 当前为 polPost
+		winObj GetClientHandle postObj
+	}
+	catch {	
+		# polModel 创建
+		postObj GetModelHandle modeObj [postObj GetActiveModel]
+	}
+	catch {	
+		# polResultCtrl 创建
+		modeObj GetResultCtrlHandle resultObj
+	}
+	catch {	
+		# polContourCtrl 创建
+		resultObj GetContourCtrlHandle contourObj
+	}
+	catch {	
+		# polLegend 创建
+		contourObj GetLegendHandle legendObj
+	}
 
-	hwi GetSessionHandle sessObj_$currentTIme
-	sessObj_$currentTIme GetProjectHandle proObj_$currentTIme
-	proObj_$currentTIme GetPageHandle pagObj_$currentTIme [proObj_$currentTIme GetActivePage]
-	pagObj_$currentTIme GetWindowHandle winObj_$currentTIme [pagObj_$currentTIme GetActiveWindow]
-	winObj_$currentTIme GetClientHandle clientObj_$currentTIme
-	clientObj_$currentTIme GetModelHandle modeObj_$currentTIme [clientObj_$currentTIme GetActiveModel]
-	modeObj_$currentTIme GetResultCtrlHandle resultObj_$currentTIme
-	resultObj_$currentTIme GetContourCtrlHandle contourObj_$currentTIme
+	# polContourCtrl 设置
+	contourObj SetDataType "$data_type"
+	contourObj SetDataComponent "$component"
+	contourObj RestorePlotStyle "Deafault Contour"
+	contourObj SetEnableState true
+	
+	legendObj SetType dynamic
 
-	contourObj_$currentTIme SetDataType "$data_type"
-	contourObj_$currentTIme SetDataComponent "$component"
-	contourObj_$currentTIme RestorePlotStyle "Deafault Contour"
-
-	contourObj_$currentTIme GetLegendHandle legendObj_$currentTIme
-	legendObj_$currentTIme SetType dynamic
-
-	contourObj_$currentTIme SetEnableState true
-	clientObj_$currentTIme SetDisplayOptions "contour" true
-	clientObj_$currentTIme SetDisplayOptions "legend" true
-	clientObj_$currentTIme Draw
+	postObj SetDisplayOptions "contour" true
+	postObj SetDisplayOptions "legend" true
+	postObj Draw
 
 	hwi CloseStack
 }
+
 proc dx {} {
 	contourPlot "Displacement" "x"
 }
