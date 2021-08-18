@@ -7,7 +7,7 @@ hyperworks 相关模块, 以hypermesh前处理为主
 + tcl
 
 ### 模块
-+ hmGUI 
++ hmGUI 主菜单
 	+ hm菜单
 
 

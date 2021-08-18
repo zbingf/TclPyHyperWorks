@@ -45,7 +45,7 @@ foreach i {1 2 3} {
 }
 
 # 2层-2列
-button .f.top.2.1 -text "矩形钢" -command [format "source %s/hmRectangularBox.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.2.1 -text "矩形钢" -command [format "source %s/RectangularBox/hmRectangularBox.tcl" $filepath] -bg #99ff99 -width 10
 button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickness.tcl" $filepath] -bg #99ff99 -width 10
 foreach i {1 2} {
 	pack .f.top.2.$i -side top -anchor nw -padx 5 -pady 1

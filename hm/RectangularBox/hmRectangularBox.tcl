@@ -14,11 +14,13 @@ namespace eval ::rectangularBox {
 	variable elementsizeset1 30
 }
 
+
+# ————————————————————————————————————————————
 # 获取当前文件路径
 set filepath [file dirname [info script]]
 puts $filepath
-
 global filepath
+
 # 子函数
 # ————————————————————————————————————————————
 # 数值处理
@@ -117,6 +119,7 @@ proc pythonCompName {datalist} {
 	set compsName [join $compsName "_"]
 	return $compsName
 }
+
 proc pythonBeamName {datalist} {
 	set thickness [lindex $datalist 1]
 	set thicknessStr [floatToStr $thickness]
@@ -131,6 +134,7 @@ proc pythonBeamName {datalist} {
 	set beamName [join $beamName "_"]
 	return $beamName
 }
+
 proc pythonBeamCreate {datalist} {
 	# 创建 指定beam截面
 	set beamName [pythonBeamName $datalist]
@@ -158,6 +162,7 @@ proc pythonBeamCreate {datalist} {
 		puts "isExist"
 	}
 }
+
 # ————————————————————————————————————————————
 # ————————————————————————————————————————————
 proc isCuboid {solidLoc} {
@@ -175,8 +180,8 @@ proc isCuboid {solidLoc} {
 	# 长方体 矩形钢
 	if {$len1==16} {
 		global filepath
-		# [format "%s/funHyperWorks.py" $filepath]
-		set temp [format "%s/:,.py" $filepath]
+		set temp [format "%s/funHyperWorks.py" $filepath]
+		# set temp [format "%s/:,.py" $filepath]
 		set test [exec python $temp isRectangularBox $locData]
 		puts $test
 		eval "set datalist \"$test\"" 

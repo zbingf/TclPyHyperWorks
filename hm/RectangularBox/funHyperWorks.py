@@ -6,7 +6,8 @@
 
 import sys
 import numpy
-import itertools,math
+import itertools, math
+
 def removeDup(inputData):
 	'''
 		去重复
