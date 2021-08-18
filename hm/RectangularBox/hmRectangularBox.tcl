@@ -176,7 +176,7 @@ proc isCuboid {solidLoc} {
 	if {$len1==16} {
 		global filepath
 		# [format "%s/funHyperWorks.py" $filepath]
-		set temp [format "%s/funHyperWorks.py" $filepath]
+		set temp [format "%s/:,.py" $filepath]
 		set test [exec python $temp isRectangularBox $locData]
 		puts $test
 		eval "set datalist \"$test\"" 

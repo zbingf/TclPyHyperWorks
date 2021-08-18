@@ -1,3 +1,5 @@
+# 测试
+
 
 
 import os
@@ -31,11 +33,12 @@ def hm_path_search_13(): # 定位hw.exe路径
 	return fullPath
 
 
+print(__file__)
 
 
 hm_13 = hm_path_search_13()
 print(hm_13)
-tcl_path = r'D:\document\hypermesh\batRunTest.tcl'
+# tcl_path = r'D:\document\hypermesh\batRunTest.tcl'
 # os.system(f'{hm_13} -tcl {tcl_path}')
 
 # os.system(f'{hm_13} -h')
