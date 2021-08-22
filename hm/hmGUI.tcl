@@ -50,23 +50,27 @@ button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickn
 foreach i {1 2} {
 	pack .f.top.2.$i -side top -anchor nw -padx 5 -pady 1
 }
+
 # 2层-3列
-button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/hmMnfSet.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/FlexBody/hmMnfSet.tcl" $filepath] -bg #99ff99 -width 10
 button .f.top.3.2 -text "悬架提载创建" -command [format "source %s/hmSusLoadSet.tcl" $filepath] -bg #99ff99 -width 10
 button .f.top.3.3 -text "模态分析设置" -command [format "source %s/hmModalSet.tcl" $filepath] -bg #99ff99 -width 10
-foreach i {1 2 3} {
+button .f.top.3.4 -text "模态叠加test" -command [format "source %s/TransientLoad/hmGUI.tcl" $filepath] -bg #99ff99 -width 10
+foreach i {1 2 3 4} {
 	pack .f.top.3.$i -side top -anchor nw -padx 5 -pady 1
 }
+
 # 2层-4列
-button .f.top.4.1 -text "材料创建" -command [format "source %s/hmMaterials.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.4.1 -text "材料创建" -command [format "source %s/Materials/hmMaterials.tcl" $filepath] -bg #99ff99 -width 10
 foreach i {1} {
 	pack .f.top.4.$i -side top -anchor nw -padx 5 -pady 1
 }
+
 # 2层-5列
-button .f.top.5.1 -text "Nastran" -command [format "source %s/hmTransientModalNastran.tcl" $filepath] -bg #99ff99 -width 10
-button .f.top.5.2 -text "OptiStruct" -command [format "source %s/hmTransientModalOptiStruct.tcl" $filepath] -bg #99ff99 -width 10
-button .f.top.5.3 -text "del-OMIT" -command [format "source %s/hmTransientModal1.tcl" $filepath] -bg #99ff99 -width 10
-button .f.top.5.4 -text "del-RIGID" -command [format "source %s/hmTransientModal2.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.1 -text "Nastran" -command [format "source %s/TransientLoad/hmTransientModalNastran.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.2 -text "OptiStruct" -command [format "source %s/TransientLoad/hmTransientModalOptiStruct.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.3 -text "del-OMIT" -command [format "source %s/TransientLoad/hmTransientModal1.tcl" $filepath] -bg #99ff99 -width 10
+button .f.top.5.4 -text "del-RIGID" -command [format "source %s/TransientLoad/hmTransientModal2.tcl" $filepath] -bg #99ff99 -width 10
 foreach i {1 2 3 4} {
 	pack .f.top.5.$i -side top -anchor nw -padx 5 -pady 1
 }

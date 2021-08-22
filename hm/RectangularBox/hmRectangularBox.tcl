@@ -1,5 +1,6 @@
 # -------------------------------------
-# hypermesh
+# Main!!!!!!!!!!!!!!
+# hypermesh 13.0
 # 梁单元生成
 # 识别矩形钢
 # 针对16点计算,规则矩形钢
@@ -7,19 +8,31 @@
 # -------------------------------------
 
 namespace eval ::rectangularBox {
+	# Beam ID 计数
 	variable beamIdNum 1
+	# Properties 计数
 	variable propertiesNum 1
+	# Materials 计数
 	variable materialsNum 1
+	# 
 	variable materialsName steel1
-	variable elementsizeset1 30
+	# 单元尺寸
+	variable elementsizeset1 10
 }
 
+# 命令交互
+set ::rectangularBox::elementsizeset1 [hm_getstring "beam length(mm) =" "input float"]
 
 # ————————————————————————————————————————————
 # 获取当前文件路径
 set filepath [file dirname [info script]]
 puts $filepath
 global filepath
+
+
+# 梁单元-显示设置
+*detailedelements_beamvis 1
+
 
 # 子函数
 # ————————————————————————————————————————————
@@ -43,6 +56,7 @@ proc createentity_self {entity name} {
 		puts "isExist"
 	}
 }
+
 proc createcomps_self {name} {
 	# 创建comps 前检查 是否存在
 	*createmark components 1 $name
@@ -50,6 +64,7 @@ proc createcomps_self {name} {
 		*createentity comps name=$name
 	}
 }
+
 proc creatematerials_self {materialsName} {
 	# 创建材料
 	*createmark materials 1 $materialsName
@@ -64,6 +79,7 @@ proc creatematerials_self {materialsName} {
 		puts "materialsName isExist"
 	}
 }
+
 proc createproperties_self {propertiesName materialsName beamName} {
 	# 创建属性
 	*createmark properties 1 $propertiesName
@@ -82,6 +98,7 @@ proc createproperties_self {propertiesName materialsName beamName} {
 		incr ::rectangularBox::propertiesNum
 	}
 }
+
 # ————————————————————————————————————————————
 # 删除
 proc delAllBeamsectcols {} {
@@ -96,6 +113,7 @@ proc delBeamsetsId {targetId} {
 	*createmark beamsets 1 "by id only" $targetId
 	*deletemark beamsets 1
 }
+
 # ————————————————————————————————————————————
 # 涉及python
 proc pythonCompName {datalist} {
@@ -236,6 +254,7 @@ proc solidsCal {solidsId} {
 		*createmark solids 1 "by comp name" $calComp
 		*createmark lines 1 "by comp name" $calComp
 
+		# 尺寸
 		*elementsizeset $::rectangularBox::elementsizeset1
 		*linemesh_preparedata lines 1 0
 		set length [lindex $datalist 4]

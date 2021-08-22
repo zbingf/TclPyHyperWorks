@@ -17,9 +17,11 @@ catch {*deletemark loadcols 1}
 catch {*deletemark loadstep 1}
 hm_blockerrormessages 0
 
-# 当前文件路径
+# 当前文件路径 的 父目录-父目录
 set filepath [file dirname [info script]]
-# puts $filepath
+set filepath [file dirname $filepath]
+set filepath [file dirname $filepath]
+puts $filepath
 
 # CMSMETH_1
 *collectorcreate loadcols "CMSMETH_1" "" 11

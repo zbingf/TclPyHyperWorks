@@ -16,6 +16,9 @@ hm_blockerrormessages 0
 
 # 当前文件路径
 set filepath [file dirname [info script]]
+set filepath [file dirname $filepath]
+# set filepath [file dirname $filepath]
+# puts $filepath
 
 # EIGRL
 *collectorcreate loadcols "EIGRL_1" "" 11

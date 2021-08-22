@@ -1,1 +1,1 @@
-python cmf_read.py
+python py_cmf_read.py
