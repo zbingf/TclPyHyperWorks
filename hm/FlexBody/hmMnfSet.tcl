@@ -3,9 +3,19 @@
 # 柔性体文件生成设置
 # 设置时会！删除！原有的 卡片\载荷\工况
 # 自由模态阶数默认：10阶
-# 调用文件夹目录下的子文件夹sets中的 optistruct
 # 
 # -------------------------------------
+
+
+# =======================================
+# 获取optistruct_path
+proc get_optistruct_path {} {
+	set altair_dir [hm_info -appinfo ALTAIR_HOME]
+	set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
+	return $optistruct_path
+}
+
+
 
 # 删除原有卡片\载荷\工况
 hm_blockerrormessages 1
@@ -27,7 +37,7 @@ puts $filepath
 *collectorcreate loadcols "CMSMETH_1" "" 11
 *createmark loadcols 1  "CMSMETH_1"
 # 调用 ./HyperWorks/templates/feoutput/optistruct/optistruct
-*dictionaryload loadcols 1 [format "%s/sets/optistruct" $filepath] "CMSMETH"
+*dictionaryload loadcols 1 [get_optistruct_path] "CMSMETH"
 *attributeupdateint loadcols 1 3240 1 2 0 1
 *attributeupdateint loadcols 1 7685 1 2 0 1
 *attributeupdatestring loadcols 1 4822 1 2 0 "CB"

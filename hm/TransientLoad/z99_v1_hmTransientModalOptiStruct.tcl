@@ -4,6 +4,14 @@
 # 
 # -------------------------------------
 
+# =======================================
+# 获取optistruct_path
+proc get_optistruct_path {} {
+	set altair_dir [hm_info -appinfo ALTAIR_HOME]
+	set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
+	return $optistruct_path
+}
+
 
 # ID 设置
 # INIT_TABDMP1_ID = 99400000 # TABDMP1

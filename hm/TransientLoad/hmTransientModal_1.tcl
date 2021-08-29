@@ -10,3 +10,10 @@ catch {
 	*createmark card 1  "OMIT"
 	*deletemark cards 1
 }
+
+# 删除 grid_auto comp 卡片
+catch {
+	*createmark comps 1  "RBE2_to_del"
+	*deletemark comps 1
+}
+

@@ -1,10 +1,12 @@
-# -------------------------------------
-# hmMaterials.tcl
-# hypermeh 13.0
-# 设置材料属性
-# 设置前会!删除!原有材料/属性
-# 调用文件夹目录下的子文件夹sets中的 optistruct
-# -------------------------------------
+
+# =======================================
+# 删除原有材料/属性
+hm_blockerrormessages 1
+*createmark materials 1 all
+catch {*deletemark materials 1}
+*createmark properties 1 all
+catch {*deletemark properties 1}
+hm_blockerrormessages 0
 
 
 # =======================================
@@ -42,6 +44,9 @@ proc create_materials_MAT1 {mat_name value_E value_NU value_RHO} {
 	return $mat_id
 }
 
+set mat_id1 [create_materials_MAT1 "steel_1" 206000 0.3 7.85e-009]
+set mat_id2 [create_materials_MAT1 "steel_2" 206000 0.3 7.85e-009]
+
 
 # =======================================
 # 创建属性
@@ -71,8 +76,12 @@ proc create_properties_solid {prop_name mat_name} {
 	return $prop_id
 }
 
-
-set mat_id1 [create_materials_MAT1 "steel_1" 206000 0.3 7.85e-009]
 set prop_id1 [create_properties_solid "steel_solid_1" "steel_1"]
+set prop_id2 [create_properties_solid "steel_solid_2" "steel_2"]
+
+
+# =======================================
+# 
+
 
 

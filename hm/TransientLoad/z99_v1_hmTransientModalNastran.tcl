@@ -4,6 +4,15 @@
 # 
 # -------------------------------------
 
+# =======================================
+# 获取optistruct_path
+proc get_optistruct_path {} {
+	set altair_dir [hm_info -appinfo ALTAIR_HOME]
+	set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
+	return $optistruct_path
+}
+
+
 # 当前文件路径
 set filepath [file dirname [info script]]
 
@@ -54,7 +63,7 @@ catch {*deletemark loadcols 1}
 
 *collectorcreate loadcols "EIGRL_1" "" 11
 *createmark loadcols 1  "EIGRL_1"
-*dictionaryload loadcols 1 [format "%s/sets/optistruct" $filepath] "EIGRL"
+*dictionaryload loadcols 1 [get_optistruct_path] "EIGRL"
 *attributeupdateint loadcols [hm_getmark loadcols 1] 3240 1 2 0 1
 *attributeupdatedouble loadcols [hm_getmark loadcols 1] 802 1 0 0 0
 *attributeupdatedouble loadcols [hm_getmark loadcols 1] 803 1 0 0 0

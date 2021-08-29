@@ -30,9 +30,6 @@ puts $filepath
 global filepath
 
 
-# 梁单元-显示设置
-*detailedelements_beamvis 1
-
 
 # 子函数
 # ————————————————————————————————————————————
@@ -198,7 +195,7 @@ proc isCuboid {solidLoc} {
 	# 长方体 矩形钢
 	if {$len1==16} {
 		global filepath
-		set temp [format "%s/funHyperWorks.py" $filepath]
+		set temp [format "%s/rectangular_box.py" $filepath]
 		# set temp [format "%s/:,.py" $filepath]
 		set test [exec python $temp isRectangularBox $locData]
 		puts $test
@@ -302,3 +299,6 @@ set solidsId [hm_getmark solids 1]
 foreach id1 $solidsId {
 	solidsCal $id1
 }
+
+# 梁单元-显示设置
+*detailedelements_beamvis 1

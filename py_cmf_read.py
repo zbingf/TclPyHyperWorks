@@ -12,7 +12,7 @@ import time
 # import pysnooper
 
 
-def command_tcl_path_search(): # 定位command路径
+def command_tcl_path_search(file_type='cmf'): # 定位command路径
 	'''
 
 	'''
@@ -22,7 +22,7 @@ def command_tcl_path_search(): # 定位command路径
 		# 5级 文件夹搜索 adams放置路径
 		for n in ['C']:
 			locPath=r'\*'*npath
-			searchPath=r'{}:{}\*\Documents\command.cmf'.format(n,locPath)
+			searchPath=r'{}:{}\*\Documents\command.{}'.format(n, locPath, file_type)
 			# print(searchPath)
 			fullSearch=glob.glob(searchPath)
 			if fullSearch:
@@ -107,7 +107,8 @@ if __name__ == '__main__':
 	# 输入 cmf 文件路径
 	# cmfpath = r'C:\Users\ABING\Documents\command.cmf'
 
-	cmfpath = command_tcl_path_search()
+	cmfpath = command_tcl_path_search('tcl')
+	# cmfpath = command_tcl_path_search('cmf')
 	print(cmfpath)
 	cmf = CmfFile(cmfpath)
 	print('\n'.join(cmf.listlast))
