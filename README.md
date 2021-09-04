@@ -6,7 +6,6 @@ hyperworks 相关模块, 以hypermesh前处理为主
 + python 3.7
 + tcl
 
-
 ### 模块
 + hm : hypermesh相关二次开发
 + hv : hyperview相关二次开发
@@ -23,3 +22,13 @@ hyperworks 相关模块, 以hypermesh前处理为主
 + codes_tcl : tcl相关代码
 + ing_py_funForTCLtest : tcl调用python测试
 + ing_py_hmBatRun : 外部调用 hmbatch.exe
+
+
+
+### 示例
+
+快捷键设置
+![快捷键设置](./README/figure_hm_快捷键设置.png)
+
+hmGUI界面
+![hmGUI](./README/figure_hmGUI.png)
