@@ -50,11 +50,11 @@ proc createentity_self {entity name} {
 	if {[hm_getmark $entity 1]==[]} {
 		*createentity $entity name=$name
 	} else {
-		puts "$entity name isExist"
+		puts "isExist"
 	}
 }
 
-proc create_comps_name {name} {
+proc createcomps_self {name} {
 	# 创建comps 前检查 是否存在
 	*createmark components 1 $name
 	if {[hm_getmark comps 1]==[]} {
@@ -62,7 +62,7 @@ proc create_comps_name {name} {
 	}
 }
 
-proc create_materials_name {materialsName} {
+proc creatematerials_self {materialsName} {
 	# 创建材料
 	*createmark materials 1 $materialsName
 
@@ -77,7 +77,7 @@ proc create_materials_name {materialsName} {
 	}
 }
 
-proc create_properties_name {propertiesName materialsName beamName} {
+proc createproperties_self {propertiesName materialsName beamName} {
 	# 创建属性
 	*createmark properties 1 $propertiesName
 	*createmark beamsects 1 "$beamName"
@@ -136,7 +136,6 @@ proc pythonCompName {datalist} {
 }
 
 proc pythonBeamName {datalist} {
-	# datalist 解析, Beam名称命名
 	set thickness [lindex $datalist 1]
 	set thicknessStr [floatToStr $thickness]
 
@@ -152,9 +151,7 @@ proc pythonBeamName {datalist} {
 }
 
 proc pythonBeamCreate {datalist} {
-	# 创建指定beam截面
-	# datalist 解析
-
+	# 创建 指定beam截面
 	set beamName [pythonBeamName $datalist]
 
 	set thickness [lindex $datalist 1]
@@ -177,7 +174,7 @@ proc pythonBeamCreate {datalist} {
 		# *createmark beamsects 1  "byId"
 		*renamecollector beamsects "box_section.$beamId" "$beamName"
 	} else {
-		puts "Beam Section isExist"
+		puts "isExist"
 	}
 }
 
@@ -186,52 +183,41 @@ proc pythonBeamCreate {datalist} {
 proc isCuboid {solidLoc} {
 	# 矩形钢 计算
 	# p判断是否为矩形钢, 并导出数据
-
-	# 获取solids上的 point ID号
 	*createmark points 1 "by solids" $solidLoc
-	set pointIds [hm_getmark points 1]
-	set locDatas []
-	foreach pointId $pointIds {
-		# 获取坐标
-		set pointCoordData [hm_getcoordinates point $pointId]
-		# 拼接列表
-		set locDatas [concat $locDatas $pointCoordData]
+	set pData [hm_getmark points 1]
+	set locData []
+	foreach p $pData {
+		set temp [hm_getcoordinates point $p]
+		set locData [concat $locData $temp]
 	}
-	# puts $locDatas
-	set numPoint [expr [llength $locDatas]/3]
-
+	puts $locData
+	set len1 [expr [llength $locData]/3]
 	# 长方体 矩形钢
-	if {$numPoint==16} {
-		# 16点point
+	if {$len1==16} {
 		global filepath
-		set pyPath [format "%s/rectangular_box.py" $filepath]
-		set pyResult [exec python $pyPath isRectangularBox $locDatas]
-		
-		# 1 {{True} {5.00} {50.00} {60.00} {357.51} {605.00 -555.94 10.32} {605.00 -734.69 319.93} {-21921.54 -0.00 -0.00}}
-
-		# puts $pyResult
-		# eval "set datalist \"$pyResult\"" 
-
-		if {[expr [lindex $pyResult 0]==True]} {
-			# puts $locDatas
-			set loc1 [lindex $pyResult 5]
-			set loc2 [lindex $pyResult 6]
+		set temp [format "%s/rectangular_box.py" $filepath]
+		# set temp [format "%s/:,.py" $filepath]
+		set test [exec python $temp isRectangularBox $locData]
+		puts $test
+		eval "set datalist \"$test\"" 
+		if {[expr [lindex $datalist 0] ==True]} {
+			puts $locData
+			set loc1 [lindex $datalist 5]
+			set loc2 [lindex $datalist 6]
 			eval "*linecreatestraight $loc1 $loc2"
 			# set compsName [pythonCompName $datalist]
-			return "1 {$pyResult}"
+			return "1 {$datalist}"
 		} else {
-			# puts $pointIds
-			# puts $locDatas 
-			# puts $pyResult
+			puts $pData
+			puts $locData 
+			# puts $datalist
 			return "16 not_cuboid"
 		}
-	} elseif {$numPoint>16} {
-		# point数大于16点
+	} elseif {$len1>16} {
 		return "17 not_cuboid"
-	} elseif {$numPoint==8} {
-		# point数 等于 8
+	} elseif {$len1==8} {
 		return "8 not_cuboid"
-	} elseif {$numPoint<8} {
+	} elseif {$len1<8} {
 		return "7 not_cuboid"
 	} else {
 		return "9 not_cuboid"
@@ -241,30 +227,24 @@ proc isCuboid {solidLoc} {
 # ————————————————————————————————————————————
 ## main function
 proc solidsCal {solidsId} {
-
 	# 单个 solid 设置计算
 	*createmark solids 1 "by id only" $solidsId
-
-	# 默认配置
 	set calComp "calTemp"
 	set targetComp "endTemp"
 	set failComp "failComp_point_"
-
-	create_comps_name $calComp
+	createcomps_self $calComp
 	*currentcollector components $calComp
 	*movemark solids 1 $calComp
-
-	# 是否为矩形钢
 	set temp [isCuboid $solidsId]
 	puts $temp
 	if {[expr [lindex $temp 0] ==1]} {
 		set datalist [lindex $temp 1]
 		set targetComp [pythonCompName $datalist]
-		create_comps_name $targetComp
+		createcomps_self $targetComp
 		pythonBeamCreate $datalist
 
 		set beamName [pythonBeamName $datalist]
-		create_properties_name $targetComp $::rectangularBox::materialsName $beamName
+		createproperties_self $targetComp $::rectangularBox::materialsName $beamName
 		*createmark properties 1 "$targetComp"
 		set prop_id [hm_getmark properties 1]
 		
@@ -291,7 +271,7 @@ proc solidsCal {solidsId} {
 		set tempN $failComp
 		*createmark solids 1 "by comp name" $calComp
 		append tempN [lindex $temp 0]
-		create_comps_name $tempN
+		createcomps_self $tempN
 		*movemark solids 1 $tempN
 	}
 }
@@ -306,7 +286,7 @@ if {$::rectangularBox::materialsNum==0} {
 	set ::rectangularBox::materialsNum 1
 }
 # 材料创建
-create_materials_name $::rectangularBox::materialsName
+creatematerials_self $::rectangularBox::materialsName
 # 截面数
 *createmark beamsects 1 "all"
 set beamsetsId [hm_getmark beamsects 1]

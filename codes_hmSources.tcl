@@ -11,6 +11,9 @@ hm_answernext yes
 *deletemodel
 
 
+# 路径
+set filepath [file dirname [info script]]
+
 # Altair 主目录
 # D:/software/Altair/2019
 set altair_dir [hm_info -appinfo ALTAIR_HOME]
@@ -46,9 +49,39 @@ hm_setcommandposition top
 hm_setcommandposition bottom
 
 
+# ---------------------------------------
+# 选实体solid, 获取相应ID列表
+*createmarkpanel solids 1 "Select the solids"
+set solidsId [hm_getmark solids 1]
 
 # 视角设置
 *view leftside
 *view rightside
 *view rear
 *view iso1
+
+
+
+# ---------------------------------------
+# 获取 所有loads约束点对应的Node ID 及 约束类型
+# HyperWorks Desktop Reference Guides → HyperMesh Data → Names
+*createmark loads 1 all
+set loads_ids [hm_getmark loads 1]
+foreach load_id $loads_ids {
+	# node id
+	set node_id [hm_getvalue loads id=$load_id dataname=location]
+	# 约束类型
+	set type_name [hm_getvalue loads id=$load_id dataname=typename]
+
+	puts "NodeId: $node_id  type: $type_name"
+	if {$type_name == "ASET"} {
+		puts "type is ASET"
+	} 
+}
+
+
+# ---------------------------------------
+
+
+
+

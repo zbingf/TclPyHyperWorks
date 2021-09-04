@@ -34,7 +34,7 @@ class TestRectangularBox(unittest.TestCase):
 		'-5.7731597280508e-015 -330 460 60 -366.05163714165 460 60 -493.94836285835 460 7.1510364496672e-014 -530 460 7.8560682123105e-014 -330'
 		result=rectangular_box.isRectangularBox(test)
 		res='{True} {5.00} {50.00} {60.00} {163.95} {485.00 30.00 -511.97} {485.00 30.00 -348.03} {12000.00 0.00 0.00}'
-		# self.assertEqual(result,res)
+		self.assertEqual(result,res)
 		self.assertEqual(res in result,True)
 
 	def test_isRectangularBox_03(self):
@@ -101,7 +101,6 @@ class TestRectangularBox(unittest.TestCase):
 		# res='{True} {5.00} {60.00} {50.00} {2518.03} {25.00 460.00 2638.03} {25.00 460.00 120.00} {0.00 127703.87 -0.00}'
 		res='{True} {5.00} {60.00} {50.00} {2518.03} {25.00 460.00 2638.03} {25.00 460.00 120.00}'
 		# self.assertEqual(result,res)
-		# print(result)
 		self.assertEqual(res in result,True)
 
 	def test_isRectangularBox_08(self):

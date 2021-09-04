@@ -29,3 +29,6 @@ cd $dict
 
 # python 运行
 set test [exec python $csv_paths]
+
+
+eval "set datalist \"$pyResult\"" 

@@ -20,14 +20,16 @@ pack .f.top -side top -fill both;
 frame .f.bottom
 pack .f.bottom -side bottom -fill x -expand 0;
 
+
 # -------------------------------------
 # 1层
 frame .f.top.0 -bg #99ff99
 pack .f.top.0 -anchor nw
-foreach i {1 2 3 4 5 6 7 8 9} {
+for { set i 1 } { $i < 10 } { incr i 1 } {
 	frame .f.top.$i
 	pack .f.top.$i -side left -fill x
 }
+
 
 # -------------------------------------
 # 2层-1列
@@ -45,6 +47,8 @@ button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickn
 label .f.top.0.3 -text "卡片创建" -width $label_width -height 1
 button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/FlexBody/hmMnfSet.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.3.3 -text "模态分析设置" -command [format "source %s/hmModalSet.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.3.4 -text "ASET编号" -command [format "source %s/AsetNodeIdRename/hmAsetIdRename.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.3.5 -text "Node创建" -command [format "source %s/AsetNodeIdRename/hmNodeCreate.tcl" $filepath] -bg #99ff99 -width $button_width
 
 # 2层-4列
 label .f.top.0.4 -text "材料相关" -width $label_width -height 1
@@ -60,8 +64,8 @@ button .f.top.6.1 -text "模态叠加相关UI" -command [format "source %s/Trans
 
 
 # -----------------------
-foreach hloc {0 1 2 3 4 5 6 7 8 9} {
-	foreach vloc {0 1 2 3 4 5 6 7 8 9} {
+for { set hloc 0 } { $hloc < 10 } { incr hloc 1 } {
+	for { set vloc 0 } { $vloc < 10 } { incr vloc 1 } {
 		if { $vloc == 0 } {
 			# 标题
 			catch {
@@ -69,12 +73,12 @@ foreach hloc {0 1 2 3 4 5 6 7 8 9} {
 			}
 		} else {
 			catch {
-				#  -padx 5 -pady 1
 				pack .f.top.$vloc.$hloc -side top -anchor nw -padx 6 -pady 2
 			}
 		}
 	}
 }
+
 
 # -----------------------
 button .f.bottom.button -text "return" -command hm_exitpanel -bg #C06060 -width 10
