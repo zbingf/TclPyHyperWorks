@@ -31,6 +31,15 @@ template_path = tkinter.filedialog.askopenfilename(
     filetypes = (('template_csv_path', '*.csv'), ),
     initialdir=file_dir)
 
+"""
+template_path 格式:
+    FlexId,TypeId,SubId,PartId,Name,x,y,z
+    990,24,1,10,L_antiroll_in,5.000,-275.000,250.000
+    990,24,1,11,R_antiroll_in,5.000,275.000,250.000
+    990,24,1,20,L_antiroll_in,200.000,-410.000,250.000
+    990,24,1,21,R_antiroll_in,200.000,410.000,250.000
+"""
+
 
 # ------------------------------------
 
