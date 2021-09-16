@@ -22,21 +22,19 @@ def read_csv_data(file_path):
 comp_data = read_csv_data(comp_path)
 prop_data = read_csv_data(prop_path)
 
-"prop_name,prop_id,material_name,material_id,cardimage_name,thickness"
-"prop_name,prop_id,cardimage_name,thickness"
-
 # print(comp_data)
 # print(prop_data)
 
 # ---------------------------------
 # property 设置
-
+"prop_name,prop_id,material_name,material_id,cardimage_name,thickness"
 prop_to_prop_dic  = {}
 value_to_prop_dic = {}
 prop_dic  = {}
 prop_sts  = []
 prop_name_dels = []
 for line in prop_data:
+    if line[-2] != 'PSHELL': continue
     prop_name = line[0]
     value_str = ','.join(line[2:])
     prop_dic[prop_name] = {'value_str': value_str, 'name': line[0], 'id':line[1]}
@@ -52,10 +50,11 @@ for line in prop_data:
 # ---------------------------------
 # material 设置
 new_comp_data = []
-
+"comp_name,comp_id,prop_name,prop_id"
 for line in comp_data:
     cur_prop_name = line[2]
     cur_prop_id   = line[3]
+    if cur_prop_name not in prop_to_prop_dic: continue
     new_prop_name = prop_dic[prop_to_prop_dic[cur_prop_name]]['name']
     new_prop_id   = prop_dic[prop_to_prop_dic[cur_prop_name]]['id']
     new_line = line[:2] + [new_prop_name, new_prop_id]
@@ -73,8 +72,8 @@ for line in new_comp_data:
 # 删除多余prop
 cmds_delprop = []
 for prop_name in prop_name_dels:
-    cmds_delprop.append(f'*createmark properties 1 "{prop_name}"')
-    cmds_delprop.append(f'*deletemark properties 1')
+    cmds_delprop.append('*createmark properties 1 "{}"'.format(prop_name))
+    cmds_delprop.append('*deletemark properties 1')
 
 # 生成tcl
 with open(tcl_path, 'w') as f:

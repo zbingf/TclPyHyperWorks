@@ -13,7 +13,7 @@ puts "------Cal Start------"
 set filepath [file dirname [info script]]
 set temp_prop_path [format "%s/__temp_prop.csv" $filepath]
 set temp_comp_path [format "%s/__temp_comp.csv" $filepath]
-set py_path [format "%s/hmPropertyEdit.py" $filepath]
+set py_path [format "%s/hmPropertyEditPSHELL.py" $filepath]
 set tcl_path [format "%s/__temp_cmd.tcl" $filepath]
 
 # 获取属性卡片数据
@@ -29,15 +29,19 @@ proc get_prop_datas {} {
         set prop_name [hm_entityinfo name properties $prop_id ]
         # cardimage 名称
         set cardimage_name [hm_getvalue properties id=$prop_id dataname=cardimage]
-        # material 名称
-        set material_id [hm_getvalue properties id=$prop_id dataname=material]
-        set material_name [hm_entityinfo name materials $material_id ]
+        
         # 
         if {"PSHELL" == $cardimage_name} {
             set thickness [hm_getvalue properties id=$prop_id dataname=thickness]
         } else {
-            set thickness "#"
+            continue
+            # set thickness "#"
         }
+        
+        # material 名称
+        set material_id [hm_getvalue properties id=$prop_id dataname=material]
+        set material_name [hm_entityinfo name materials $material_id ]
+
         set prop_data "$prop_name,$prop_id,$material_name,$material_id,$cardimage_name,$thickness"
         lappend prop_datas $prop_data
         # puts $thickness
@@ -57,9 +61,17 @@ proc get_mat_datas {} {
         *createmark properties 1 $comp_id
         # component 名称
         set comp_name [hm_entityinfo name components $comp_id ]
-        # property 名称
-        set prop_id [hm_getvalue components id=$comp_id dataname=property]
-        set prop_name [hm_entityinfo name properties $prop_id ]
+
+        set status [catch {
+            # property 名称
+            set prop_id [hm_getvalue components id=$comp_id dataname=property]
+            set prop_name [hm_entityinfo name properties $prop_id ]
+            } res ]
+        
+        if {$status} {
+            set prop_id "#"
+            set prop_name "#"
+        }
         
         set comp_data "$comp_name,$comp_id,$prop_name,$prop_id"
         lappend comp_datas $comp_data

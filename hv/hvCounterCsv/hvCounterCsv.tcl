@@ -1,5 +1,8 @@
 # hyperview tcl代码
 
+# 路径定义
+set filepath [file dirname [info script]]
+global filepath
 
 # 句柄创建-single
 proc pre_set_single { } {
@@ -116,8 +119,7 @@ proc counter_elem_limit_out {limit_set csv_path} {
 proc main {} {
 
     # 当前路径
-    set path [pwd]
-    puts $path
+    global filepath
     set csv_paths [list]
 
     # ================================
@@ -128,28 +130,48 @@ proc main {} {
     # modelObj GetSelectionSetHandle elemObj $setid 
     # ================================
     set cur_sims [ resultObj GetSimulationList [get_current_subcase_id] ]
-    set i 0
-    foreach sim_name $cur_sims {
-        
-        puts "sim_name: $sim_name  cur_loc: $i"
-        resultObj SetCurrentSimulation $i
-        viewCtrObj SetViewMatrix "0.627365 -0.395400 0.670874 0.000000 -0.016645 0.854497 0.519190 0.000000 -0.778547 -0.336888 0.529500 0.000000 1003.278625 3526.162109 -3941.458496 1.000000"
-        post_draw
-        # postObj     Draw
-        # 截图名称
-        sessObj CaptureScreen png test_$i.png
+    set cur_subcases [resultObj GetSubcaseList]
+    puts "Sims : $cur_sims"
+    puts "Subcases : $cur_subcases"
+    # return None
+    # set num [llength $cur_subcases]
+    # if {$num==1} {set cur_subcases [list $cur_subcases]}
 
-        # ==================
-        # 云图-csv导出
-        set csv_name "result_$i.csv"
-        counter_elem_limit_out "<100" $csv_name
+    set i_sim 0
+    set i_subcase 1 
+    foreach id_subcase $cur_subcases {
 
-        # ==================
-        set i [ expr $i+1 ]
+        foreach sim_name $cur_sims {
+            
+            # ==================
+            puts "sim_name: $sim_name ; cur_loc: $i_sim ; cur_subcase: $i_subcase ;"
+            # 设置当前Simulation
+            resultObj SetCurrentSimulation $i_sim
+            # 设置视角
+            # viewCtrObj SetViewMatrix "0.627365 -0.395400 0.670874 0.000000 -0.016645 0.854497 0.519190 0.000000 -0.778547 -0.336888 0.529500 0.000000 1003.278625 3526.162109 -3941.458496 1.000000"
+            post_draw
 
-        # 拼接 csv文件
-        set csv_path_n [file join $path $csv_name]
-        lappend csv_paths $csv_path_n
+            # ==================
+            # postObj     Draw
+            # 截图名称
+            # sessObj CaptureScreen png test_$i_sim.png
+            sessObj CaptureScreen png [file join $filepath "test_$i_sim.png"]
+            # sessObj CaptureAnimation gif test_$i_sim.gif
+            sessObj CaptureAnimation gif [file join $filepath "test_$i_sim.gif"]
+
+            
+
+            # ==================
+            # 云图-csv导出
+            # set csv_name "result_$i.csv"
+            set csv_path [file join $filepath "result_$i_sim.csv"]
+            counter_elem_limit_out "<100" $csv_path
+
+            # ==================
+            set i_sim [ expr $i_sim+1 ]
+            lappend csv_paths $csv_path
+        }
+        set i_subcase [ expr $i_subcase+1 ]
     }
 
     # postObj CaptureImage asd.jpg
@@ -178,11 +200,17 @@ proc main {} {
     return $csv_paths
 }
 
-cd "D:\\github\\TclPyHyperWorks\\hv"
+# cd "D:/github/TclPyHyperWorks/hv/hvCounterCsv"
 set csv_paths [main]
 puts $csv_paths
 
-
+catch {
+    release_obj
+    hwi CloseStack
+}
 set test [exec python csv_read.py $csv_paths]
 puts $test
-#  source D:/github/hyperworks_code/view/hvTest.tcl
+
+# source D:/github/TclPyHyperWorks/hv/hvCounterCsv/hvCounterCsv.tcl
+
+
