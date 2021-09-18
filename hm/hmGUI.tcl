@@ -33,10 +33,11 @@ for { set i 1 } { $i < 10 } { incr i 1 } {
 
 # -------------------------------------
 # 2层-1列
-label .f.top.0.1 -text "Comp名称编辑" -width $label_width -height 1
-button .f.top.1.1 -text "加前缀" -command [format "source %s/hmCompEdit.tcl;comp_edit front" $filepath] -bg #99ff99 -width $button_width
-button .f.top.1.2 -text "加后缀" -command [format "source %s/hmCompEdit.tcl;comp_edit rear" $filepath] -bg #99ff99 -width $button_width
-button .f.top.1.3 -text "替换" -command [format "source %s/hmCompEdit.tcl;comp_edit replace" $filepath] -bg #99ff99 -width $button_width
+label .f.top.0.1 -text "卡片编辑" -width $label_width -height 1
+button .f.top.1.1 -text "Comp-加前缀" -command [format "source %s/hmCompEdit.tcl;comp_edit front" $filepath] -bg #99ff99 -width $button_width
+button .f.top.1.2 -text "Comp-加后缀" -command [format "source %s/hmCompEdit.tcl;comp_edit rear" $filepath] -bg #99ff99 -width $button_width
+button .f.top.1.3 -text "Comp-替换" -command [format "source %s/hmCompEdit.tcl;comp_edit replace" $filepath] -bg #99ff99 -width $button_width
+button .f.top.1.4 -text "删除无用卡片" -command [format "source %s/hmDelEmptyEntity.tcl" $filepath] -bg #99ff99 -width $button_width
 
 # 2层-2列
 label .f.top.0.2 -text "网格划分-处理" -width $label_width -height 1
@@ -49,6 +50,8 @@ button .f.top.3.1 -text "mnf创建设置" -command [format "source %s/FlexBody/h
 button .f.top.3.3 -text "模态分析设置" -command [format "source %s/hmModalSet.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.3.4 -text "ASET编号" -command [format "source %s/AsetNodeIdRename/hmAsetIdRename.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.3.5 -text "Node创建" -command [format "source %s/AsetNodeIdRename/hmNodeCreate.tcl" $filepath] -bg #99ff99 -width $button_width
+
+
 
 # 2层-4列
 label .f.top.0.4 -text "材料相关" -width $label_width -height 1
@@ -82,6 +85,8 @@ for { set hloc 0 } { $hloc < 10 } { incr hloc 1 } {
 
 
 # -----------------------
+# button .f.top.9.1 -text "return" -command hm_exitpanel -bg #C06060 -width 10
+# pack .f.top.9.1 -side right -anchor e;
 button .f.bottom.button -text "return" -command hm_exitpanel -bg #C06060 -width 10
 pack .f.bottom.button -side right -anchor e;
 hm_framework addpanel .f "二次开发插件"
