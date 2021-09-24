@@ -42,6 +42,8 @@ proc get_prop_datas {} {
         set material_id [hm_getvalue properties id=$prop_id dataname=material]
         set material_name [hm_entityinfo name materials $material_id ]
 
+        # 对逗号进行替换
+        set prop_name [string map ", _" $prop_name]
         set prop_data "$prop_name,$prop_id,$material_name,$material_id,$cardimage_name,$thickness"
         lappend prop_datas $prop_data
         # puts $thickness
@@ -49,6 +51,8 @@ proc get_prop_datas {} {
     # puts $prop_datas
     return $prop_datas
 }
+
+
 
 # 获取材料卡片数据
 proc get_mat_datas {} {
@@ -73,6 +77,9 @@ proc get_mat_datas {} {
             set prop_name "#"
         }
         
+        # 对逗号进行替换
+        set comp_name [string map ", _" $comp_name]
+        set prop_name [string map ", _" $prop_name]
         set comp_data "$comp_name,$comp_id,$prop_name,$prop_id"
         lappend comp_datas $comp_data
     }
@@ -115,10 +122,9 @@ if { $result_py == "True" } {
     puts "tcl-call end"
 }
 
-
-catch { file delete $temp_prop_path }
-catch { file delete $temp_comp_path }
-catch { file delete $tcl_path }
+# catch { file delete $temp_prop_path }
+# catch { file delete $temp_comp_path }
+# catch { file delete $tcl_path }
 
 
 puts "------Cal End------"

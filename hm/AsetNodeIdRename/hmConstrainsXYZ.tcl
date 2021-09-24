@@ -19,6 +19,7 @@ proc get_node_locs {node_id prefix} {
 	}
 }
 
+
 # 
 proc csv_aset_node_id_loc {csv_path c_type} {
 	# 获取所有 ASET 对应的 nodeID 及 坐标数据
@@ -26,6 +27,7 @@ proc csv_aset_node_id_loc {csv_path c_type} {
 
 	set f_obj [open $csv_path w]
 	puts $f_obj "ASET_node_id,x,y,z"
+	puts "ASET_node_id, x, y, z"
 
 	*createmark loads 1 all
 	set loads_ids [hm_getmark loads 1]
@@ -41,6 +43,7 @@ proc csv_aset_node_id_loc {csv_path c_type} {
 			set locs [get_node_locs $node_id "," ]
 			# puts "$node_id,$locs"
 			puts $f_obj "$node_id,$locs"
+			puts "$node_id, $locs"
 		} 
 	}
 	close $f_obj
@@ -48,27 +51,7 @@ proc csv_aset_node_id_loc {csv_path c_type} {
 	return true
 }
 
+
 # -----------------------------------
 
 csv_aset_node_id_loc $csv_path ASET
-puts "python-call running $py_path"
-set result_py [exec python $py_path]
-puts "python-call end"
-
-if { $result_py == "True" } {
-	puts "tcl-call running $tcl_path"
-	set result_tcl [source $tcl_path]
-	puts "tcl-call end"
-}
-
-catch { file delete $csv_path }
-catch { file delete $tcl_path }
-
-puts "------------hmAsetIdRename run end------------"
-
-
-
-
-
-
-

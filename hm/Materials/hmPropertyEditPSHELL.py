@@ -10,7 +10,7 @@ tcl_path  = os.path.join(file_dir, '__temp_cmd.tcl')
 
 def read_csv_data(file_path):
     data = []
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.read().split('\n')[1:]
     for line in lines:
         if line:
@@ -33,6 +33,7 @@ value_to_prop_dic = {}
 prop_dic  = {}
 prop_sts  = []
 prop_name_dels = []
+prop_id_dels   = []
 for line in prop_data:
     if line[-2] != 'PSHELL': continue
     prop_name = line[0]
@@ -46,6 +47,7 @@ for line in prop_data:
         continue
     prop_to_prop_dic[prop_name] = value_to_prop_dic[value_str]
     prop_name_dels.append(prop_name)
+    prop_id_dels.append(prop_dic[prop_name]['id'])
 
 # ---------------------------------
 # material 设置
@@ -68,12 +70,50 @@ for line in new_comp_data:
     cmd = "*setvalue comps id={} propertyid={{props {}}}".format(line[1], line[3])
     cmds_setvalue.append(cmd)
 
+# 当个删除命令
+str_del_single = """
+    set status [
+        catch {
+            *createmark properties 1 #id#
+            *deletemark properties 1  
+            #puts "del : name=#prop_name# ; id=#id#"
+        } res ]
+    if {$status} {
+        puts "del error: name=#prop_name# ; id=#id#"
+    }
+"""
+
+# 删除命令开头
+str_del_1 = """
+set status [
+    catch {
+        hm_createmark properties 1 "by id only" "#ids_str#"
+        *deletemark properties 1 
+
+    } res ]
+if {$status} {
+    puts "del properties single"
+"""
+# 删除命令结束
+str_del_2 = "}"
 
 # 删除多余prop
 cmds_delprop = []
+ids_str = ' '.join(prop_id_dels) # 删除目标ID拼接
+if ids_str:
+    cmds_delprop.append(str_del_1.replace('#ids_str#', ids_str))
+
 for prop_name in prop_name_dels:
-    cmds_delprop.append('*createmark properties 1 "{}"'.format(prop_name))
-    cmds_delprop.append('*deletemark properties 1')
+    prop_id = prop_dic[prop_name]['id']
+    # cmds_delprop.append('*createmark properties 1 "{}"'.format(prop_name))
+    # cmds_delprop.append('*deletemark properties 1')
+    output_str_n = str_del_single.replace('#prop_name#',prop_name)
+    output_str_n = output_str_n.replace('#id#',prop_id)
+    cmds_delprop.append(output_str_n)
+
+if ids_str: 
+    cmds_delprop.append(str_del_2)
+    
 
 # 生成tcl
 with open(tcl_path, 'w') as f:
