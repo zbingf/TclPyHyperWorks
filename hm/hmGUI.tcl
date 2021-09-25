@@ -57,6 +57,10 @@ button .f.top.3.5 -text "Node创建" -command [format "source %s/AsetNodeIdRenam
 label .f.top.0.4 -text "材料相关" -width $label_width -height 1
 button .f.top.4.1 -text "材料创建" -command [format "source %s/Materials/hmMaterials.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.4.2 -text "Prop去重" -command [format "source %s/Materials/hmPropertyEditPSHELL.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.4.3 -text "MatRename" -command [format "source %s/Materials/hmMatRename.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.4.4 -text "PropRename" -command [format "source %s/Materials/hmPropRename.tcl" $filepath] -bg #99ff99 -width $button_width
+
+
 
 # 2层-5列
 label .f.top.0.5 -text "加载" -width $label_width -height 1

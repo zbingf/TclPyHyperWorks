@@ -19,10 +19,10 @@ if {$status} {
         catch {
             *createmark properties 1 15
             *deletemark properties 1  
-            #puts "del : name=p15\n _s? a.<>[]/ ; id=15"
+            #puts "del : name=p15 ; id=15"
         } res ]
     if {$status} {
-        puts "del error: name=p15\n _s? a.<>[]/ ; id=15"
+        puts "del error: name=p15 ; id=15"
     }
 
 
@@ -30,10 +30,10 @@ if {$status} {
         catch {
             *createmark properties 1 18
             *deletemark properties 1  
-            #puts "del : name=p18\n _s? a.<>[]/ ; id=18"
+            #puts "del : name=p18 ; id=18"
         } res ]
     if {$status} {
-        puts "del error: name=p18\n _s? a.<>[]/ ; id=18"
+        puts "del error: name=p18 ; id=18"
     }
 
 }
