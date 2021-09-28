@@ -1,18 +1,11 @@
 # -------------------------------------
 # hmMaterials.tcl
-# hypermeh 2019
-# 设置材料属性
-# 设置前会!删除!原有材料/属性
-# 调用文件夹目录下的子文件夹sets中的 optistruct
+# hypermeh 2021.1
+# Property重命名
 # -------------------------------------
 
-# =======================================
-# 获取optistruct_path
-proc get_optistruct_path {} {
-    set altair_dir [hm_info -appinfo ALTAIR_HOME]
-    set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
-    return $optistruct_path
-}
+
+
 
 # 数值字符替换
 proc str_change {str1} {
