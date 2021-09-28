@@ -22,7 +22,7 @@ def command_tcl_path_search(file_type='cmf'): # 定位command路径
 		# 5级 文件夹搜索 adams放置路径
 		for n in ['C']:
 			locPath=r'\*'*npath
-			searchPath=r'{}:{}\*\Documents\command.{}'.format(n, locPath, file_type)
+			searchPath=r'{}:{}\*\Documents\command1.{}'.format(n, locPath, file_type)
 			# print(searchPath)
 			fullSearch=glob.glob(searchPath)
 			if fullSearch:

@@ -35,7 +35,7 @@ prop_sts  = []
 prop_name_dels = []
 prop_id_dels   = []
 for line in prop_data:
-    if line[-2] != 'PSHELL': continue
+    if line[-2] != 'PSHELL' and line[-2] != 'PSOLID': continue
     prop_name = line[0]
     value_str = ','.join(line[2:])
     prop_dic[prop_name] = {'value_str': value_str, 'name': line[0], 'id':line[1]}

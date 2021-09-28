@@ -13,7 +13,7 @@ puts "------Cal Start------"
 set filepath [file dirname [info script]]
 set temp_prop_path [format "%s/__temp_prop.csv" $filepath]
 set temp_comp_path [format "%s/__temp_comp.csv" $filepath]
-set py_path [format "%s/hmPropertyEditPSHELL.py" $filepath]
+set py_path [format "%s/hmPropertyEdit_Pshell_Psolid.py" $filepath]
 set tcl_path [format "%s/__temp_cmd.tcl" $filepath]
 
 # 获取属性卡片数据
@@ -33,10 +33,9 @@ proc get_prop_datas {} {
         # 
         if {"PSHELL" == $cardimage_name} {
             set thickness [hm_getvalue properties id=$prop_id dataname=thickness]
-        } else {
-            continue
-            # set thickness "#"
-        }
+        } elseif {"PSOLID" == $cardimage_name} {
+            set thickness "#"
+        } else { continue }
         
         # material 名称
         set material_id [hm_getvalue properties id=$prop_id dataname=material]

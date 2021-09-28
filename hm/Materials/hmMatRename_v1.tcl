@@ -18,11 +18,11 @@ proc get_optistruct_path {} {
 # 数值字符替换
 proc str_change {str1} {
 
-    # set str1 [string map ". p" $str1]
-    # set str1 [string map "e-09 e" $str1]
-    # set str1 [string map "e-9 e" $str1]
+    set str1 [string map ". p" $str1]
+    set str1 [string map "e-09 e" $str1]
+    set str1 [string map "e-9 e" $str1]
     # set str1 [string map "- n" $str1]
-    # set str1 [string map "e E" $str1]
+    set str1 [string map "e E" $str1]
 
     return $str1
 }
@@ -35,11 +35,9 @@ proc mat_rename {} {
     set mat_ids [hm_getmark materials  1]
     # set mat_datas [list]
 
-    
+    set cur_num 1
     foreach mat_id $mat_ids {
 
-        set cur_num 1
-        
         set mat_name [hm_entityinfo name materials $mat_id]
         set cardimage [hm_getvalue materials id=$mat_id dataname=cardimage] 
         set value_st [hm_getvalue materials id=$mat_id dataname=341] 
@@ -49,17 +47,11 @@ proc mat_rename {} {
         set Nu  [hm_getvalue materials id=$mat_id dataname=Nu]
         set Rho [hm_getvalue materials id=$mat_id dataname=Rho]
 
-        # set E [str_change $E]
-        set E [expr int($E/1000)]
-
-        # set Nu [str_change $Nu]
-        set Nu [expr int($Nu*100)]
-
-        # set Rho [str_change $Rho]
-        set Rho [expr int($Rho*1E11)]
+        set E [str_change $E]
+        set Nu [str_change $Nu]
+        set Rho [str_change $Rho]
         
-        # set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
-        set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
+        set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
         # puts "mat-name: $mat_name ; ST: $value_st ; SC: $value_sc ; cardimage: $cardimage"
         # puts $target_name
         while {1} {
@@ -70,8 +62,7 @@ proc mat_rename {} {
                 puts "mat rename error: $target_name"
 
                 set cur_num [expr $cur_num+1]
-                # set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
-                set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
+                set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
                 
                 puts "  reset: $target_name"
             } else {

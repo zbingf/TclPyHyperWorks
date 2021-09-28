@@ -34,32 +34,22 @@ proc prop_rename {} {
     set prop_ids [hm_getmark properties  1]
     # set mat_datas [list]
 
-    
+    set cur_num 1
     foreach prop_id $prop_ids {
-        set cur_num 1
-        
+
         set prop_name [hm_entityinfo name properties $prop_id]
-
-        set cardimage [hm_getvalue properties id=$prop_id dataname=cardimage] 
-
-        if {$cardimage!="PSHELL" & $cardimage!="PSOLID"} {
-            continue
-        }
-
         set mat_id [hm_getvalue properties id=$prop_id dataname=materialid] 
         set mat_name [hm_entityinfo name materials $mat_id]
-        
+        set cardimage [hm_getvalue properties id=$prop_id dataname=cardimage] 
         
         set isRename 0
         if {$cardimage=="PSHELL"} {
             set thickness [hm_getvalue properties id=$prop_id dataname=thickness]
-            # set target_name [format "%s_%s_T%s_%s" $cardimage $mat_name [str_change $thickness] $cur_num]
-            set target_name [format "%s_%s_T%s_%s" $cardimage $mat_id [str_change $thickness] $cur_num]
+            set target_name [format "%s_%s_T%s_%s" $cardimage $mat_name [str_change $thickness] $cur_num]
             # puts $target_name
             set isRename 1
         } elseif {$cardimage=="PSOLID"} {
-            # set target_name [format "%s_%s_%s" $cardimage $mat_name $cur_num]
-            set target_name [format "%s_%s_%s" $cardimage $mat_id $cur_num]
+            set target_name [format "%s_%s_%s" $cardimage $mat_name $cur_num]
             set isRename 1
         }
 
@@ -72,11 +62,9 @@ proc prop_rename {} {
 
                 set cur_num [expr $cur_num+1]
                 if {$cardimage=="PSHELL"} {
-                    # set target_name [format "%s_%s_T%s_%s" $cardimage $mat_name [str_change $thickness] $cur_num]
-                    set target_name [format "%s_%s_T%s_%s" $cardimage $mat_id [str_change $thickness] $cur_num]
+                    set target_name [format "%s_%s_T%s_%s" $cardimage $mat_name [str_change $thickness] $cur_num]
                 } elseif {$cardimage=="PSOLID"} {
-                    # set target_name [format "%s_%s_%s" $cardimage $mat_name $cur_num]
-                    set target_name [format "%s_%s_%s" $cardimage $mat_id $cur_num]
+                    set target_name [format "%s_%s_%s" $cardimage $mat_name $cur_num]
                 }
                 
                 puts "  reset: $target_name"

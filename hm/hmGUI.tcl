@@ -39,10 +39,12 @@ button .f.top.1.2 -text "Comp-加后缀" -command [format "source %s/hmCompEdit.
 button .f.top.1.3 -text "Comp-替换" -command [format "source %s/hmCompEdit.tcl;comp_edit replace" $filepath] -bg #99ff99 -width $button_width
 button .f.top.1.4 -text "删除无用卡片" -command [format "source %s/hmDelEmptyEntity.tcl" $filepath] -bg #99ff99 -width $button_width
 
+
 # 2层-2列
 label .f.top.0.2 -text "网格划分-处理" -width $label_width -height 1
 button .f.top.2.1 -text "beam-矩形钢" -command [format "source %s/RectangularBox/hmRectangularBox.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickness.tcl" $filepath] -bg #99ff99 -width $button_width
+
 
 # 2层-3列
 label .f.top.0.3 -text "卡片创建" -width $label_width -height 1
@@ -52,19 +54,19 @@ button .f.top.3.4 -text "ASET编号" -command [format "source %s/AsetNodeIdRenam
 button .f.top.3.5 -text "Node创建" -command [format "source %s/AsetNodeIdRename/hmNodeCreate.tcl" $filepath] -bg #99ff99 -width $button_width
 
 
-
 # 2层-4列
 label .f.top.0.4 -text "材料相关" -width $label_width -height 1
 button .f.top.4.1 -text "材料创建" -command [format "source %s/Materials/hmMaterials.tcl" $filepath] -bg #99ff99 -width $button_width
-button .f.top.4.2 -text "Prop去重" -command [format "source %s/Materials/hmPropertyEditPSHELL.tcl" $filepath] -bg #99ff99 -width $button_width
-button .f.top.4.3 -text "MatRename" -command [format "source %s/Materials/hmMatRename.tcl" $filepath] -bg #99ff99 -width $button_width
-button .f.top.4.4 -text "PropRename" -command [format "source %s/Materials/hmPropRename.tcl" $filepath] -bg #99ff99 -width $button_width
-
+button .f.top.4.2 -text "Mat去重_ENR" -command [format "source %s/Materials/hmMatEdit_ENR.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.4.3 -text "Prop去重_SS" -command [format "source %s/Materials/hmPropertyEdit_Pshell_Psolid.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.4.4 -text "MatRename" -command [format "source %s/Materials/hmMatRename.tcl" $filepath] -bg #99ff99 -width $button_width
+button .f.top.4.5 -text "PropRename" -command [format "source %s/Materials/hmPropRename.tcl" $filepath] -bg #99ff99 -width $button_width
 
 
 # 2层-5列
 label .f.top.0.5 -text "加载" -width $label_width -height 1
 button .f.top.5.1 -text "悬架提载创建" -command [format "source %s/hmSusLoadSet.tcl" $filepath] -bg #99ff99 -width $button_width
+
 
 # 2层-6列
 label .f.top.0.6 -text "UI插件" -width $label_width -height 1
