@@ -5,6 +5,7 @@ import os.path
 
 file_dir  = os.path.dirname(__file__)
 prop_path = os.path.join(file_dir, '__temp_prop.csv')
+prop_path2 = os.path.join(file_dir, '__temp_prop_2.csv')
 comp_path = os.path.join(file_dir, '__temp_comp.csv')
 tcl_path  = os.path.join(file_dir, '__temp_cmd.tcl')
 
@@ -22,8 +23,13 @@ def read_csv_data(file_path):
 comp_data = read_csv_data(comp_path)
 prop_data = read_csv_data(prop_path)
 
+comp_propids_all = [line[3] for line in comp_data]
+comp_propids_all = list(set(comp_propids_all))
 # print(comp_data)
 # print(prop_data)
+
+with open(prop_path2, 'r') as f:
+    prop_ids_all = [value for value in f.read()[:-1].split(' ') if value]
 
 # ---------------------------------
 # property 设置
@@ -48,6 +54,11 @@ for line in prop_data:
     prop_to_prop_dic[prop_name] = value_to_prop_dic[value_str]
     prop_name_dels.append(prop_name)
     prop_id_dels.append(prop_dic[prop_name]['id'])
+
+for prop_id in prop_ids_all:
+    if prop_id not in comp_propids_all:
+        prop_id_dels.append(prop_id)
+prop_id_dels = list(set(prop_id_dels))
 
 # ---------------------------------
 # material 设置

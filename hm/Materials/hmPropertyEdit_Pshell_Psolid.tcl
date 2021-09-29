@@ -12,6 +12,7 @@ puts "------Cal Start------"
 # 路径定义
 set filepath [file dirname [info script]]
 set temp_prop_path [format "%s/__temp_prop.csv" $filepath]
+set temp_prop_path2 [format "%s/__temp_prop_2.csv" $filepath]
 set temp_comp_path [format "%s/__temp_comp.csv" $filepath]
 set py_path [format "%s/hmPropertyEdit_Pshell_Psolid.py" $filepath]
 set tcl_path [format "%s/__temp_cmd.tcl" $filepath]
@@ -48,7 +49,7 @@ proc get_prop_datas {} {
         # puts $thickness
     }
     # puts $prop_datas
-    return $prop_datas
+    return "{$prop_datas} {$prop_ids}"
 }
 
 
@@ -88,7 +89,9 @@ proc get_mat_datas {} {
 
 
 set comp_datas [get_mat_datas]
-set prop_datas [get_prop_datas]
+set datas [get_prop_datas]
+set prop_datas [lindex $datas 0]
+set prop_ids [lindex $datas 1]
 
 # ----------------------------------
 # 写入数据
@@ -98,6 +101,12 @@ foreach prop_data $prop_datas {
     puts $f_obj "$prop_data"    
 }
 close $f_obj
+
+
+set f_obj [open $temp_prop_path2 w]
+puts $f_obj "$prop_ids"
+close $f_obj
+
 
 # 写入数据
 set f_obj [open $temp_comp_path w]

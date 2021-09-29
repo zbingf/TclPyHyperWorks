@@ -5,6 +5,7 @@ import os.path
 
 file_dir  = os.path.dirname(__file__)
 prop_path = os.path.join(file_dir, '__temp_prop.csv')
+prop_path2 = os.path.join(file_dir, '__temp_prop_2.csv')
 mat_path = os.path.join(file_dir, '__temp_mat.csv')
 tcl_path  = os.path.join(file_dir, '__temp_cmd_mat_edit.tcl')
 
@@ -23,6 +24,9 @@ def read_csv_data(file_path):
 mat_data = read_csv_data(mat_path)
 prop_data = read_csv_data(prop_path)
 
+with open(prop_path2, 'r') as f:
+    prop_mat_ids = [value for value in f.read()[:-1].split(' ') if value]
+prop_mat_ids = list(set(prop_mat_ids))
 
 # -----------------------------------
 # mat_data
@@ -38,6 +42,8 @@ for line in mat_data:
         mat_name_to_id_dic[data_name].append(mat_id)
     else:
         mat_name_to_id_dic[data_name] = [mat_id]
+
+    if mat_id not in prop_mat_ids: del_matids.append(mat_id)
 
 for data_name in mat_name_to_id_dic:
     mat_ids = mat_name_to_id_dic[data_name]

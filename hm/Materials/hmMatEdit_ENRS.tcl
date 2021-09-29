@@ -15,6 +15,7 @@ puts "------Cal Start------"
 # 路径定义
 set filepath [file dirname [info script]]
 set temp_prop_path [format "%s/__temp_prop.csv" $filepath]
+set temp_prop_path2 [format "%s/__temp_prop_2.csv" $filepath]
 set temp_mat_path [format "%s/__temp_mat.csv" $filepath]
 set py_path [format "%s/hmMatEdit_ENR.py" $filepath]
 set tcl_path [format "%s/__temp_cmd_mat_edit.tcl" $filepath]
@@ -26,6 +27,7 @@ proc get_prop_datas {} {
     set prop_ids [hm_getmark properties  1]
     # puts $prop_ids
     set prop_datas [list]
+    set prop_matids_all [list]
 
     foreach prop_id $prop_ids {
 
@@ -35,6 +37,11 @@ proc get_prop_datas {} {
         # cardimage 名称
         set cardimage_name [hm_getvalue properties id=$prop_id dataname=cardimage]
         
+        catch {
+            set material_id [hm_getvalue properties id=$prop_id dataname=material]
+            lappend prop_matids_all $material_id
+        }
+
         # 
         if {"PSHELL" == $cardimage_name} {
             set thickness [hm_getvalue properties id=$prop_id dataname=thickness]
@@ -53,9 +60,8 @@ proc get_prop_datas {} {
         # puts $thickness
     }
     # puts $prop_datas
-    return $prop_datas
+    return "{$prop_datas} {$prop_matids_all}"
 }
-
 
 
 # 获取材料卡片数据
@@ -82,7 +88,7 @@ proc get_mat_datas {} {
             # set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
 
             set mat_name [string map ", _" $mat_name]
-            set mat_data "$mat_name,$cardimage,$mat_id,$E,$Nu,$Rho"
+            set mat_data "$mat_name,$cardimage,$mat_id,$E,$Nu,$Rho,$value_st"
 
             lappend mat_datas $mat_data
         }
@@ -91,8 +97,12 @@ proc get_mat_datas {} {
 }
 
 
+
 set mat_datas [get_mat_datas]
-set prop_datas [get_prop_datas]
+set datas [get_prop_datas]
+set prop_datas [lindex $datas 0]
+set prop_matids_all [lindex $datas 1]
+
 
 # ----------------------------------
 # 写入数据
@@ -103,13 +113,20 @@ foreach prop_data $prop_datas {
 }
 close $f_obj
 
+
+set f_obj [open $temp_prop_path2 w]
+puts $f_obj "$prop_matids_all"
+close $f_obj
+
+
 # 写入数据
 set f_obj [open $temp_mat_path w]
-puts $f_obj "mat_name,cardimage,mat_id,E,Nu,Rho"
+puts $f_obj "mat_name,cardimage,mat_id,E,Nu,Rho,St"
 foreach mat_data $mat_datas {
     puts $f_obj "$mat_data"    
 }
 close $f_obj
+
 
 # ----------------------------------
 

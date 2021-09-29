@@ -36,7 +36,7 @@ proc mat_rename {} {
         set Rho [expr int($Rho*1E11)]
         
         # set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
-        set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
+        set target_name [format "%s_E%s_Nu%s_Rho%s_St%s_%s" $cardimage $E $Nu $Rho $value_st $cur_num]
         # puts "mat-name: $mat_name ; ST: $value_st ; SC: $value_sc ; cardimage: $cardimage"
         # puts $target_name
         while {1} {
@@ -48,7 +48,8 @@ proc mat_rename {} {
 
                 set cur_num [expr $cur_num+1]
                 # set target_name [format "%s_E%s_Nu%s_Rho%s_st%s_sc%s_%s" $cardimage $E $Nu $Rho $value_st $value_sc $cur_num]
-                set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
+                # set target_name [format "%s_E%s_Nu%s_Rho%s_%s" $cardimage $E $Nu $Rho $cur_num]
+                set target_name [format "%s_E%s_Nu%s_Rho%s_St%s_%s" $cardimage $E $Nu $Rho $value_st $cur_num]
                 
                 puts "  reset: $target_name"
             } else {
