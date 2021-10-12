@@ -55,9 +55,10 @@ for line in prop_data:
     prop_name_dels.append(prop_name)
     prop_id_dels.append(prop_dic[prop_name]['id'])
 
-for prop_id in prop_ids_all:
-    if prop_id not in comp_propids_all:
-        prop_id_dels.append(prop_id)
+# 此段会有额外删除的可能
+# for prop_id in prop_ids_all:
+#     if prop_id not in comp_propids_all:
+#         prop_id_dels.append(prop_id)
 prop_id_dels = list(set(prop_id_dels))
 
 # ---------------------------------

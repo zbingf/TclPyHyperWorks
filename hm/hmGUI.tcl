@@ -38,7 +38,7 @@ button .f.top.1.1 -text "Comp-加前缀" -command [format "source %s/hmCompEdit.
 button .f.top.1.2 -text "Comp-加后缀" -command [format "source %s/hmCompEdit.tcl;comp_edit rear" $filepath] -bg #99ff99 -width $button_width
 button .f.top.1.3 -text "Comp-替换" -command [format "source %s/hmCompEdit.tcl;comp_edit replace" $filepath] -bg #99ff99 -width $button_width
 button .f.top.1.4 -text "删除无用卡片" -command [format "source %s/hmDelEmptyEntity.tcl" $filepath] -bg #99ff99 -width $button_width
-
+button .f.top.1.5 -text "Comp-去重" -command [format "source %s/Component/hmCompEdit.tcl" $filepath] -bg #99ff99 -width $button_width
 
 # 2层-2列
 label .f.top.0.2 -text "网格划分-处理" -width $label_width -height 1
