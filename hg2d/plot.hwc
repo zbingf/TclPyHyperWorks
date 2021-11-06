@@ -1,0 +1,20 @@
+
+
+# hypergraph2D 读取 abf数据远快于mrf
+
+
+# xy load file= D:/00_CAE_project/202110_02_mdl_2021/events/event_Altoona_7_left.abf ydatatype= Expressions yrequest= "REQ/10000003 Rear Susp Travel - F2: Average | F3: Left | F4: Right" ycomponent= F2
+# xy load file=D:/00_CAE_project/202110_02_mdl_2021/events/event_Altoona_7_left.abf ydatatype= Expressions yrequest= "REQ/10000003 Rear Susp Travel - F2: Average | F3: Left | F4: Right" ycomponent= "F2" - "F4"
+
+
+
+
+
+
+xy load file=D:/00_CAE_project/202110_02_mdl_2021/events/event_Altoona_7_left.abf ydatatype= "Marker Displacement" yrequest= "REQ/10000007 Knuckle-left from Dummy_for_vehBody(Front Left Wheel Center Displacement)" , "REQ/70000087 Dummy_for_vehBody from Knuckle-right(Front Right Wheel Center Displacement)" , "REQ/10000010 Knuckle-right from Dummy_for_vehBody(Rear Right Wheel Center Displacements)" , "REQ/30101011 Coil spring-left on Strut tube (lwr strut)-left(Left Coil Spring Displacement)" , "REQ/30104110 Lwr control arm-right from Vehicle Body(Right jounce bumper disp)" ycomponent= DZ
+
+
+
+
+# 清空曲线
+xy curve delete range= "p:all w:all i:all"
