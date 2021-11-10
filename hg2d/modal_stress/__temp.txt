@@ -1,0 +1,14 @@
+# D:/00_CAE_project/202111_01_modal_stress_read/LCA.op2
+hwc xy curve delete range= "p:all w:all i:all"
+set hwc_command {xy load file=D:/00_CAE_project/202111_01_modal_stress_read/LCA.op2 subcase= "SUBCASE 1" ydatatype= "Stress (2D)" yrequest= E15297 , E15315 , E15325 , E15342 , E15355 , E15373 , E15391 , E15410 ycomponent= "XX (Z1)" , "YY (Z1)" , "ZZ (Z1)" , "XY (Z1)" , "YZ (Z1)" , "ZX (Z1)" , "XX (Z2)" , "YY (Z2)" , "ZZ (Z2)" , "XY (Z2)" , "YZ (Z2)" , "ZX (Z2)" xdatatype= Frequency}
+hwc $hwc_command
+hwi GetSessionHandle sess;
+sess GetClientManagerHandle pm Plot;
+pm GetExportCtrlHandle ex
+ex SetFormat "xy data"
+ex SetFilename "D:/00_CAE_project/202111_01_modal_stress_read/LCA_xy_data.txt"
+ex GetFilename
+ex Export
+hwi CloseStack
+
+

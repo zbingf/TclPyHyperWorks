@@ -1,0 +1,12 @@
+# #file_path#
+hwc xy curve delete range= "p:all w:all i:all"
+set hwc_command {xy load file=#file_path# subcase= "SUBCASE 1" ydatatype= "Stress (2D)" yrequest= #id_str# ycomponent= "XX (Z1)" , "YY (Z1)" , "ZZ (Z1)" , "XY (Z1)" , "YZ (Z1)" , "ZX (Z1)" , "XX (Z2)" , "YY (Z2)" , "ZZ (Z2)" , "XY (Z2)" , "YZ (Z2)" , "ZX (Z2)" xdatatype= Frequency}
+hwc $hwc_command
+hwi GetSessionHandle sess;
+sess GetClientManagerHandle pm Plot;
+pm GetExportCtrlHandle ex
+ex SetFormat "xy data"
+ex SetFilename "#xy_path#"
+ex GetFilename
+ex Export
+hwi CloseStack
