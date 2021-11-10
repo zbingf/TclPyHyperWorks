@@ -1,0 +1,6 @@
+<Gauges>
+<StrainGauge AngleOffset="0" ID="2470_up" Location="2470" LocationType="Node" Orientation="1,0,0" ResultsFrom="OneSurface" ShellSurface="Top" Type="Rectangular"/>
+<StrainGauge AngleOffset="0" ID="2470_bottom" Location="2470" LocationType="Node" Orientation="1,0,0" ResultsFrom="OneSurface" ShellSurface="Bottom" Type="Rectangular"/>
+<StrainGauge AngleOffset="0" ID="2531_up" Location="2531" LocationType="Node" Orientation="1,0,0" ResultsFrom="OneSurface" ShellSurface="Top" Type="Rectangular"/>
+<StrainGauge AngleOffset="0" ID="2531_bottom" Location="2531" LocationType="Node" Orientation="1,0,0" ResultsFrom="OneSurface" ShellSurface="Bottom" Type="Rectangular"/>
+</Gauges>

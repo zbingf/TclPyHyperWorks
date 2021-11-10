@@ -13,7 +13,7 @@ RpcFile = rsp_read.RpcFile
 import re
 import os
 import os.path
-
+import copy
 
 def fem_node2elems_2d(file_path):
 
@@ -159,7 +159,8 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels, fem_pat
     rpc_obj = RpcFile(rpc_path, 'test')
     rpc_obj.read_file()
     rpc_obj.set_select_channels(rpc_channels)
-    rpc_data = rpc_obj.get_data()
+    # rpc_data = rpc_obj.get_data()
+    rpc_data = [copy.deepcopy(line) for line in rpc_obj.get_data()]
     rpc_samplerate = rpc_obj.get_samplerate()
 
     element_data = xy_data_read(file_path)
@@ -183,6 +184,8 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels, fem_pat
     for node_id in node_ids:
         node_data[node_id] = {}
         n_elems = len(node2elems[node_id])
+        # print("node_id: ",node_id)
+        # print("n_elems: ",node2elems[node_id])
         for elem_id in node2elems[node_id]:
             element_data_n = sign_vonmises_data[f'E{elem_id}']
 

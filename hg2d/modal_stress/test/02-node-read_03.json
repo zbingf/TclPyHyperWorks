@@ -1,0 +1,1 @@
+{"ms_files": "D:/00_CAE_project/202111_01_modal_stress_read/LCA_xy_data.txt", "modal_channels": "6,7,8,9,10,11", "rpc_path": "D:/00_CAE_project/202111_01_modal_stress_read/05_channels_3.rsp", "rpc_channels": "0,1,2,0,1,2", "fem_path": "D:/00_CAE_project/202111_01_modal_stress_read/LCA_Flex.fem", "node_ids": "2470,2531,1306,910,4447,3212,1994"}

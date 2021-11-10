@@ -11,7 +11,7 @@ RpcFile = rsp_read.RpcFile
 import re
 import os
 import os.path
-
+import copy
 
 def xy_data_read(file_path):
 
@@ -125,11 +125,12 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
     name2 = os.path.basename(rpc_path)
     csv_path  = file_path+f'.{name2}.result.csv'
 
+    
     # rsp数据
     rpc_obj = RpcFile(rpc_path, 'test')
     rpc_obj.read_file()
     rpc_obj.set_select_channels(rpc_channels)
-    rpc_data = rpc_obj.get_data()
+    rpc_data = [copy.deepcopy(line) for line in rpc_obj.get_data()]
     rpc_samplerate = rpc_obj.get_samplerate()
 
     element_data = xy_data_read(file_path)
