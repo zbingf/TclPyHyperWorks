@@ -44,7 +44,7 @@ button .f.top.1.5 -text "Comp-去重" -command [format "source %s/Component/hmCo
 label .f.top.0.2 -text "网格划分-处理" -width $label_width -height 1
 button .f.top.2.1 -text "beam-矩形钢" -command [format "source %s/RectangularBox/hmRectangularBox.tcl" $filepath] -bg #99ff99 -width $button_width
 button .f.top.2.2 -text "厚度测量" -command [format "source %s/hmSolidThickness.tcl" $filepath] -bg #99ff99 -width $button_width
-
+button .f.top.2.3 -text "几何-solid复制" -command [format "source %s/SolidMove/hmSolidMove.tcl" $filepath] -bg #99ff99 -width $button_width
 
 # 2层-3列
 label .f.top.0.3 -text "卡片创建" -width $label_width -height 1
