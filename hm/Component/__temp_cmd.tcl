@@ -1,1 +1,1 @@
-comp_move "30020 30021" 3001
+comp_move "2" 1

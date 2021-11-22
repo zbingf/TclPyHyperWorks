@@ -80,8 +80,22 @@ foreach load_id $loads_ids {
 }
 
 
+
 # ---------------------------------------
 
+# hm_getlinetype
 
+# 获取特征
+# 根据线获取-圆特征线
+*createmark lines 1 "by surface" 15
+puts [hm_getmark lines 1]
+hm_markbyfeature 1 1 "feature_mode 1 min_radius 0.1 max_radius 1"
+puts [hm_getmark lines 1]
+
+# 根据面获取-圆特征线
+*createmark surfs 1 15
+puts [hm_getmark surfs 1]
+hm_markbyfeature 1 1 "feature_mode 2 min_radius 0.1 max_radius 1"
+puts [hm_getmark lines 1]
 
 

@@ -1,4 +1,8 @@
+# 参考 D:\software\Altair\2021.1\hwdesktop\hm\scripts\preserve_lines.tcl
 
+
+# ==================================
+# ==================================
 # 
 proc sum_list {list1} {
 	set value_sum 0
@@ -277,6 +281,7 @@ proc edit_solid_point_to_point_move_loc {solid_ids point_a_loc point_b_loc} {
 proc edit_solid_rotate_1p_1v {solid_id angle center_loc surf_v} {
 	edit_v_surf_1p_1v $center_loc $surf_v
 	*createmark solid 1 $solid_id
+	if {$angle==0} {return "None"}
 	*rotatemark solids 1 1 $angle
 	catch { *rotatemark elems 1 1 $angle }
 }
@@ -285,6 +290,7 @@ proc edit_solid_rotate_1p_1v {solid_id angle center_loc surf_v} {
 proc edit_solid_rotate_1p_2v {solid_id angle center_loc base_v_loc target_v_loc} {
 	edit_v_surf_1p_2v $center_loc $base_v_loc $target_v_loc
 	*createmark solid 1 $solid_id
+	if {$angle==0} {return "None"}
 	*rotatemark solids 1 1 $angle
 	catch { *rotatemark elems 1 1 $angle }
 }
@@ -379,6 +385,9 @@ namespace eval ::hmSolidMove {
 	variable temp_path_base
 	variable temp_path_target
 	variable py_path
+	variable volume_delta_percent
+	variable area_delta_value
+	variable I_delta_value
 }
 
 # 路径定义
@@ -391,50 +400,54 @@ set ::hmSolidMove::py_path [format "%s/pySolidGeometry.py" $filepath]
 # ==========
 # solid 及 网格复制移动
 proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
-	# puts "\n\n-----Start-----"
-	catch {
-		hm_createmark elems 1 $elem_ids
-	}
+
+	catch { hm_createmark elems 1 $elem_ids }
+	
 	# 复制
 	*createmark solids 1 $solid_id_base
 	*duplicatemark solids 1 1
 	catch { *duplicatemark elems 1 1}
+
 	# id重赋值	
 	set solid_id_base [hm_getmark solids 1]
 
+	# =========================
 	# 移动
 	set center_base [lindex [get_solid_geometry_data $solid_id_base] 1]
 	set center_target [lindex [get_solid_geometry_data $solid_id_target] 1]
 	catch {edit_solid_point_to_point_move_loc $solid_id_base $center_base $center_target}
 
-
+	# =========================
+	# 旋转
 	*createmark points 1 "by solids" $solid_id_target
 	set max_n [llength [hm_getmark points 1]]
 	# set max_n 4
 	for {set one_loc 0} {$one_loc < $max_n} {incr one_loc 1} {
-		# if {$one_loc > 10} {break}
+		if {$one_loc > 10} {break}
 		# 第一次旋转
 		if {$one_loc == 0} {
+			# 数据导出
 			print_solid_points_and_center $solid_id_base $::hmSolidMove::temp_path_base
 			print_solid_points_and_center $solid_id_target $::hmSolidMove::temp_path_target
 		}
+		# 数据读取
 		set result_py [exec python $::hmSolidMove::py_path $one_loc 0]
 		set center_base [lindex [get_solid_geometry_data $solid_id_base] 1]
-		if {$one_loc ==0 } { set point_1_one_id [lindex $result_py 0] }
+		if {$one_loc == 0 } { set point_1_one_id [lindex $result_py 0] }
+		
 		set point_2_one_id [lindex $result_py 1]
 		set point_1_one_loc [hm_getcoordinates point $point_1_one_id]
 		set point_2_one_loc [hm_getcoordinates point $point_2_one_id]
+		# 旋转
 		edit_solid_rotate_3point $solid_id_base $center_base $point_1_one_loc $point_2_one_loc
 
 		# 第二次旋转
-		# print_solid_points_and_center $solid_id_base $::hmSolidMove::temp_path_base
 		set point_1_one_loc [hm_getcoordinates point $point_1_one_id]
 		set surf_v_second [v_sub $point_1_one_loc $center_base]
 
 		for {set third_loc 0} {$third_loc < $max_n} {incr third_loc 1} {
-			# if {$third_loc > 10} {break}
-			# print_solid_points_and_center $solid_id_base $::hmSolidMove::temp_path_base
-			# print_solid_points_and_center $solid_id_target $::hmSolidMove::temp_path_target
+			if {$third_loc > 10} {break}
+
 			set result_py [exec python $::hmSolidMove::py_path $one_loc $third_loc]
 			
 			if {[expr $third_loc+$one_loc]==0 } { 
@@ -453,12 +466,11 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 			if {[v_abs $v_1]==0} {continue}
 			if {[v_abs $v_2]==0} {continue}
 			set angle [lindex [angle_2vector $v_1 $v_2] 1]
-			# puts "point_1_one_id: $point_1_one_id ; point_2_one_id: $point_2_one_id ; point_1_third_id: $point_1_third_id ; point_2_third_id: $point_2_third_id ; angle: $angle"
+
 			set cur_surf_v [v_multi_x $v_1 $v_2]
 			if {[v_multi_dot $cur_surf_v $surf_v_second] < 0} {
 				set angle [expr -$angle]
 			}
-			if {$angle==0} {continue}
 			if { [expr abs([v_abs $v_1] - [v_abs $v_2])] > 1} { continue }
 			edit_solid_rotate_1p_1v $solid_id_base $angle $center_base $surf_v_second
 
@@ -473,137 +485,205 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 			# eval "*createnode $point_1_center_loc_base 0 0 0"
 
 			set delta [abs_sum_list [I_delta_solid $solid_id_base $solid_id_target]]
-			# puts "I-delta-run-$one_loc - $third_loc : $delta"
-			if {$delta < 10} {
-				puts "True: I-delta-run $one_loc - $third_loc : $delta"
-				# puts "\n-----End-----\n\n"
+			if {$delta < $::hmSolidMove::I_delta_value} {
+				puts "True: I-delta-run $one_loc - $third_loc : $delta ; Id : $point_1_one_id ,$point_2_one_id ,$point_1_third_id ,$point_2_third_id"
 				*createmark solids 1 $solid_id_base
 				*deletesolidswithelems 1 0 0
-				return "true"
+				return 1
 			}
 		}
 	}
-	# eval "*createnode $point_1_one_loc 0 0 0"
-	# eval "*createnode $point_1_loc 0 0 0"
 	*createmark solids 1 $solid_id_base
 	*deletesolidswithelems 1 0 0
 	catch { *deletemark elements 1 }
 	
 	puts "False: del-solid ; I-delta-run-$one_loc - $third_loc : $delta"
 	# puts "\n-----End-----\n\n"
+	return 0
 }
 
 
-# 主函数 ----------------------------------------------
-# 主函数
-# solid 点到点移动
-proc main_edit_solid_point_to_point_move {} {
-	# solid 点到点复制
-	*createmarkpanel solids 1 "select the solids"
-	set solid_ids [hm_getmark solids 1]
-	*createmarkpanel point 1 "select the point-A"
-	set point_a_id [hm_getmark point 1]
-	*createmarkpanel point 1 "select the point-B"
-	set point_b_id [hm_getmark point 1]
-	# set result [get_point_to_point_id $point_a_id $point_b_id]
-	# puts $result
-	edit_solid_point_to_point_move $solid_ids $point_a_id $point_b_id
+# ==================================
+# ==================================
+# GUI
+
+if {[grab current] != ""} { return; }
+namespace eval ::SolidElemsCopyMove {
+    variable recess;
+    variable elem_ids;
+    variable solid_id_base;
+    variable solid_id_targets;
 }
 
-# solid 中心到中心复制移动
-proc main_solid_center_to_center_move_copy {} {
-	*createmarkpanel solids 1 "select the base-solid"
-	set solid_id_base [hm_getmark solids 1]
+proc ::SolidElemsCopyMove::GUI { args } {
+    variable recess;
 
-	*createmarkpanel solids 1 "select the target-solid"
-	set solid_id_target [hm_getmark solids 1]	
+    set minx [winfo pixel . 225p];
+    set miny [winfo pixel . 225p];
+    if {![OnPc]} {set miny [winfo pixel . 240p];}
+    set graphArea [hm_getgraphicsarea];
+    set x [lindex $graphArea 0];
+    set y [lindex $graphArea 1];
+    
+    # 主窗口
+    ::hwt::CreateWindow solidElemsCopyMoveWin \
+        -windowtitle "SolidElemsCopyMove" \
+        -cancelButton "Cancel" \
+        -cancelFunc ::SolidElemsCopyMove::Quit \
+        -addButton OK ::SolidElemsCopyMove::OkExit no_icon \
+        -resizeable 1 1 \
+        -propagate 1 \
+        -minsize $minx $miny \
+        -geometry ${minx}x${miny}+${x}+${y} \
+         noGeometrySaving;
+    ::hwt::KeepOnTop .solidElemsCopyMoveWin;
 
-	set vol_del [get_solid_volume_delta_percent $solid_id_base $solid_id_target]
-	if {$vol_del > 0.00001} {
-		return "false"
-		puts $vol_del
-	}
+    set recess [::hwt::WindowRecess solidElemsCopyMoveWin];
 
-	set data_base [get_solid_geometry_data $solid_id_base]
-	set data_target [get_solid_geometry_data $solid_id_target]
-	set center_base [lindex $data_base 1]
-	set center_target [lindex $data_target 1]
+    grid columnconfigure $recess 1 -weight 1;
+    grid rowconfigure    $recess 9 -weight 1;
 
-	*createmark solids 1 $solid_id_base
-	*duplicatemark solids 1 1
-	set new_solid_id [hm_getmark solids 1]
-	edit_solid_point_to_point_move_loc $new_solid_id $center_base $center_target
+    # ===================
+    label $recess.addLabel -text "Elements";
+    grid $recess.addLabel -row 0 -column 0 -padx 2 -pady 2 -sticky nw;
+
+    button $recess.elemsButton \
+        -text "Select Elements" \
+        -command ::SolidElemsCopyMove::fun_elemsButton \
+        -width 16;
+    grid $recess.elemsButton -row 1 -column 0 -padx 5 -pady 2 -sticky nw;
+
+    # ===================
+    ::hwt::LabeledLine $recess.end_line1 "";
+    grid $recess.end_line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
+
+    # ===================
+    label $recess.baseLabel -text "Base Solid";
+    grid $recess.baseLabel -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
+
+    button $recess.baseButton \
+        -text "Select Base Solid" \
+        -command ::SolidElemsCopyMove::fun_baseButton \
+        -width 16;
+    grid $recess.baseButton -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
+
+    # ===================
+    label $recess.targetLabel -text "Target Solids";
+    grid $recess.targetLabel -row 3 -column 1 -padx 2 -pady 2 -sticky nw;
+
+    button $recess.targetButton \
+        -text "Select Target Solid" \
+        -command ::SolidElemsCopyMove::fun_targetButton \
+        -width 16;
+    grid $recess.targetButton -row 4 -column 1 -padx 2 -pady 2 -sticky nw;
+
+    # ===================
+    ::hwt::LabeledLine $recess.end_line "";
+    grid $recess.end_line -row 5 -column 0 -pady 6 -sticky ew -columnspan 2;
+
+    label $recess.vDelEntry_label -text "VolumeDeltaPercent";
+    grid $recess.vDelEntry_label -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.vDelEntry -width 16 -textvariable ::hmSolidMove::volume_delta_percent
+    grid $recess.vDelEntry -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
+
+    label $recess.aDelEntry_label -text "AreaDelta";
+    grid $recess.aDelEntry_label -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.aDelEntry -width 16 -textvariable ::hmSolidMove::area_delta_value
+    grid $recess.aDelEntry -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
+
+    label $recess.iDelEntry_label -text "I delta";
+    grid $recess.iDelEntry_label -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.iDelEntry -width 16 -textvariable ::hmSolidMove::I_delta_value
+    grid $recess.iDelEntry -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
+
+
+    ::hwt::RemoveDefaultButtonBinding $recess;
+    ::hwt::PostWindow solidElemsCopyMoveWin -onDeleteWindow ::SolidElemsCopyMove::Quit;
+    hm_highlightmark surfs 1 norm
+
+    # 默认值
+    set ::hmSolidMove::volume_delta_percent 0.01
+    set ::hmSolidMove::area_delta_value 10
+    set ::hmSolidMove::I_delta_value 10
 }
 
-# solid 旋转
-proc main_solid_point_to_point_rotate {} {
-	# solid 点到点复制
-	*createmarkpanel solids 1 "select the solids"
-	set solid_ids [hm_getmark solids 1]
-	
-	*createmarkpanel point 1 "select the point-Center"
-	set point_center_id [hm_getmark point 1]
-	set point_center_loc [hm_getcoordinates point $point_center_id]
-	
-	*createmarkpanel point 1 "select the point-A"
-	set point_a_id [hm_getmark point 1]
-	set point_a_loc [hm_getcoordinates point $point_a_id]
+proc ::SolidElemsCopyMove::OkExit { args } {
+	# puts $::SolidElemsCopyMove::elem_ids
+	# puts $::SolidElemsCopyMove::solid_id_base
+	# puts $::SolidElemsCopyMove::solid_id_targets
+	set elem_ids $::SolidElemsCopyMove::elem_ids
+	set solid_id_base $::SolidElemsCopyMove::solid_id_base
+	set solid_id_targets $::SolidElemsCopyMove::solid_id_targets
 
-	*createmarkpanel point 1 "select the point-B"
-	set point_b_id [hm_getmark point 1]
-	set point_b_loc [hm_getcoordinates point $point_b_id]
-	
-	foreach solid_id $solid_ids {
-		edit_solid_rotate_3point $solid_id $point_center_loc $point_a_loc $point_b_loc 	
-	}
-}
-
-proc main_solid_elems_copy_overlay {} {
-	puts "\n\n-----Start-----"
-
-	*createmarkpanel elems 1 "select the elemnets"
-	set elem_ids [hm_getmark elems 1]
-
-	*createmarkpanel solids 1 "select the base-solid"
-	set solid_id_base [hm_getmark solids 1]
-
-	*createmarkpanel solids 1 "select the target-solid"
-	set solid_id_targets [hm_getmark solids 1]	
-
+	puts "\n-----Start-----"
+	set false_targets []
 	foreach solid_id_target $solid_id_targets {
+		if {$solid_id_target == $solid_id_base} {continue}
 		# 体积判断
 		set vol_del [get_solid_volume_delta_percent $solid_id_base $solid_id_target]
-		if {$vol_del > 0.00001} {
-			# return "false"
+		if {$vol_del > $::hmSolidMove::volume_delta_percent} {
 			puts "No-Target, volume delta percent: $vol_del"
+			lappend false_targets $solid_id_target
 			continue
 		}
+		
+		# 面积判断
 		set area_del [delta_solid_area $solid_id_base $solid_id_target]
-		if {$area_del > 1} {
+		if {$area_del > $::hmSolidMove::area_delta_value} {
 			puts "No-Target, area delta : $area_del"
-			# return "false"
+			lappend false_targets $solid_id_target
 			continue
 		}
 		puts "Is-Target, volume delta percent: $vol_del ; area_del: $area_del"
-		solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids
+		set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids]
+		if {$result == 0} {
+			lappend false_targets $solid_id_target
+		}
 	}
+	puts "-----End-----"
+	*clearmarkall 1
+	*clearmarkall 2
+	if { [llength $solid_id_targets] < 1} {
+		tk_messageBox -message "Not Calc!!!"	
+	} else {
+		tk_messageBox -message "Run End!!!"	
+	}
+
+	# 将计算失败的solid重新赋予
+	set ::SolidElemsCopyMove::solid_id_targets $false_targets
+
+    # ::hwt::UnpostWindow solidElemsCopyMoveWin;
+    
 }
 
+proc ::SolidElemsCopyMove::Quit { args } {
+	*clearmarkall 1
+	*clearmarkall 2
+	::hwt::UnpostWindow solidElemsCopyMoveWin;
+   # ::SolidElemsCopyMove::OkExit;
+}
 
-# 体积查看
-proc main_solid_volume {} {
+proc ::SolidElemsCopyMove::fun_elemsButton { args } {
+	*createmarkpanel elems 1 "select the elemnets"
+	set ::SolidElemsCopyMove::elem_ids [hm_getmark elems 1]
+}
+
+proc ::SolidElemsCopyMove::fun_baseButton { args } {
 	*createmarkpanel solids 1 "select the base-solid"
 	set solid_id_base [hm_getmark solids 1]
-	
-
-	*createmarkpanel solids 1 "select the target-solid"
-	set solid_id_target [hm_getmark solids 1]	
-	
-	puts [lindex [get_solid_geometry_data $solid_id_base] 2]
-	puts [lindex [get_solid_geometry_data $solid_id_target] 2]
+	if {[llength $solid_id_base]>1} {
+		tk_messageBox -message "solid base should only choose one!!!"
+		hm_markclear solids 1
+		return "None"
+	}
+	set ::SolidElemsCopyMove::solid_id_base $solid_id_base
 }
 
-main_solid_elems_copy_overlay
+proc ::SolidElemsCopyMove::fun_targetButton { args } {
+	*createmarkpanel solids 1 "select the target-solid"
+	set ::SolidElemsCopyMove::solid_id_targets [hm_getmark solids 1]	
+}
 
-
-
+*clearmarkall 1
+*clearmarkall 2
+::SolidElemsCopyMove::GUI;
