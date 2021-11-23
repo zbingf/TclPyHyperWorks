@@ -24,7 +24,7 @@ proc get_optistruct_path {} {
 # GUI
 if {[grab current] != ""} { return; }
 
-
+# UI界面
 proc ::tieCreate::GUI { args } {
     variable recess;
 
@@ -107,6 +107,7 @@ proc ::tieCreate::GUI { args } {
     set ::tieCreate::deg_limit 10
 }
 
+# 主程序
 proc ::tieCreate::OkExit { args } {
 
 	set elem_ids_b $::tieCreate::elem_ids_b
@@ -164,7 +165,7 @@ proc ::tieCreate::OkExit { args } {
 	source $tcl_path
 	*contactsurfcreatewithshells "$surf_1_name" 11 1 0
 	*createmark contactsurfs 2 "$surf_1_name"
-	*dictionaryload contactsurfs 2 [get_optistruct_path] "ELIST"
+	*dictionaryload contactsurfs 2 [get_optistruct_path] "SURF"
 	*startnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
 	*attributeupdateint contactsurfs 1 3240 1 2 0 1
 	*endnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
@@ -180,7 +181,7 @@ proc ::tieCreate::OkExit { args } {
 	source $tcl_path2
 	*contactsurfcreatewithshells "$surf_2_name" 11 1 0
 	*createmark contactsurfs 2 "$surf_2_name"
-	*dictionaryload contactsurfs 2 [get_optistruct_path] "ELIST"
+	*dictionaryload contactsurfs 2 [get_optistruct_path] "SURF"
 	*startnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
 	*attributeupdateint contactsurfs 1 3240 1 2 0 1
 	*endnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
@@ -192,8 +193,25 @@ proc ::tieCreate::OkExit { args } {
 	}
 
 
-	file delete $temp_path
-	file delete $fem_path
+	# *startnotehistorystate {Interface "surf_n" created}
+	# *interfacecreate "surf_n" 2 3 11
+	# *createmark groups 2 "surf_n"
+	# *dictionaryload groups 2 "D:/software/Altair/2019/templates/feoutput/optistruct/optistruct" "TIE"
+	# *startnotehistorystate {Attached attributes to group "surf_n"}
+	# *attributeupdateint groups 1 3240 1 2 0 1
+	# *attributeupdatestring groups 1 130 1 0 0 "ERROR"
+	# *attributeupdateint groups 1 10397 1 0 0 123
+	# *attributeupdatedouble groups 1 3915 1 0 0 0
+	# *attributeupdateint groups 1 2137 1 2 0 1
+	# *attributeupdatestring groups 1 2138 1 2 0 "        "
+	# *attributeupdatestring groups 1 1997 1 2 0 "        "
+	# *attributeupdateentity groups 1 10419 1 0 0 sets 0
+	# *endnotehistorystate {Attached attributes to group "surf_n"}
+	# *endnotehistorystate {Interface "surf_n" created}
+
+
+	# file delete $temp_path
+	# file delete $fem_path
 	file delete $tcl_path
 	file delete $tcl_path2
 	file delete $tcl_path3
@@ -205,8 +223,8 @@ proc ::tieCreate::OkExit { args } {
 	*clearmarkall 2
 	tk_messageBox -message "Run End!!!"	
 
-	set ::tieCreate::elem_ids_b []
-	set ::tieCreate::elem_ids_t []
+	# set ::tieCreate::elem_ids_b []
+	# set ::tieCreate::elem_ids_t []
     
 }
 
