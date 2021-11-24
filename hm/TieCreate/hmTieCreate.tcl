@@ -5,6 +5,7 @@ namespace eval ::tieCreate {
 	variable surf_name "comp5"
 	variable dis_limit 4
 	variable deg_limit 10
+	variable deg_limit_surf 55
     variable recess;
     variable file_dir;
 }
@@ -17,7 +18,6 @@ proc get_optistruct_path {} {
 	set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
 	return $optistruct_path
 }
-
 
 
 # -------------------------------------
@@ -37,7 +37,7 @@ proc ::tieCreate::GUI { args } {
     
     # 主窗口
     ::hwt::CreateWindow tieCreateWin \
-        -windowtitle "tieCreate" \
+        -windowtitle "TieCreate" \
         -cancelButton "Cancel" \
         -cancelFunc ::tieCreate::Quit \
         -addButton OK ::tieCreate::OkExit no_icon \
@@ -86,16 +86,20 @@ proc ::tieCreate::GUI { args } {
     entry $recess.entry1 -width 16 -textvariable ::tieCreate::surf_name
     grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel2 -text "Dis Limit";
+    label $recess.entryLabel2 -text "单元间-中心距离-Limit";
     grid $recess.entryLabel2 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry2 -width 16 -textvariable ::tieCreate::dis_limit
     grid $recess.entry2 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel3 -text "Deg Limit";
+    label $recess.entryLabel3 -text "单元间-法向夹角-Limit deg";
     grid $recess.entryLabel3 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry3 -width 16 -textvariable ::tieCreate::deg_limit
     grid $recess.entry3 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
 
+    label $recess.entryLabel4 -text "单元间-偏移角度-Limit deg";
+    grid $recess.entryLabel4 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.entry4 -width 16 -textvariable ::tieCreate::deg_limit_surf
+    grid $recess.entry4 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow tieCreateWin -onDeleteWindow ::tieCreate::Quit;
@@ -118,7 +122,7 @@ proc ::tieCreate::OkExit { args } {
 	set surf_2_name "$::tieCreate::surf_name\_B"
 	set dis_limit $::tieCreate::dis_limit
 	set deg_limit $::tieCreate::deg_limit
-
+	set deg_limit_surf $::tieCreate::deg_limit_surf
 
 	# 路径定义
 	
@@ -153,7 +157,7 @@ proc ::tieCreate::OkExit { args } {
 
 	# ------------------------------------------
 	# 调用 python数据
-	set result_py [exec python $py_path $dis_limit $deg_limit]
+	set result_py [exec python $py_path $dis_limit $deg_limit $deg_limit_surf]
 	if {$result_py} {
 		puts "python run success!!"
 	} else {
@@ -192,6 +196,29 @@ proc ::tieCreate::OkExit { args } {
 		*reversecontactsurfnormals "$surf_2_name" 1 1
 	}
 
+	set surf_name $::tieCreate::surf_name
+	*startnotehistorystate {Interface "$surf_name" created}
+	*interfacecreate "$surf_name" 2 3 11
+	*createmark groups 2 "$surf_name"
+	*dictionaryload groups 2 [get_optistruct_path] "TIE"
+	*endnotehistorystate {Attached attributes to group "$surf_name"}
+
+	*createmark groups 1 "$surf_name"	
+	set group_id [hm_getmark groups 1]
+	*createmark contactsurfs 1 "$surf_1_name"
+	set surf_1_id [hm_getmark contactsurfs 1]
+	*createmark contactsurfs 1 "$surf_2_name"
+	set surf_2_id [hm_getmark contactsurfs 1]
+
+	*setvalue groups id=$group_id STATUS=2 1997="S2S"
+	*setvalue groups id=$group_id STATUS=1 3915=$dis_limit
+
+	*startnotehistorystate {Modified MSID of group}
+	*setvalue groups id=$group_id masterentityids={contactsurfs $surf_1_id}
+	*endnotehistorystate {Modified MSID of group}
+	*startnotehistorystate {Modified SSID of group}
+	*setvalue groups id=$group_id slaveentityids={contactsurfs $surf_2_id}
+	*endnotehistorystate {Modified SSID of group}
 
 	# *startnotehistorystate {Interface "surf_n" created}
 	# *interfacecreate "surf_n" 2 3 11
