@@ -25,8 +25,8 @@ NODE_ID_TEMP_DELTA = 100000
 LIMIT_DIS = 30
 
 file_dir = os.path.dirname(__file__)
-csv_path = os.path.join(file_dir, 'temp_nodes.txt')
-output_path = os.path.join(file_dir, 'temp_node_id_rename.tcl')
+csv_path = os.path.join(file_dir, '__temp_nodes.txt')
+output_path = os.path.join(file_dir, '__temp_node_id_rename.tcl')
 template_path = tkinter.filedialog.askopenfilename(
     filetypes = (('template_csv_path', '*.csv'), ),
     initialdir=file_dir)

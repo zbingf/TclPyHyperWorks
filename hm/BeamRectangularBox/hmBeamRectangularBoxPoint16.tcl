@@ -18,6 +18,8 @@ namespace eval ::rectangularBox {
 	variable materialsName steel1
 	# 单元尺寸
 	variable elementsizeset1 10
+
+	variable filepath;
 }
 
 # 命令交互
@@ -25,10 +27,9 @@ set ::rectangularBox::elementsizeset1 [hm_getstring "beam length(mm) =" "input f
 
 # ————————————————————————————————————————————
 # 获取当前文件路径
-set filepath [file dirname [info script]]
-puts $filepath
-global filepath
-
+set ::rectangularBox::filepath [file dirname [info script]]
+puts $::rectangularBox::filepath
+set ::rectangularBox::py_path [format "%s/hmBeamRectangularBoxPoint16.py" $::rectangularBox::filepath]
 
 
 # 子函数
@@ -203,9 +204,7 @@ proc isCuboid {solidLoc} {
 	# 长方体 矩形钢
 	if {$numPoint==16} {
 		# 16点point
-		global filepath
-		set pyPath [format "%s/rectangular_box.py" $filepath]
-		set pyResult [exec python $pyPath isRectangularBox $locDatas]
+		set pyResult [exec python $::rectangularBox::py_path isRectangularBox $locDatas]
 		
 		# 1 {{True} {5.00} {50.00} {60.00} {357.51} {605.00 -555.94 10.32} {605.00 -734.69 319.93} {-21921.54 -0.00 -0.00}}
 

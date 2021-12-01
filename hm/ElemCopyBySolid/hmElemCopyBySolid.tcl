@@ -1,6 +1,24 @@
 # 参考 D:\software\Altair\2021.1\hwdesktop\hm\scripts\preserve_lines.tcl
 
 
+namespace eval ::ElemCopyBySolid {
+	variable temp_path_base
+	variable temp_path_target
+	variable py_path
+
+	# 监控参数
+	variable volume_delta_percent
+	variable area_delta_value
+	variable I_delta_value
+}
+
+# 路径定义
+set filepath [file dirname [info script]]
+set ::ElemCopyBySolid::temp_path_base [format "%s/__temp_base.csv" $filepath]
+set ::ElemCopyBySolid::temp_path_target [format "%s/__temp_target.csv" $filepath]
+set ::ElemCopyBySolid::py_path [format "%s/hmElemCopyBySolid.py" $filepath]
+
+
 # ==================================
 # ==================================
 # 
@@ -380,23 +398,6 @@ proc edit_v_surf_1p_1v {center_loc surf_v} {
 	*createplane 1 $v_x $v_y $v_z $x $y $z
 }
 
-
-namespace eval ::hmSolidMove {
-	variable temp_path_base
-	variable temp_path_target
-	variable py_path
-	variable volume_delta_percent
-	variable area_delta_value
-	variable I_delta_value
-}
-
-# 路径定义
-set filepath [file dirname [info script]]
-set ::hmSolidMove::temp_path_base [format "%s/__temp_base.csv" $filepath]
-set ::hmSolidMove::temp_path_target [format "%s/__temp_target.csv" $filepath]
-set ::hmSolidMove::py_path [format "%s/pySolidGeometry.py" $filepath]
-
-
 # ==========
 # solid 及 网格复制移动
 proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
@@ -427,11 +428,11 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 		# 第一次旋转
 		if {$one_loc == 0} {
 			# 数据导出
-			print_solid_points_and_center $solid_id_base $::hmSolidMove::temp_path_base
-			print_solid_points_and_center $solid_id_target $::hmSolidMove::temp_path_target
+			print_solid_points_and_center $solid_id_base $::ElemCopyBySolid::temp_path_base
+			print_solid_points_and_center $solid_id_target $::ElemCopyBySolid::temp_path_target
 		}
 		# 数据读取
-		set result_py [exec python $::hmSolidMove::py_path $one_loc 0]
+		set result_py [exec python $::ElemCopyBySolid::py_path $one_loc 0]
 		set center_base [lindex [get_solid_geometry_data $solid_id_base] 1]
 		if {$one_loc == 0 } { set point_1_one_id [lindex $result_py 0] }
 		
@@ -448,7 +449,7 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 		for {set third_loc 0} {$third_loc < $max_n} {incr third_loc 1} {
 			if {$third_loc > 10} {break}
 
-			set result_py [exec python $::hmSolidMove::py_path $one_loc $third_loc]
+			set result_py [exec python $::ElemCopyBySolid::py_path $one_loc $third_loc]
 			
 			if {[expr $third_loc+$one_loc]==0 } { 
 				# 防止坐标变化引起的 id排序变更
@@ -485,7 +486,7 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 			# eval "*createnode $point_1_center_loc_base 0 0 0"
 
 			set delta [abs_sum_list [I_delta_solid $solid_id_base $solid_id_target]]
-			if {$delta < $::hmSolidMove::I_delta_value} {
+			if {$delta < $::ElemCopyBySolid::I_delta_value} {
 				puts "True: I-delta-run $one_loc - $third_loc : $delta ; Id : $point_1_one_id ,$point_2_one_id ,$point_1_third_id ,$point_2_third_id"
 				*createmark solids 1 $solid_id_base
 				*deletesolidswithelems 1 0 0
@@ -501,7 +502,6 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 	# puts "\n-----End-----\n\n"
 	return 0
 }
-
 
 # ==================================
 # ==================================
@@ -583,17 +583,17 @@ proc ::SolidElemsCopyMove::GUI { args } {
 
     label $recess.vDelEntry_label -text "VolumeDeltaPercent";
     grid $recess.vDelEntry_label -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.vDelEntry -width 16 -textvariable ::hmSolidMove::volume_delta_percent
+    entry $recess.vDelEntry -width 16 -textvariable ::ElemCopyBySolid::volume_delta_percent
     grid $recess.vDelEntry -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
 
     label $recess.aDelEntry_label -text "AreaDelta";
     grid $recess.aDelEntry_label -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.aDelEntry -width 16 -textvariable ::hmSolidMove::area_delta_value
+    entry $recess.aDelEntry -width 16 -textvariable ::ElemCopyBySolid::area_delta_value
     grid $recess.aDelEntry -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
     label $recess.iDelEntry_label -text "I delta";
     grid $recess.iDelEntry_label -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.iDelEntry -width 16 -textvariable ::hmSolidMove::I_delta_value
+    entry $recess.iDelEntry -width 16 -textvariable ::ElemCopyBySolid::I_delta_value
     grid $recess.iDelEntry -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
@@ -602,12 +602,16 @@ proc ::SolidElemsCopyMove::GUI { args } {
     hm_highlightmark surfs 1 norm
 
     # 默认值
-    set ::hmSolidMove::volume_delta_percent 0.01
-    set ::hmSolidMove::area_delta_value 10
-    set ::hmSolidMove::I_delta_value 10
+    set ::ElemCopyBySolid::volume_delta_percent 0.01
+    set ::ElemCopyBySolid::area_delta_value 10
+    set ::ElemCopyBySolid::I_delta_value 10
 }
 
 proc ::SolidElemsCopyMove::OkExit { args } {
+
+	set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+	if {$choice != yes} {return;}
+
 	# puts $::SolidElemsCopyMove::elem_ids
 	# puts $::SolidElemsCopyMove::solid_id_base
 	# puts $::SolidElemsCopyMove::solid_id_targets
@@ -621,7 +625,7 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 		if {$solid_id_target == $solid_id_base} {continue}
 		# 体积判断
 		set vol_del [get_solid_volume_delta_percent $solid_id_base $solid_id_target]
-		if {$vol_del > $::hmSolidMove::volume_delta_percent} {
+		if {$vol_del > $::ElemCopyBySolid::volume_delta_percent} {
 			puts "No-Target, volume delta percent: $vol_del"
 			lappend false_targets $solid_id_target
 			continue
@@ -629,7 +633,7 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 		
 		# 面积判断
 		set area_del [delta_solid_area $solid_id_base $solid_id_target]
-		if {$area_del > $::hmSolidMove::area_delta_value} {
+		if {$area_del > $::ElemCopyBySolid::area_delta_value} {
 			puts "No-Target, area delta : $area_del"
 			lappend false_targets $solid_id_target
 			continue
@@ -652,8 +656,10 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 	# 将计算失败的solid重新赋予
 	set ::SolidElemsCopyMove::solid_id_targets $false_targets
 
+	file delete $::ElemCopyBySolid::temp_path_base
+	file delete $::ElemCopyBySolid::temp_path_target
+
     # ::hwt::UnpostWindow solidElemsCopyMoveWin;
-    
 }
 
 proc ::SolidElemsCopyMove::Quit { args } {

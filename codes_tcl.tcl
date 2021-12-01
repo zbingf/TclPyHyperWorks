@@ -14,7 +14,7 @@ set i 0
 set i [ expr $i+1 ]
 
 
-# 文件处理
+# 文件处理 ---------------------------------------
 # 删除
 file delete $filename
 # 复制
@@ -24,11 +24,28 @@ file rename $file new.bmp
 # 查找文件
 set filename [glob *.png]
 
+# 文件写入
+set f_obj [open $file_path w]
+puts $f_obj "asdf"
+close $f_obj
+
+# -----------------------------------------------
+
 # 设置当前目录
 cd $dict
+
 
 # python 运行
 set test [exec python $csv_paths]
 
 
+
 eval "set datalist \"$pyResult\"" 
+
+
+
+# -----------------------------------------------
+
+# 字典
+dict set point_target_dic $point_id "$loc1"
+set value [dict get $point_target_dic $point_id]

@@ -153,6 +153,25 @@ proc angle_2vector {base_v_loc target_v_loc} {
 	return "{$surf_v} $angle"
 }
 
+# 点到点距离 - 坐标输入
+proc dis_point_to_point_loc {point_a_loc point_b_loc} {
+
+	set x1 [lindex $point_a_loc 0]
+	set y1 [lindex $point_a_loc 1]
+	set z1 [lindex $point_a_loc 2]
+
+	set x2 [lindex $point_b_loc 0]
+	set y2 [lindex $point_b_loc 1]
+	set z2 [lindex $point_b_loc 2]
+
+	set x3 [expr $x2-$x1]
+	set y3 [expr $y2-$y1]
+	set z3 [expr $z2-$z1]
+
+	set dis [expr ($x3**2 + $y3**2 + $z3**2)**0.5]
+	return $dis
+}
+
 # =================================
 
 # 路径定义
@@ -207,6 +226,7 @@ proc get_point_circle_ids {line_id} {
 	return $point_circles
 }
 
+# 创建圆心node
 proc create_circle_center_node {point_circle_ids} {
 	
 	# 中心点创建
@@ -221,24 +241,6 @@ proc create_circle_center_node {point_circle_ids} {
 	return $node_circle_center_id
 }
 
-# 点到点距离及矢量 - 坐标输入
-proc dis_point_to_point_loc {point_a_loc point_b_loc} {
-
-	set x1 [lindex $point_a_loc 0]
-	set y1 [lindex $point_a_loc 1]
-	set z1 [lindex $point_a_loc 2]
-
-	set x2 [lindex $point_b_loc 0]
-	set y2 [lindex $point_b_loc 1]
-	set z2 [lindex $point_b_loc 2]
-
-	set x3 [expr $x2-$x1]
-	set y3 [expr $y2-$y1]
-	set z3 [expr $z2-$z1]
-
-	set dis [expr ($x3**2 + $y3**2 + $z3**2)**0.5]
-	return $dis
-}
 
 # 根据线id获取圆心数据
 proc line_to_circle_center {line_id} {
@@ -259,23 +261,33 @@ proc line_to_circle_center {line_id} {
 	return "$node_circle_center_id {$circle_center_loc} $r_circle"
 }
 
+# 根据线获取 线的矢量
+proc get_v_by_line {line_id pointid_to_loc_dic} {
+	*createmark points 1 "by lines" $line_id
+	set point_ids [hm_getmark points 1]
+	set v1 [v_sub [dict get $pointid_to_loc_dic [lindex $point_ids 0]] [dict get $pointid_to_loc_dic [lindex $point_ids 1]]]
+	return $v1
+}
 
 # =============================
 set v_dot_limit 0.1
 
 puts "---start---"
+
 # 目标线 ID  - 必须为圆
 *createmarkpanel lines 1
 set line_id [hm_getmark lines 1]
 puts "line_id : $line_id"
+
 # 根据线获取面
 *createmark surfs 1 "by lines" $line_id
 set surf_id [hm_getmark surfs 1]
 
 set circle_data [line_to_circle_center $line_id]
 puts "$circle_data"
-set R_circle [lindex $circle_data 2]
 set circle_center_loc [lindex $circle_data 1]
+set R_circle [lindex $circle_data 2]
+
 
 *createmark points 1 "by surface" $surf_id
 set point_ids [hm_getmark points 1]
@@ -291,7 +303,7 @@ foreach point_id $point_ids {
 	set dis1 [dis_point_to_point_loc $loc1 $circle_center_loc]
 	if {[expr abs($dis1-$R_circle)] > 1} {
 		# puts "dis1: $dis1"
-		dict set point_target_dic $point_id "$loc1"
+		dict set pointid_to_loc_dic $point_id "$loc1"
 		# lappend point_target_ids $point_id
 		# lappend point_target_locs "$loc1"
 		*createmark lines 1 "by points" $point_id
@@ -310,18 +322,11 @@ foreach point_id $point_ids {
 if {[llength $line_target_ids]==4} {} else {return 0}
 # puts "point_target_locs: $point_target_locs"
 
-# 根据线获取 线的矢量
-proc get_v_by_line {line_id point_target_dic} {
-	*createmark points 1 "by lines" $line_id
-	set point_ids [hm_getmark points 1]
-	set v1 [v_sub [dict get $point_target_dic [lindex $point_ids 0]] [dict get $point_target_dic [lindex $point_ids 1]]]
-	return $v1
-}
 
 # 各线的矢量判断
-set v0 [get_v_by_line [lindex $line_target_ids 0] $point_target_dic]
-set v1 [get_v_by_line [lindex $line_target_ids 1] $point_target_dic]
-set v2 [get_v_by_line [lindex $line_target_ids 2] $point_target_dic]
+set v0 [get_v_by_line [lindex $line_target_ids 0] $pointid_to_loc_dic]
+set v1 [get_v_by_line [lindex $line_target_ids 1] $pointid_to_loc_dic]
+set v2 [get_v_by_line [lindex $line_target_ids 2] $pointid_to_loc_dic]
 
 if {[v_multi_dot $v0 $v1] < $v_dot_limit} {
 	set v_u $v0

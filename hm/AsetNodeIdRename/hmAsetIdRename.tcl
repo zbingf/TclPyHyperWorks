@@ -2,9 +2,9 @@
 
 
 set filepath [file dirname [info script]]
-set csv_path [format "%s/temp_nodes.txt" $filepath]
-set py_path  [format "%s/py_node_id_rename.py" $filepath]
-set tcl_path [format "%s/temp_node_id_rename.tcl" $filepath]
+set csv_path [format "%s/__temp_nodes.txt" $filepath]
+set py_path  [format "%s/hmAsetIdRename.py" $filepath]
+set tcl_path [format "%s/__temp_node_id_rename.tcl" $filepath]
 
 
 # 获取node id 坐标

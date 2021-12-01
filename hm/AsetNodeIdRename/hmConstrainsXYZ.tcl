@@ -2,9 +2,7 @@
 
 
 set filepath [file dirname [info script]]
-set csv_path [format "%s/temp_nodes.txt" $filepath]
-set py_path  [format "%s/py_node_id_rename.py" $filepath]
-set tcl_path [format "%s/temp_node_id_rename.tcl" $filepath]
+set csv_path [format "%s/__temp_nodes.txt" $filepath]
 
 
 # 获取node id 坐标
@@ -21,7 +19,7 @@ proc get_node_locs {node_id prefix} {
 
 
 # 
-proc csv_aset_node_id_loc {csv_path c_type} {
+proc print_csv_aset_node_id_loc {csv_path c_type} {
 	# 获取所有 ASET 对应的 nodeID 及 坐标数据
 	# 创建csv文件路径
 
@@ -54,4 +52,4 @@ proc csv_aset_node_id_loc {csv_path c_type} {
 
 # -----------------------------------
 
-csv_aset_node_id_loc $csv_path ASET
+print_csv_aset_node_id_loc $csv_path ASET

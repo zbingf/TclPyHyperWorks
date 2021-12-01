@@ -2,8 +2,8 @@
 
 
 namespace eval ::tieCreate {
-	variable surf_name "comp5"
-	variable dis_limit 4
+	variable surf_name "Tie_Surf2Surf_n"
+	variable dis_limit 1
 	variable deg_limit 10
 	variable deg_limit_surf 55
     variable recess;
@@ -29,7 +29,7 @@ proc ::tieCreate::GUI { args } {
     variable recess;
 
     set minx [winfo pixel . 225p];
-    set miny [winfo pixel . 180p];
+    set miny [winfo pixel . 200p];
     if {![OnPc]} {set miny [winfo pixel . 240p];}
     set graphArea [hm_getgraphicsarea];
     set x [lindex $graphArea 0];
@@ -51,7 +51,7 @@ proc ::tieCreate::GUI { args } {
     set recess [::hwt::WindowRecess tieCreateWin];
 
     grid columnconfigure $recess 1 -weight 1;
-    grid rowconfigure    $recess 9 -weight 1;
+    grid rowconfigure    $recess 10 -weight 1;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line1 "单元选择";
@@ -101,18 +101,32 @@ proc ::tieCreate::GUI { args } {
     entry $recess.entry4 -width 16 -textvariable ::tieCreate::deg_limit_surf
     grid $recess.entry4 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
 
+
+
+    button $recess.delButton \
+        -text "删除名称对应的Tie" \
+        -command ::tieCreate::fun_delButton \
+        -width 16;
+    grid $recess.delButton -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+
+
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow tieCreateWin -onDeleteWindow ::tieCreate::Quit;
     hm_highlightmark surfs 1 norm
 
     # 默认值
-    set ::tieCreate::surf_name "surf_n"
-    set ::tieCreate::dis_limit 30
-    set ::tieCreate::deg_limit 10
+    # set ::tieCreate::surf_name "surf_n"
+    # set ::tieCreate::dis_limit 30
+    # set ::tieCreate::deg_limit 10
 }
 
 # 主程序
 proc ::tieCreate::OkExit { args } {
+
+	
+	set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+	if {$choice != yes} {return;}
+
 
 	set elem_ids_b $::tieCreate::elem_ids_b
 	set elem_ids_t $::tieCreate::elem_ids_t
@@ -132,7 +146,7 @@ proc ::tieCreate::OkExit { args } {
 	set tcl_path2  [format "%s/__temp2.tcl" $::tieCreate::file_dir]
 	set tcl_path3  [format "%s/__temp3.tcl" $::tieCreate::file_dir]
 	set tcl_path4  [format "%s/__temp4.tcl" $::tieCreate::file_dir]
-	set py_path   [format "%s/hmTieCreate.py" $::tieCreate::file_dir]
+	set py_path   [format "%s/hmTieSurfToSurfCreate.py" $::tieCreate::file_dir]
 
 
 	# 导出数据-fem (仅导出显示的数据)
@@ -170,9 +184,9 @@ proc ::tieCreate::OkExit { args } {
 	*contactsurfcreatewithshells "$surf_1_name" 11 1 0
 	*createmark contactsurfs 2 "$surf_1_name"
 	*dictionaryload contactsurfs 2 [get_optistruct_path] "SURF"
-	*startnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
-	*attributeupdateint contactsurfs 1 3240 1 2 0 1
-	*endnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
+	# *startnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
+	# *attributeupdateint contactsurfs 1 3240 1 2 0 1
+	# *endnotehistorystate {Attached attributes to contactsurf "$surf_1_name"}
 
 	# 方向修正
 	catch {
@@ -186,9 +200,9 @@ proc ::tieCreate::OkExit { args } {
 	*contactsurfcreatewithshells "$surf_2_name" 11 1 0
 	*createmark contactsurfs 2 "$surf_2_name"
 	*dictionaryload contactsurfs 2 [get_optistruct_path] "SURF"
-	*startnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
-	*attributeupdateint contactsurfs 1 3240 1 2 0 1
-	*endnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
+	# *startnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
+	# *attributeupdateint contactsurfs 1 3240 1 2 0 1
+	# *endnotehistorystate {Attached attributes to contactsurf "$surf_2_name"}
 
 	# 方向修正
 	catch {
@@ -237,8 +251,8 @@ proc ::tieCreate::OkExit { args } {
 	# *endnotehistorystate {Interface "surf_n" created}
 
 
-	# file delete $temp_path
-	# file delete $fem_path
+	file delete $temp_path
+	file delete $fem_path
 	file delete $tcl_path
 	file delete $tcl_path2
 	file delete $tcl_path3
@@ -274,6 +288,31 @@ proc ::tieCreate::fun_targetButton { args } {
 	set elem_ids [hm_getmark elems 1]
 	set ::tieCreate::elem_ids_t $elem_ids
 }
+
+proc ::tieCreate::fun_delButton {args} {
+
+	set choice [tk_messageBox -type yesnocancel -default yes -message "是否删除" -icon question ]
+	if {$choice != yes} {return;}
+
+	set surf_name $::tieCreate::surf_name
+
+	catch {
+		*createmark groups 1 "$surf_name"
+		*deletemark groups 1
+	}
+	
+	catch {
+		*createmark contactsurfs 1 "$surf_name\_A"
+		*deletemark contactsurfs 1
+	}
+
+	catch {
+		*createmark contactsurfs 1 "$surf_name\_B"
+		*deletemark contactsurfs 1
+	}
+
+}
+
 
 *clearmarkall 1
 *clearmarkall 2

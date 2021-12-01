@@ -99,3 +99,21 @@ hm_markbyfeature 1 1 "feature_mode 2 min_radius 0.1 max_radius 1"
 puts [hm_getmark lines 1]
 
 
+
+# --------------------------------------
+# 屏幕视角
+proc get_current_view_z { } {
+	set view_matix [lindex [hm_getcurrentview] 0 ]
+	set z_x [lindex $view_matix 2]
+	set z_y [lindex $view_matix 6]
+	set z_z [lindex $view_matix 10]
+	return "$z_x $z_y $z_z"
+}
+
+proc get_current_view_x { } {
+	set view_matix [lindex [hm_getcurrentview] 0 ]
+	set z_x [lindex $view_matix 0]
+	set z_y [lindex $view_matix 4]
+	set z_z [lindex $view_matix 8]
+	return "$z_x $z_y $z_z"
+}

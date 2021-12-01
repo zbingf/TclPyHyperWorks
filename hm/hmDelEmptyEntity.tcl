@@ -2,6 +2,10 @@
 # 删除无用卡片
 #
 
+set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+if {$choice != yes} {return;}
+
+
 proc del_empty_entity {entity_name dataname} {
 	*createmark $entity_name 1 "all"
 	set tar_ids [hm_getmark $entity_name 1]

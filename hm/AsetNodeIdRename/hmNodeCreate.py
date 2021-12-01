@@ -22,7 +22,7 @@ tkobj = tkinter.Tk(); tkobj.withdraw()
 # init set
 
 file_dir = os.path.dirname(__file__)
-output_path = os.path.join(file_dir, 'temp_create_node.tcl')
+output_path = os.path.join(file_dir, '__temp_create_node.tcl')
 template_path = tkinter.filedialog.askopenfilename(
     filetypes = (('template_csv_path', '*.csv'), ),
     initialdir=file_dir)
