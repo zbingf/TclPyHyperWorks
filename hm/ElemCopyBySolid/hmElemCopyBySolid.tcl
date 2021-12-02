@@ -1,6 +1,5 @@
 # 参考 D:\software\Altair\2021.1\hwdesktop\hm\scripts\preserve_lines.tcl
 
-
 namespace eval ::ElemCopyBySolid {
 	variable temp_path_base
 	variable temp_path_target
@@ -19,7 +18,11 @@ set ::ElemCopyBySolid::temp_path_target [format "%s/__temp_target.csv" $filepath
 set ::ElemCopyBySolid::py_path [format "%s/hmElemCopyBySolid.py" $filepath]
 
 
-# ==================================
+if {[info exists ::ElemCopyBySolid::volume_delta_percent]==0} {set ::ElemCopyBySolid::volume_delta_percent 0.01}
+if {[info exists ::ElemCopyBySolid::area_delta_value]==0} {set ::ElemCopyBySolid::area_delta_value 1}
+if {[info exists ::ElemCopyBySolid::I_delta_value]==0} {set ::ElemCopyBySolid::I_delta_value 10}
+
+
 # ==================================
 # 
 proc sum_list {list1} {
@@ -499,7 +502,7 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 	catch { *deletemark elements 1 }
 	
 	puts "False: del-solid ; I-delta-run-$one_loc - $third_loc : $delta"
-	# puts "\n-----End-----\n\n"
+	puts "\n-----End-----\n"
 	return 0
 }
 
@@ -602,9 +605,9 @@ proc ::SolidElemsCopyMove::GUI { args } {
     hm_highlightmark surfs 1 norm
 
     # 默认值
-    set ::ElemCopyBySolid::volume_delta_percent 0.01
-    set ::ElemCopyBySolid::area_delta_value 10
-    set ::ElemCopyBySolid::I_delta_value 10
+    # set ::ElemCopyBySolid::volume_delta_percent 0.01
+    # set ::ElemCopyBySolid::area_delta_value 10
+    # set ::ElemCopyBySolid::I_delta_value 10
 }
 
 proc ::SolidElemsCopyMove::OkExit { args } {
@@ -644,7 +647,7 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 			lappend false_targets $solid_id_target
 		}
 	}
-	puts "-----End-----"
+	
 	*clearmarkall 1
 	*clearmarkall 2
 	if { [llength $solid_id_targets] < 1} {
@@ -660,6 +663,7 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 	file delete $::ElemCopyBySolid::temp_path_target
 
     # ::hwt::UnpostWindow solidElemsCopyMoveWin;
+    puts "-----End-----"
 }
 
 proc ::SolidElemsCopyMove::Quit { args } {

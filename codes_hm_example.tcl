@@ -17,6 +17,43 @@ proc get_optistruct_path {} {
 	return $optistruct_path
 }
 
+
+# --------------------------------------
+# 屏幕视角
+proc get_current_view_z { } {
+	set view_matix [lindex [hm_getcurrentview] 0 ]
+	set z_x [lindex $view_matix 2]
+	set z_y [lindex $view_matix 6]
+	set z_z [lindex $view_matix 10]
+	return "$z_x $z_y $z_z"
+}
+
+
+proc get_current_view_x { } {
+	set view_matix [lindex [hm_getcurrentview] 0 ]
+	set z_x [lindex $view_matix 0]
+	set z_y [lindex $view_matix 4]
+	set z_z [lindex $view_matix 8]
+	return "$z_x $z_y $z_z"
+}
+
+
+# --------------------------------------
+# 打印数据
+proc print_elem_node_to_fem {fem_path elem_ids} {
+	# 导出指定单元数据到fem
+	set altair_dir [hm_info -appinfo ALTAIR_HOME]
+	set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
+	# elems 1
+	eval "*createmark elems 1 $elem_ids"
+	# nodes 1
+	hm_createmark nodes 1 "by elem" $elem_ids
+	# 导出
+	hm_answernext yes
+	*feoutput_select "$optistruct_path" $fem_path 1 0 0
+}
+
+
 # =======================================
 # 创建材料
 proc create_materials_MAT1 {mat_name value_E value_NU value_RHO} {

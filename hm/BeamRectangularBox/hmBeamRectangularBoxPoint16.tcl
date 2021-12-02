@@ -22,15 +22,6 @@ namespace eval ::rectangularBox {
 	variable filepath;
 }
 
-# 命令交互
-set ::rectangularBox::elementsizeset1 [hm_getstring "beam length(mm) =" "input float"]
-
-# ————————————————————————————————————————————
-# 获取当前文件路径
-set ::rectangularBox::filepath [file dirname [info script]]
-puts $::rectangularBox::filepath
-set ::rectangularBox::py_path [format "%s/hmBeamRectangularBoxPoint16.py" $::rectangularBox::filepath]
-
 
 # 子函数
 # ————————————————————————————————————————————
@@ -295,6 +286,20 @@ proc solidsCal {solidsId} {
 	}
 }
 
+
+
+set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+if {$choice != yes} {return;}
+
+
+# 命令交互
+set ::rectangularBox::elementsizeset1 [hm_getstring "beam length(mm) =" "input float"]
+
+# ————————————————————————————————————————————
+# 获取当前文件路径
+set ::rectangularBox::filepath [file dirname [info script]]
+puts $::rectangularBox::filepath
+set ::rectangularBox::py_path [format "%s/hmBeamRectangularBoxPoint16.py" $::rectangularBox::filepath]
 
 
 # 材料设置
