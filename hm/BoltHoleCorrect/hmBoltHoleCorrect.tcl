@@ -4,8 +4,11 @@ namespace eval ::BoltHoleCorrect {
 
     variable angle_limit
     variable comp_base_id
-    variable isSaveSelect
+    variable rbe2_base_ids
+
     variable moveType
+    variable baseType
+    variable isSaveSelect
 
     variable file_dir [file dirname [info script]]
     variable fem_path
@@ -16,12 +19,14 @@ namespace eval ::BoltHoleCorrect {
 
 # 初始化
 set ::BoltHoleCorrect::comp_base_id []
+set ::BoltHoleCorrect::rbe2_base_ids []
 set ::BoltHoleCorrect::fem_path [format "%s/__temp.fem" $::BoltHoleCorrect::file_dir]
 set ::BoltHoleCorrect::csv_path [format "%s/__temp.csv" $::BoltHoleCorrect::file_dir]
 set ::BoltHoleCorrect::py_path   [format "%s/hmBoltHoleCorrect.py" $::BoltHoleCorrect::file_dir]
 
 if {[info exists ::BoltHoleCorrect::angle_limit]==0} {set ::BoltHoleCorrect::angle_limit 3}
 if {[info exists ::BoltHoleCorrect::moveType]==0} {set ::BoltHoleCorrect::moveType 1}
+if {[info exists ::BoltHoleCorrect::baseType]==0} {set ::BoltHoleCorrect::baseType 1}
 
 # 导出指定单元数据到fem
 proc print_elem_node_to_fem {fem_path elem_ids} {
@@ -109,37 +114,51 @@ proc ::BoltHoleCorrect::GUI { args } {
     grid rowconfigure    $recess 10 -weight 1;
 
     # ===================
-    ::hwt::LabeledLine $recess.line1 "Comps选择" -font {MS 10}
+    ::hwt::LabeledLine $recess.line1 "以Base Comp/Elem为基准校正" -font {MS 10}
     grid $recess.line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
 
     # ===================
-    label $recess.baseLabel -text "以Base Comp为基准校正" -font {MS 10}
+    label $recess.baseLabel -text "Base选择(2选1)" -font {MS 10}
     grid $recess.baseLabel -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
 
-    button $recess.baseButton \
+    button $recess.button_comp \
         -text "Base Comp" \
-        -command ::BoltHoleCorrect::fun_baseButton \
+        -command ::BoltHoleCorrect::fun_button_comp \
         -width 16 -font {MS 10}
-    grid $recess.baseButton -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.button_comp -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
+
+    button $recess.button_elem \
+        -text "Base Elem" \
+        -command ::BoltHoleCorrect::fun_button_elem \
+        -width 16 -font {MS 10}
+    grid $recess.button_elem -row 4 -column 1 -padx 2 -pady 2 -sticky nw;
+
+
+
+    radiobutton $recess.radio_1 -text "Comp方式"  -variable ::BoltHoleCorrect::baseType -value 1 -anchor w -font {MS 10}
+    radiobutton $recess.radio_2 -text "Elem方式" -variable ::BoltHoleCorrect::baseType -value 2 -anchor w -font {MS 10}
+    grid $recess.radio_1 -row 5 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_2 -row 5 -column 1 -padx 2 -pady 2 -sticky nw;
+
 
     # ===================
     ::hwt::LabeledLine $recess.line2 "控制参数" -font {MS 10}
-    grid $recess.line2 -row 5 -column 0 -pady 6 -sticky ew -columnspan 2;
+    grid $recess.line2 -row 6 -column 0 -pady 6 -sticky ew -columnspan 2;
 
     label $recess.entryLabel1 -text "允许的角度偏差 deg:" -font {MS 10}
-    grid $recess.entryLabel1 -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entryLabel1 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
 
     entry $recess.entry1 -width 16 -textvariable ::BoltHoleCorrect::angle_limit -font {MS 10}
-    grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entry1 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
     # ===================
     ::hwt::LabeledLine $recess.line3 "校正类型-选择" -font {MS 10}
-    grid $recess.line3 -row 7 -column 0 -pady 6 -sticky ew -columnspan 2;
+    grid $recess.line3 -row 8 -column 0 -pady 6 -sticky ew -columnspan 2;
 
-    radiobutton $recess.radio_1 -text Move-RBE2  -variable ::BoltHoleCorrect::moveType -value 1 -anchor w -font {MS 10}
-    radiobutton $recess.radio_2 -text Move-Node -variable ::BoltHoleCorrect::moveType -value 2 -anchor w -font {MS 10}
-    grid $recess.radio_1 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
-    grid $recess.radio_2 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
+    radiobutton $recess.radio_3 -text Move-RBE2  -variable ::BoltHoleCorrect::moveType -value 1 -anchor w -font {MS 10}
+    radiobutton $recess.radio_4 -text Move-Node -variable ::BoltHoleCorrect::moveType -value 2 -anchor w -font {MS 10}
+    grid $recess.radio_3 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_4 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
     # checkbutton $recess.checkSelect \
@@ -167,6 +186,8 @@ proc ::BoltHoleCorrect::OkExit { args } {
     set comp_base_id    $::BoltHoleCorrect::comp_base_id
     set csv_path        $::BoltHoleCorrect::csv_path
     set moveType        $::BoltHoleCorrect::moveType
+    set baseType        $::BoltHoleCorrect::baseType
+    set rbe2_base_ids   $::BoltHoleCorrect::rbe2_base_ids
     # ----------
     # 隐藏
     *createmark elems 1 "by config" bar2
@@ -174,14 +195,19 @@ proc ::BoltHoleCorrect::OkExit { args } {
     *maskentitymark elems 1 0
 
     # ----------
-    # comp
-    *createmark elems 1 "by comp" $comp_base_id
-    *appendmark elems 1 "by adjacent"
-    set elem_ids [hm_getmark elems 1]
-    if {[llength $elem_ids]<1} {return;}
-    
+    if {$baseType == 1} {
+        # comp
+        *createmark elems 1 "by comp" $comp_base_id
+        *appendmark elems 1 "by adjacent"
+        set elem_ids [hm_getmark elems 1]
+        if {[llength $elem_ids]<1} {return;}
+        set rbe2_ids [search_rbe2 $elem_ids]
+    } else {
+        # elem
+        set rbe2_ids $rbe2_base_ids
+    }
+
     # 基础rbe2输出
-    set rbe2_ids [search_rbe2 $elem_ids]
     set f_obj [open $csv_path w]
     puts $f_obj $rbe2_ids
     close $f_obj
@@ -249,7 +275,7 @@ proc ::BoltHoleCorrect::Quit { args } {
 }
 
 
-proc ::BoltHoleCorrect::fun_baseButton { args } {
+proc ::BoltHoleCorrect::fun_button_comp { args } {
     *createmarkpanel comps 1 "select the comps"
     set ::BoltHoleCorrect::comp_base_id [hm_getmark comps 1]
     if {[llength $::BoltHoleCorrect::comp_base_id] != 1} {
@@ -257,5 +283,17 @@ proc ::BoltHoleCorrect::fun_baseButton { args } {
         tk_messageBox -message "警告Base Comp必选,且只能选一个!!\n请重选!!!" -icon warning
     }
 }
+
+proc ::BoltHoleCorrect::fun_button_elem { args } {
+    *createmarkpanel elems 1 "select the elems"
+    set elem_ids [hm_getmark elems 1]
+    set rbe2_ids [search_rbe2 $elem_ids]
+    if {[llength $rbe2_ids] < 1} {
+        set ::BoltHoleCorrect::rbe2_base_ids []
+        tk_messageBox -message "警告Base Elem, 只少选1个rbe2基准网格!!\n请重选!!!" -icon warning
+    }
+    set ::BoltHoleCorrect::rbe2_base_ids $rbe2_ids
+}
+
 
 ::BoltHoleCorrect::GUI

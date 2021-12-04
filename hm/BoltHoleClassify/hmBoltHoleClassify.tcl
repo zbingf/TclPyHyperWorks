@@ -187,8 +187,6 @@ proc ::BoltHoleClassify::OkExit { args } {
     *appendmark elems 1 "by adjacent"
     set elems_base_ids [hm_getmark elems 1]
     set bar2_base_ids [search_bar2 $elems_base_ids]
-    # *createmark elems 1 "by config" bar2
-    # set bar2_ids [hm_getmark elems 1]
     set f_obj [open $csv_path w]
     puts $f_obj $bar2_base_ids
     close $f_obj
@@ -240,6 +238,9 @@ proc ::BoltHoleClassify::OkExit { args } {
         *setvalue comps id=[hm_getmark comps 1] propertyid={props $prop_id}
 
     }
+
+    # 1D单元显示更改
+    *detailedelements_beamvis 1
 
     # ------------------------------------------
     # 删除临时文件
