@@ -80,7 +80,9 @@ set 	line "网格划分-处理-2"
 lappend line "{Bolt_孔连接_创建} {BoltHoleConnect/hmBoltHoleConnect.tcl}"
 lappend line "{Bolt_孔对称_校正} {BoltHoleCorrect/hmBoltHoleCorrect.tcl}"
 lappend line "{Bolt_孔对称_检查} {BoltHoleCheck/hmBoltHoleCheck.tcl}"
+lappend line "{Bolt_螺栓孔_分类} {BoltHoleClassify/hmBoltHoleClassify.tcl}"
 create_label_button 4 $line
+
 
 # -------------------
 set 	line "卡片创建"

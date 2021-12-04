@@ -53,6 +53,13 @@ proc print_elem_node_to_fem {fem_path elem_ids} {
 	*feoutput_select "$optistruct_path" $fem_path 1 0 0
 }
 
+# 显示全部
+proc show_all {} {
+    *createmark comps 1 "all"
+    *unmaskentitymark comps 1 "all" 1 0
+    *createmark elems 1 "all"
+    *unmaskentitymark elements 1 0    
+}
 
 # =======================================
 # 创建材料
@@ -170,3 +177,25 @@ proc csv_ASET_node_id_loc {csv_path} {
 
 
 
+
+# =======================================
+# 判定是否是RBE2
+proc isBAR2 {elem_id} {
+    set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+    if {$type_name == "{CBAR} {CBEAM} {CMBEAM}"} {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+# 检索 RBE2
+proc search_bar2 {elem_ids} {
+    set bar2_ids []
+    foreach elem_id $elem_ids {
+        if {[isBAR2 $elem_id]} {
+            lappend bar2_ids $elem_id
+        }
+    }
+    return $bar2_ids
+}

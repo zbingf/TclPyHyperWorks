@@ -1,13 +1,7 @@
 
 import os.path
 import math
-import sys
 import os
-
-try:
-    ANGLE_LIMIT = int(sys.argv[1])
-except:
-    ANGLE_LIMIT = 3
 
 
 MIN_NODE_NUM = 3
@@ -145,7 +139,7 @@ def read_data(fem_path):
 
     return bar2node, node2loc, rbe2_indenode2elem, rbe2_elem2indenode, rbe2_elem2denode, cbar_node2elem
 
-
+# csv数据读取-bar2 ID
 def read_csv_data(csv_path):
     with open(csv_path, 'r') as f:
         lines = [line for line in f.read().split('\n') if line]
@@ -155,47 +149,62 @@ def read_csv_data(csv_path):
     return bar2_ids
 
 
-bar2node, node2loc, rbe2_indenode2elem, rbe2_elem2indenode, rbe2_elem2denode, cbar_node2elem = read_data(fem_path)
-bar2_ids = read_csv_data(csv_path)
+def main_get_bar2(fem_path, csv_path):
+    bar2node, node2loc, rbe2_indenode2elem, rbe2_elem2indenode, rbe2_elem2denode, cbar_node2elem = read_data(fem_path)
+    bar2_ids = read_csv_data(csv_path)
+
+    bar2_r_dic = {}
+    for bar2_id in bar2_ids:
+
+        center_ids = bar2node[bar2_id]
+        if len(center_ids) != 2: continue
+        base_center_id = center_ids[0]
+        target_center_id = center_ids[1]
+
+        if base_center_id not in rbe2_indenode2elem: continue
+        if target_center_id not in rbe2_indenode2elem: continue
+
+        rbe2_base_id = rbe2_indenode2elem[base_center_id]
+        rbe2_target_id = rbe2_indenode2elem[target_center_id]
+
+        base_node_ids = rbe2_elem2denode[rbe2_base_id]
+        target_node_ids = rbe2_elem2denode[rbe2_target_id]
+
+        base_dis_list, target_dis_list = [], []
+        for base_node_id in base_node_ids:
+            dis1 = dis_loc(node2loc[base_node_id], node2loc[base_center_id])
+            base_dis_list.append(dis1)
+        
+        for target_node_id in target_node_ids:
+            dis1 = dis_loc(node2loc[target_node_id], node2loc[target_center_id])
+            target_dis_list.append(dis1)
+
+        # print(base_dis_list, target_dis_list)
+        bar2_r_dic[bar2_id] = {'base':base_dis_list, 'target':target_dis_list}
+
+    return bar2_r_dic
+
+
+
+
+bar2_r_dic = main_get_bar2(fem_path, csv_path)
+# print(bar2_r_dic)
+r_to_bar2 = {}
+
+for bar2_id in bar2_r_dic:
+    
+    base_mean = sum(bar2_r_dic[bar2_id]['base'])/len(bar2_r_dic[bar2_id]['base'])
+    target_mean = sum(bar2_r_dic[bar2_id]['target'])/len(bar2_r_dic[bar2_id]['target'])
+    r = min([base_mean, target_mean])
+    r = int(r*2)/2
+    if r not in r_to_bar2: r_to_bar2[r] = []
+    r_to_bar2[r].append(bar2_id)
 
 output_strs = []
-for bar2_id in bar2_ids:
-
-    center_ids = bar2node[bar2_id]
-    if len(center_ids) != 2: continue
-    base_center_id = center_ids[0]
-    target_center_id = center_ids[1]
-
-    if base_center_id not in rbe2_indenode2elem: continue
-    if target_center_id not in rbe2_indenode2elem: continue
-
-    rbe2_base_id = rbe2_indenode2elem[base_center_id]
-    rbe2_target_id = rbe2_indenode2elem[target_center_id]
-
-    base_node_ids = rbe2_elem2denode[rbe2_base_id]
-
-    loc1 = node2loc[base_node_ids[0]]
-    loc2 = node2loc[base_node_ids[1]]
-    loc3 = node2loc[base_node_ids[2]]
-    loc_c = node2loc[target_center_id]
-
-    base_v = v_one(v_multi_x(
-        v_sub(loc1, loc2),
-        v_sub(loc3, loc2),
-        ))
-
-    dis_p2f = dis_point_to_face(loc_c, loc1, loc2, loc3)
-    # print(dis_p2f)
-    
-    v_1 = v_multi_c(base_v, dis_p2f)
-    v_2 = v_sub(node2loc[target_center_id], node2loc[base_center_id])
-
-    if angle_2vector(v_2, v_1)*180/math.pi > 90:
-        v_1 = v_multi_c(v_1, -1)
-
-    angle_abs = abs(angle_2vector(v_2, v_1)*180/math.pi)
-    if angle_abs > ANGLE_LIMIT:
-        output_strs.append(bar2_id)
+for r in r_to_bar2:
+    ids_str = ' '.join(r_to_bar2[r])
+    output_strs.append('{{{} {}}}'.format(r, ids_str))
 
 print(' '.join(output_strs))
+
 
