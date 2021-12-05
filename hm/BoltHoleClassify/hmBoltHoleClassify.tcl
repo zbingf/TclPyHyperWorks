@@ -19,6 +19,12 @@ set ::BoltHoleClassify::elem_ids []
 
 if {[info exists ::BoltHoleClassify::prefix_name]==0} {set ::BoltHoleClassify::prefix_name "BoltHole"}
 
+# 常规化才能使用, 调试时隐藏
+# if {[info exists ::BoltHoleClassify::recess]!=0} {
+#     ::BoltHoleClassify::GUI 
+#     return;
+# }
+
 # 导出指定单元数据到fem
 proc print_elem_node_to_fem {fem_path elem_ids} {
     set altair_dir [hm_info -appinfo ALTAIR_HOME]
@@ -41,18 +47,7 @@ proc show_all {} {
 }
 
 
-proc create_comps_name {name} {
-    # 创建comps 前检查 是否存在
-    *createmark comps 1 $name
-    if {[hm_getmark comps 1]==[]} {
-        *createentity comps name=$name
-    }
-    *createmark comps 1 $name
-    return [hm_getmark comps 1]
-}
-
-
-proc create_materials_name {materials_name} {
+proc ::BoltHoleClassify::create_materials_name {materials_name} {
     # 创建材料
     *createmark materials 1 $materials_name
 
@@ -70,7 +65,7 @@ proc create_materials_name {materials_name} {
 }
 
 
-proc create_properties_name {properties_name materials_name beam_name} {
+proc ::BoltHoleClassify::create_properties_name {properties_name materials_name beam_name} {
     # 创建属性
     *createmark properties 1 $properties_name
     *createmark beamsects 1 "$beam_name"
@@ -230,8 +225,8 @@ proc ::BoltHoleClassify::OkExit { args } {
         *createmark properties 1 "$sect_name"
         set mat_name "BEAM_$prefix_name\_R$r"
         set prop_name "BEAM_$prefix_name\_R$r"
-        set mat_id  [create_materials_name $mat_name]
-        set prop_id [create_properties_name $prop_name $mat_name $sect_name]
+        set mat_id  [::BoltHoleClassify::create_materials_name $mat_name]
+        set prop_id [::BoltHoleClassify::create_properties_name $prop_name $mat_name $sect_name]
 
         # comp 赋值属性
         *createmark comps 1 "$comp_name"
@@ -261,11 +256,25 @@ proc ::BoltHoleClassify::Quit { args } {
 
 proc ::BoltHoleClassify::fun_Button_select_elem { args } {
     *createmarkpanel elems 1 "select the elems"
-    set ::BoltHoleClassify::elem_ids [hm_getmark elems 1]
-    if {[llength $::BoltHoleClassify::elem_ids] < 1} {
+    set elem_ids [hm_getmark elems 1]
+
+    if {[llength $elem_ids] < 1} {
         set ::BoltHoleClassify::elem_ids []
-        tk_messageBox -message "Elems 未选择" -icon warning
+        tk_messageBox -message "Elems 未选择, 请选择!!" -icon warning
+        return;
     }
+
+    eval "*createmark elems 1 $elem_ids"
+    *appendmark elems 1 "by adjacent"
+    *appendmark elems 1 "by adjacent"
+    *appendmark elems 1 "by adjacent"
+    set temp_ids [search_bar2 [hm_getmark elems 1]]
+    if {[llength $temp_ids] < 1} {
+        set ::BoltHoleClassify::elem_ids []
+        tk_messageBox -message "选择的elem的周围不包含bar2, 请重选!!" -icon warning
+        return;
+    }
+    set ::BoltHoleClassify::elem_ids $elem_ids
 }
 
 

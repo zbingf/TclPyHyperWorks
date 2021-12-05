@@ -17,7 +17,6 @@ proc get_optistruct_path {} {
 	return $optistruct_path
 }
 
-
 # --------------------------------------
 # 屏幕视角
 proc get_current_view_z { } {
@@ -28,7 +27,6 @@ proc get_current_view_z { } {
 	return "$z_x $z_y $z_z"
 }
 
-
 proc get_current_view_x { } {
 	set view_matix [lindex [hm_getcurrentview] 0 ]
 	set z_x [lindex $view_matix 0]
@@ -36,7 +34,6 @@ proc get_current_view_x { } {
 	set z_z [lindex $view_matix 8]
 	return "$z_x $z_y $z_z"
 }
-
 
 # --------------------------------------
 # 打印数据
@@ -144,8 +141,6 @@ proc get_node_locs {node_id prefix} {
 	}
 }
 
-
-
 # =======================================
 # 
 proc csv_ASET_node_id_loc {csv_path} {
@@ -174,10 +169,6 @@ proc csv_ASET_node_id_loc {csv_path} {
 	close $f_obj
 }
 
-
-
-
-
 # =======================================
 # 判定是否是RBE2
 proc isBAR2 {elem_id} {
@@ -198,4 +189,14 @@ proc search_bar2 {elem_ids} {
         }
     }
     return $bar2_ids
+}
+
+proc create_comps_name {name} {
+    # 创建comps 前检查 是否存在
+    *createmark comps 1 $name
+    if {[hm_getmark comps 1]==[]} {
+        *createentity comps name=$name
+    }
+    *createmark comps 1 $name
+    return [hm_getmark comps 1]
 }
