@@ -1,6 +1,8 @@
 
 namespace eval ::BoltHoleConnect {
     variable recess
+    variable isSaveSelect
+    
     variable new_edge_name "__edges"
     variable hole_comp_name 
 
@@ -24,6 +26,7 @@ set ::BoltHoleConnect::comp_target_ids []
 if {[info exists ::BoltHoleConnect::tolerance]==0} {set ::BoltHoleConnect::tolerance 30}
 if {[info exists ::BoltHoleConnect::c_limit]==0} {set ::BoltHoleConnect::c_limit 30}
 if {[info exists ::BoltHoleConnect::hole_comp_name]==0} {set ::BoltHoleConnect::hole_comp_name "__HoleConnect"}
+if {[info exists ::BoltHoleConnect::isSaveSelect]==0} {set ::BoltHoleConnect::isSaveSelect 0}
 
 # 导出指定单元数据到fem
 proc print_elem_node_to_fem {fem_path elem_ids} {
@@ -132,7 +135,8 @@ proc ::BoltHoleConnect::GUI { args } {
         -text "计算后保留选择" \
         -onvalue 1 \
         -offvalue 0 \
-        -variable ::BoltHoleConnect::isSaveSelect
+        -variable ::BoltHoleConnect::isSaveSelect \
+        -command ::BoltHoleConnect::fun_checkSelectButton
         # -width 16;
     grid $recess.checkSelect -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
 
@@ -239,5 +243,12 @@ proc ::BoltHoleConnect::fun_targetButton { args } {
     }
 }
 
+
+proc ::BoltHoleConnect::fun_checkSelectButton {args} {
+    if {$::BoltHoleConnect::isSaveSelect==0} {
+        set ::BoltHoleConnect::comp_base_id []
+        set ::BoltHoleConnect::comp_target_ids []   
+    }
+}
 
 ::BoltHoleConnect::GUI

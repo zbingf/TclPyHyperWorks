@@ -200,3 +200,14 @@ proc create_comps_name {name} {
     *createmark comps 1 $name
     return [hm_getmark comps 1]
 }
+
+
+proc is_entityname_exist {entity_type name} {
+    *createmark $entity_type 1 $name
+    if {[llength [hm_getmark $entity_type 1]]==0} {
+        return 0
+    } else {
+        return 1
+    }
+}
+

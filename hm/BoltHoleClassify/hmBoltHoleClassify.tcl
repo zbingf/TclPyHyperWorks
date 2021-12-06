@@ -160,10 +160,21 @@ proc ::BoltHoleClassify::GUI { args } {
     ::hwt::PostWindow winBoltHoleClassify -onDeleteWindow ::BoltHoleClassify::Quit;
 }
 
+
+proc is_entityname_exist {entity_type name} {
+    *createmark $entity_type 1 $name
+    if {[llength [hm_getmark $entity_type 1]]==0} {
+        return 0
+    } else {
+        return 1
+    }
+}
+
 # -----------------------------
 # 主程序
 proc ::BoltHoleClassify::OkExit { args } {
 
+    puts "-----Start-----"
     set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
     if {$choice != yes} {return;}
 
@@ -206,32 +217,41 @@ proc ::BoltHoleClassify::OkExit { args } {
 
     
     set sectcol_name bolt_circle
-    catch {
-        *createentity beamsectcols includeid=0 name=$sectcol_name    
+    if {[is_entityname_exist beamsectcols $sectcol_name ]==0} {
+        *createentity beamsectcols includeid=0 name=$sectcol_name
     }
+
     foreach r_comp $r_comps {
         set r [lindex $r_comp 0]
         set comp_name [lindex $r_comp 1]
         set sect_name "bolt_R$r"
 
-        catch {
+        if {[is_entityname_exist beamsects $sect_name ]==0} {
             *createentity beamsects includeid=0 name=$sect_name
-            *createdoublearray 3 $r 10 10
-            *beamsectionsetdatastandard 1 3 1 11 0 "Rod"
             *createmark beamsects 1 "$sect_name"
-            *updatehmdb beamsects 1
+            set sect_id [hm_getmark beamsects 1]
+            *createdoublearray 3 $r 10 10
+            *beamsectionsetdatastandard 1 3 $sect_id 11 0 "Rod"
         }
 
-        *createmark properties 1 "$sect_name"
+        # 材料mats
         set mat_name "BEAM_$prefix_name\_R$r"
+        if {[is_entityname_exist materials $mat_name]==0} {
+            set mat_id  [::BoltHoleClassify::create_materials_name $mat_name]
+        }
+
+        # 属性prop
         set prop_name "BEAM_$prefix_name\_R$r"
-        set mat_id  [::BoltHoleClassify::create_materials_name $mat_name]
-        set prop_id [::BoltHoleClassify::create_properties_name $prop_name $mat_name $sect_name]
+        if {[is_entityname_exist properties $prop_name]==0} {
+            set prop_id [::BoltHoleClassify::create_properties_name $prop_name $mat_name $sect_name]
+        }
 
         # comp 赋值属性
-        *createmark comps 1 "$comp_name"
-        *setvalue comps id=[hm_getmark comps 1] propertyid={props $prop_id}
-
+        if {[is_entityname_exist comps $comp_name]==0} {
+            *createmark properties 1 $prop_name
+            *createmark comps 1 "$comp_name"
+            *setvalue comps id=[hm_getmark comps 1] propertyid={props [hm_getmark properties 1]}
+        }
     }
 
     # 1D单元显示更改

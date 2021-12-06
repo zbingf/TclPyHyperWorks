@@ -8,7 +8,10 @@ namespace eval ::tieCreate {
     variable dis_limit
     variable deg_limit
     variable deg_limit_surf
+
     variable recess
+    variable isSaveSelect
+
     variable file_dir [file dirname [info script]]
 }
 
@@ -18,6 +21,7 @@ if {[info exists ::tieCreate::surf_name]==0} {set ::tieCreate::surf_name "Tie_Su
 if {[info exists ::tieCreate::dis_limit]==0} {set ::tieCreate::dis_limit 1}
 if {[info exists ::tieCreate::deg_limit]==0} {set ::tieCreate::deg_limit 10}
 if {[info exists ::tieCreate::deg_limit_surf]==0} {set ::tieCreate::deg_limit_surf 70}
+if {[info exists ::tieCreate::isSaveSelect]==0} {set ::tieCreate::isSaveSelect 0}
 
 # 获取optistruct_path
 proc get_optistruct_path {} {
@@ -121,12 +125,20 @@ proc ::tieCreate::GUI { args } {
     entry $recess.entry4 -width 16 -textvariable ::tieCreate::deg_limit_surf
     grid $recess.entry4 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
 
+    checkbutton $recess.checkSelect \
+        -text "计算后保留选择" \
+        -onvalue 1 \
+        -offvalue 0 \
+        -variable ::tieCreate::isSaveSelect \
+        -command ::tieCreate::fun_checkSelectButton
+        # -width 16;
+    grid $recess.checkSelect -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+
     button $recess.delButton \
         -text "删除名称对应的Tie" \
         -command ::tieCreate::fun_delButton \
         -width 16;
-    grid $recess.delButton -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
-
+    grid $recess.delButton -row 10 -column 1 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow tieCreateWin -onDeleteWindow ::tieCreate::Quit;
@@ -252,8 +264,12 @@ proc ::tieCreate::OkExit { args } {
     *clearmarkall 1
     *clearmarkall 2
     tk_messageBox -message "Run End!!!" 
-    # set ::tieCreate::elem_ids_b []
-    # set ::tieCreate::elem_ids_t []   
+
+    
+    if {$::tieCreate::isSaveSelect==0} {
+        set ::tieCreate::elem_ids_b []
+        set ::tieCreate::elem_ids_t []   
+    }
 }
 
 proc ::tieCreate::Quit { args } {
@@ -302,6 +318,13 @@ proc ::tieCreate::fun_delButton {args} {
 
 }
 
+
+proc ::tieCreate::fun_checkSelectButton {args} {
+    if {$::tieCreate::isSaveSelect==0} {
+        set ::tieCreate::elem_ids_b []
+        set ::tieCreate::elem_ids_t []   
+    }
+}
 
 *clearmarkall 1
 *clearmarkall 2

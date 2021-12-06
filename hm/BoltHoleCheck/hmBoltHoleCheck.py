@@ -131,6 +131,7 @@ def read_data(fem_path):
                 if cur_id:
                     rbe2_elem2denode[e_id].append(cur_id)
             is_rbe2 = True
+            continue
 
         if line[0] == "+" and is_rbe2:
             n_len= math.floor(len(line)/8)
