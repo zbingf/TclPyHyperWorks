@@ -1,4 +1,8 @@
 
+set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+if {$choice != yes} {return;}
+
+
 proc get_node_locs {node_id} {
     set x [hm_getvalue nodes id=$node_id dataname=x]
     set y [hm_getvalue nodes id=$node_id dataname=y]

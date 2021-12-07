@@ -54,23 +54,23 @@ for { set i 1 } { $i < 10 } { incr i 1 } {
 # lappend line "{$1} {$2}"\n
 
 # -------------------
-set 	line "Comp编辑"
-lappend line "{Comp-加前缀} {Component/hmCompNameEdit.tcl;comp_edit front}"
-lappend line "{Comp-加后缀} {Component/hmCompNameEdit.tcl;comp_edit rear}"
-lappend line "{Comp-替换} {Component/hmCompNameEdit.tcl;comp_edit replace}"
-lappend line "{Comp-去重} {Component/hmCompEdit.tcl}"
-create_label_button 1 $line
+# set 	line "Comp编辑"
+# lappend line "{Comp-加前缀} {Component/hmCompNameEdit.tcl;comp_edit front}"
+# lappend line "{Comp-加后缀} {Component/hmCompNameEdit.tcl;comp_edit rear}"
+# lappend line "{Comp-替换} {Component/hmCompNameEdit.tcl;comp_edit replace}"
+# lappend line "{Comp-去重} {Component/hmCompEdit.tcl}"
+# create_label_button 1 $line
 
 # -------------------
-set 	line "Solid"
-lappend line "{Comp分类_厚度测量} {hmSolidThickness.tcl}"
-create_label_button 2 $line
+# set 	line "Solid"
+# lappend line "{Comp分类_厚度测量} {hmSolidThickness.tcl}"
+# create_label_button 2 $line
 
 # -------------------
 set 	line "网格划分-处理-1"
 lappend line "{Elem_以solid复制} {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
-lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
-lappend line "{Node_孔周围_创建} {HoleNodeCreate4/hmHoleNodeCreate4.tcl}"
+# lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
+# lappend line "{Node_孔周围_创建} {HoleNodeCreate4/hmHoleNodeCreate4.tcl}"
 create_label_button 3 $line
 
 # -------------------
@@ -78,6 +78,7 @@ set 	line "网格划分-处理-2"
 lappend line "{Tie_面对面_创建} {TieSurfToSurfCreate/hmTieSurfToSurfCreate.tcl}"
 lappend line "{Tie_点对面_Select} {TiePointToSurfCreateSelect/hmTiePointToSurfCreateSelect.tcl}"
 lappend line "{基于Tie_检查_网格连接} {CheckElemAttachTie/hmCheckElemAttachTie.tcl}"
+
 create_label_button 4 $line
 
 # -------------------
@@ -90,29 +91,29 @@ lappend line "{bar2_平行Z轴_校正} {BoltHoleAxisZCorrect/hmBoltHoleAxisZCorr
 create_label_button 5 $line
 
 # -------------------
-set 	line "卡片创建"
-lappend line "{mnf创建设置} {FlexBody/hmMnfSet.tcl}"
-lappend line "{模态分析设置} {hmModalSet.tcl}"
-lappend line "{ASET编号} {AsetNodeIdRename/hmAsetIdRename.tcl}"
-lappend line "{Node创建} {AsetNodeIdRename/hmNodeCreate.tcl}"
-create_label_button 6 $line
+# set 	line "卡片创建"
+# lappend line "{mnf创建设置} {FlexBody/hmMnfSet.tcl}"
+# lappend line "{模态分析设置} {hmModalSet.tcl}"
+# lappend line "{ASET编号} {AsetNodeIdRename/hmAsetIdRename.tcl}"
+# lappend line "{Node创建} {AsetNodeIdRename/hmNodeCreate.tcl}"
+# create_label_button 6 $line
 
 # -------------------
-set 	line "材料相关"
-lappend line "{一般材料创建} {Materials/hmMaterials.tcl}"
-lappend line "{Mat_去重_ENR} {Materials/hmMatEdit_ENR.tcl}"
-lappend line "{Prop_去重_SS} {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
-lappend line "{Mat_Rename} {Materials/hmMatRename.tcl}"
-lappend line "{Prop_Rename} {Materials/hmPropRename.tcl}"
-create_label_button 7 $line
+# set 	line "材料相关"
+# lappend line "{一般材料创建} {Materials/hmMaterials.tcl}"
+# lappend line "{Mat_去重_ENR} {Materials/hmMatEdit_ENR.tcl}"
+# lappend line "{Prop_去重_SS} {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
+# lappend line "{Mat_Rename} {Materials/hmMatRename.tcl}"
+# lappend line "{Prop_Rename} {Materials/hmPropRename.tcl}"
+# create_label_button 7 $line
 
 # -------------------
-set 	line "其他"
-# lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
-lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
-lappend line "{删除-无用卡片} {hmDelEmptyEntity.tcl}"
-lappend line "{测试} {zing_NodeToSurf/hmNodeToSurf.tcl}"
-create_label_button 8 $line
+# set 	line "其他"
+# # lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
+# lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
+# lappend line "{删除-无用卡片} {hmDelEmptyEntity.tcl}"
+# lappend line "{测试} {zing_NodeToSurf/hmNodeToSurf.tcl}"
+# create_label_button 8 $line
 
 
 # -----------------------

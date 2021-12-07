@@ -54,6 +54,7 @@ proc print_elem_node_to_fem {fem_path elem_ids} {
 proc show_all {} {
     *createmark comps 1 "all"
     *unmaskentitymark comps 1 "all" 1 0
+    # *displaycollectorsallbymark 1 "all" 1 1
     *createmark elems 1 "all"
     *unmaskentitymark elements 1 0    
 }

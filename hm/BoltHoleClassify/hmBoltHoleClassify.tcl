@@ -236,26 +236,26 @@ proc ::BoltHoleClassify::OkExit { args } {
 
         # 材料mats
         set mat_name "BEAM_$prefix_name\_R$r"
-        if {[is_entityname_exist materials $mat_name]==0} {
+        # if {[is_entityname_exist materials $mat_name]==0} {
             set mat_id  [::BoltHoleClassify::create_materials_name $mat_name]
-        }
+        # }
 
         # 属性prop
         set prop_name "BEAM_$prefix_name\_R$r"
-        if {[is_entityname_exist properties $prop_name]==0} {
+        # if {[is_entityname_exist properties $prop_name]==0} {
             set prop_id [::BoltHoleClassify::create_properties_name $prop_name $mat_name $sect_name]
-        }
+        # }
 
         # comp 赋值属性
-        if {[is_entityname_exist comps $comp_name]==0} {
+        # if {[is_entityname_exist comps $comp_name]==0} {
             *createmark properties 1 $prop_name
             *createmark comps 1 "$comp_name"
             *setvalue comps id=[hm_getmark comps 1] propertyid={props [hm_getmark properties 1]}
-        }
+        # }
     }
 
     # 1D单元显示更改
-    *detailedelements_beamvis 1
+    # *detailedelements_beamvis 1
 
     # ------------------------------------------
     # 删除临时文件

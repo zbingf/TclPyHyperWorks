@@ -39,7 +39,8 @@ for prop_id in propid_to_compid_dic:
 move_cmds = []
 for target_comp_id in comp_move_ids:
     if comp_move_ids[target_comp_id]:
-        cmd = f'comp_move "{comp_move_ids[target_comp_id]}" {target_comp_id}'
+        # cmd = f'comp_move "{comp_move_ids[target_comp_id]}" {target_comp_id}'
+        cmd = 'comp_move "{}" {}'.format(comp_move_ids[target_comp_id], target_comp_id)
         move_cmds.append(cmd)
 
 
