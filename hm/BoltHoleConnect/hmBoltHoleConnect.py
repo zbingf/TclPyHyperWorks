@@ -3,6 +3,8 @@ import os.path
 import math
 import sys
 import os
+# 递归次数
+sys.setrecursionlimit(10000)
 
 try:
     C_LIMIT = int(sys.argv[1])
