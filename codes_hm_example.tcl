@@ -212,3 +212,60 @@ proc is_entityname_exist {entity_type name} {
     }
 }
 
+
+# 根据孔周围点找对应连接单元
+proc search_bar2_rbe2_from_circle_node {node_ids} {
+
+    # 判定是否是RBE2
+    proc sub_isRBE2 {elem_id} {
+        set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+        if {$type_name == "RBE2"} {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    # 检索 RBE2
+    proc sub_search_rbe2 {elem_ids} {
+        set rbe2_ids []
+        foreach elem_id $elem_ids {
+            if {[sub_isRBE2 $elem_id]} {
+                lappend rbe2_ids $elem_id
+            }
+        }
+        return $rbe2_ids
+    }
+
+    # 判定是否是RBE2
+    proc sub_isBAR2 {elem_id} {
+        set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+        if {$type_name in "{CBAR} {CBEAM} {CMBEAM}"} {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    # 检索 RBE2
+    proc sub_search_bar2 {elem_ids} {
+        set bar2_ids []
+        foreach elem_id $elem_ids {
+            if {[sub_isBAR2 $elem_id]} {
+                lappend bar2_ids $elem_id
+            }
+        }
+        return $bar2_ids
+    }
+
+    *createmark elems 1 "by node" $node_ids
+    set elem_ids [hm_getmark elems 1]
+    set rbe2_ids [sub_search_rbe2 $elem_ids]
+    eval *createmark elems 1 $rbe2_ids
+    *appendmark elems 1 "by adjacent"
+    set bar2_ids [sub_search_bar2 [hm_getmark elems 1]]
+
+    eval *createmark elems 1 $bar2_ids
+    *appendmark elems 1 "by adjacent"
+    return [hm_getmark elems 1]
+}

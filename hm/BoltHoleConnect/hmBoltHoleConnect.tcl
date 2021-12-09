@@ -58,6 +58,63 @@ proc create_comp_edge {comp_id new_edge_name} {
     return $edge_comp_id
 }
 
+# 根据孔周围点找对应连接单元
+proc search_bar2_rbe2_from_circle_node {node_ids} {
+
+    # 判定是否是RBE2
+    proc sub_isRBE2 {elem_id} {
+        set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+        if {$type_name == "RBE2"} {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    # 检索 RBE2
+    proc sub_search_rbe2 {elem_ids} {
+        set rbe2_ids []
+        foreach elem_id $elem_ids {
+            if {[sub_isRBE2 $elem_id]} {
+                lappend rbe2_ids $elem_id
+            }
+        }
+        return $rbe2_ids
+    }
+
+    # 判定是否是RBE2
+    proc sub_isBAR2 {elem_id} {
+        set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+        if {$type_name in "{CBAR} {CBEAM} {CMBEAM}"} {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    # 检索 RBE2
+    proc sub_search_bar2 {elem_ids} {
+        set bar2_ids []
+        foreach elem_id $elem_ids {
+            if {[sub_isBAR2 $elem_id]} {
+                lappend bar2_ids $elem_id
+            }
+        }
+        return $bar2_ids
+    }
+
+    *createmark elems 1 "by node" $node_ids
+    set elem_ids [hm_getmark elems 1]
+    set rbe2_ids [sub_search_rbe2 $elem_ids]
+    eval *createmark elems 1 $rbe2_ids
+    *appendmark elems 1 "by adjacent"
+    set bar2_ids [sub_search_bar2 [hm_getmark elems 1]]
+
+    eval *createmark elems 1 $bar2_ids
+    *appendmark elems 1 "by adjacent"
+    return [hm_getmark elems 1]
+}
+
 # -----------------------------
 # GUI
 proc ::BoltHoleConnect::GUI { args } {
@@ -185,20 +242,58 @@ proc ::BoltHoleConnect::OkExit { args } {
         return;
     }
 
+    # hm版本
+    set hm_version [lindex [split [hm_info -appinfo DISPLAYVERSION] .] 0]
+
     foreach comp_target_id $comp_target_ids {
         eval "*createmark nodes 1 $node_ids"    
         eval "*createmark comps 1 $comp_target_id $comp_base_id"
+                
+        switch -exact -- $hm_version {
+            "2019" {
+                # puts "version 2019"
+                *createstringarray 24 "link_elems_geom=elems" "link_rule=now" "relink_rule=none" \
+                  "tol_flag=1" "tol=$tolerance" "ce_dir_assign=0" "ce_prop_opt=1" "ce_propertyid=0" \
+                  "ce_notuseijk=1" "ce_boltmindiameter=0.000000" "ce_boltmaxdiameter=10.000000" \
+                  "ce_boltminfeatureangle=20.000000" "ce_boltmaxfeatureangle=80.000000" "ce_boltthread=1.000000" \
+                  "ce_cylinder_diameter_factor =1.500000" "ce_washer_num=0" "ce_washer_elem_num=-1" \
+                  "ce_hole_option=1" "ce_adjust_hole=0" "ce_adjust_diameter=0" "ce_new_diameter=10.000000" \
+                  "ce_fill_hole=0" "ce_systems=0" "ce_nonnormal=1"
+                *CE_ConnectorCreateByMarkAndRealizeWithDetails nodes 1 "bolt" 2 components 1 "optistruct" 1001 53 $tolerance 1 24
+            }
+            "2017" {
+                # 当前版本 2017
+                *createstringarray 21 "link_elems_geom=elems" "link_rule=now" "relink_rule=none" \
+                    "tol_flag=1" "tol=$tolerance" "ce_dir_assign=0" "ce_prop_opt=1" "ce_propertyid=0" \
+                    "ce_notuseijk=1" "ce_boltmindiameter=0.000000" "ce_boltmaxdiameter=200.000000" \
+                    "ce_boltminfeatureangle=20.000000" "ce_boltmaxfeatureangle=80.000000" "ce_boltthread=1.000000" \
+                    "ce_cylinder_diameter_factor =1.500000" "ce_washer_num=0" "ce_washer_elem_num=-1" \
+                    "ce_hole_option=0" "ce_fill_hole=0" "ce_systems=0" "ce_nonnormal=1"
+                *CE_ConnectorCreateByMarkAndRealizeWithDetails nodes 1 "bolt" 2 components 1 "optistruct" 1001 53 $tolerance 1 21        
+            }
+            "2021" {
+                *createstringarray 24 "link_elems_geom=elems" "link_rule=now" "relink_rule=none" \
+                  "tol_flag=1" "tol=$tolerance" "ce_dir_assign=0" "ce_prop_opt=1" "ce_propertyid=0" \
+                  "ce_notuseijk=1" "ce_boltmindiameter=0.000000" "ce_boltmaxdiameter=10.000000" \
+                  "ce_boltminfeatureangle=20.000000" "ce_boltmaxfeatureangle=80.000000" "ce_boltthread=1.000000" \
+                  "ce_cylinder_diameter_factor =1.500000" "ce_washer_num=0" "ce_washer_elem_num=-1" \
+                  "ce_hole_option=1" "ce_adjust_hole=0" "ce_adjust_diameter=0" "ce_new_diameter=10.000000" \
+                  "ce_fill_hole=0" "ce_systems=0" "ce_nonnormal=1"
+                *CE_ConnectorCreateByMarkAndRealizeWithDetails nodes 1 "bolt" 2 components 1 "optistruct" 1001 53 $tolerance 1 24
 
-        # 当前版本 2019
-        *createstringarray 24 "link_elems_geom=elems" "link_rule=now" "relink_rule=none" \
-          "tol_flag=1" "tol=$tolerance" "ce_dir_assign=0" "ce_prop_opt=1" "ce_propertyid=0" \
-          "ce_notuseijk=1" "ce_boltmindiameter=0.000000" "ce_boltmaxdiameter=10.000000" \
-          "ce_boltminfeatureangle=20.000000" "ce_boltmaxfeatureangle=80.000000" "ce_boltthread=1.000000" \
-          "ce_cylinder_diameter_factor =1.500000" "ce_washer_num=0" "ce_washer_elem_num=-1" \
-          "ce_hole_option=1" "ce_adjust_hole=0" "ce_adjust_diameter=0" "ce_new_diameter=10.000000" \
-          "ce_fill_hole=0" "ce_systems=0" "ce_nonnormal=1"
-        *CE_ConnectorCreateByMarkAndRealizeWithDetails nodes 1 "bolt" 2 components 1 "optistruct" 1001 53 $tolerance 1 24
+            }
+            default {
+                tk_messageBox -message "版本暂时不兼容!!!" 
+                return;
+            }
+        }
+    }
 
+    # 2021需要赋予comp
+    if {$hm_version=="2021"} {
+        set elem_target_ids [search_bar2_rbe2_from_circle_node $node_ids]
+        eval "*createmark elems 1 $elem_target_ids"
+        *movemark elems 1 $hole_comp_name
     }
     
     # ------------------------------------------

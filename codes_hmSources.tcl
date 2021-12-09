@@ -19,7 +19,8 @@ set filepath [file dirname [info script]]
 set altair_dir [hm_info -appinfo ALTAIR_HOME]
 set optistruct_path [format "%s/templates/feoutput/optistruct/optistruct" $altair_dir]
 
-
+# 版本
+set hm_version [lindex [split [hm_info -appinfo DISPLAYVERSION] .] 0]
 
 # 材料属性 调用路径 optistruct 
 set altair_dir [hm_info -appinfo ALTAIR_HOME]
