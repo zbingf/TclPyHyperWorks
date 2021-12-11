@@ -533,6 +533,7 @@ proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
         set circle_data [get_circle_data_by_line $line_circle_id]
         # puts "circle_data : $circle_data"
 
+        # -----------------------
         # 压掉圆孔的point点
         eval "*createmark points 1 [lindex $circle_data 1]"
         *verticesmarksuppress 1 180 0
@@ -555,18 +556,26 @@ proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
         # -----------------------
         # ----------------线段划分
         # 圆孔
-        # eval "*createmark nodes 1 [dict get $node_ids_dic 0]"
-        # *nodesassociatetogeometry 1 lines $line_circle_id 0.1
-        # return
         if {$circle_in_num == $circle_out_num} {
             # 划分线, 有顺序之分
             set line_1_datas [surf_split_by_two_nodes $surf_id [dict get $node_ids_dic 0] [dict get $node_ids_dic $circle_offset] 0]
-            # puts "line_1_datas : $line_1_datas"      
+            # puts "line_1_datas : $line_1_datas"
+        }
+        set point_loc_1 [hm_getcoordinates point $point_id]
+        set is_point_del 1
+        foreach node_id [dict get $node_ids_dic 0] {
+            set loc_temp [get_node_locs $node_id]
+            eval "*surfaceaddpoint $surf_id $loc_temp"
+            if {[v_abs [v_sub $point_loc_1 $loc_temp]] < 0.1} {
+                set is_point_del 0
+            }
+        }
+        if {$is_point_del == 1} {
+            # 尝试压掉 point_id
+            *createmark points 1 $point_id
+            *verticesmarksuppress 1 180 0    
         }
         
-        # 尝试压掉 point_id
-        *createmark points 1 $point_id
-        *verticesmarksuppress 1 180 0
 
         set line_circle_datas [surf_split_by_nodes $surf_id [dict get $node_ids_dic $circle_offset] $cirlce_line_point_num]
         # puts "line_circle_datas : $line_circle_datas"
@@ -580,7 +589,15 @@ proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
             lappend new_surf_ids [lindex $line_circle_datas 0]
         }
         lappend new_surf_ids [lindex [lindex $line_square_datas end] 0]
-        # puts "surf_id : $surf_id \n new_surf_ids : $new_surf_ids"
+        set surf_temp_ids []
+        foreach new_surf_id $new_surf_ids {
+            # puts "new_surf_id : $new_surf_id"
+            if {$new_surf_id!=""} {
+                lappend surf_temp_ids $new_surf_id
+            }
+        }
+        set new_surf_ids $surf_temp_ids
+        puts "base_surf_id : $surf_id \nnew_surf_ids : $new_surf_ids"
 
         # -----------------------
         # ----------------网格划分
@@ -605,11 +622,20 @@ dict set control_params circle_offset 5
 dict set control_params square_offset 16
 dict set control_params elem_size 10
 
+# type 1
 dict set control_params circle_in_num 8
 dict set control_params circle_out_num 8
 dict set control_params square_num 4
 dict set control_params cirlce_line_point_num 0
 dict set control_params square_line_point_num 3
+
+# # type 2
+# dict set control_params circle_in_num 8
+# dict set control_params circle_out_num 4
+# dict set control_params square_num 4
+# dict set control_params cirlce_line_point_num 1
+# dict set control_params square_line_point_num 3
+
 
 
 # -----------------------------------
@@ -624,6 +650,8 @@ set line_base_id [hm_getmark lines 1]
 set line_circle_ids [hm_getmark lines 1]
 
 main_hole_mesh_by_two_line $line_base_id $line_circle_ids $control_params
+
+# *surfaceaddpoint 13 807.272413 201.135743 52.5
 
 *clearmarkall 1
 *clearmarkall 2
