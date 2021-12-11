@@ -70,7 +70,7 @@ create_label_button 2 $line
 set 	line "网格划分-处理-1"
 lappend line "{Elem_以solid复制} {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
 lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
-lappend line "{Node_孔周围_创建} {HoleNodeCreate4/hmHoleNodeCreate4.tcl}"
+lappend line "{Node_孔周围_创建} {HoleMesh/hmHoleMesh01.tcl}"
 create_label_button 3 $line
 
 # -------------------

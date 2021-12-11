@@ -269,3 +269,135 @@ proc search_bar2_rbe2_from_circle_node {node_ids} {
     *appendmark elems 1 "by adjacent"
     return [hm_getmark elems 1]
 }
+
+
+# --------------------------------
+
+# --------------------------------
+# 根据line_id 获取闭环数据 point\line
+proc get_circle_data_by_line {line_id} {
+
+	namespace eval ::TempData {
+	    variable line_ids []
+	    variable point_ids []
+	}
+
+	proc line_to_points {line_id} {
+		
+		if {$line_id in $::TempData::line_ids} {return}
+		lappend ::TempData::line_ids "$line_id"
+
+		*createmark points 1 "by lines" $line_id
+		set point_ids [hm_getmark points 1]
+		if {[llength $point_ids]<2} {
+			lappend ::TempData::point_ids $point_ids
+			return
+		}
+		# puts "cal_line : $line_id"
+		foreach point_id $point_ids {
+			if {$point_id in $::TempData::point_ids} {
+				continue
+			} else {
+				lappend ::TempData::point_ids $point_id
+			}
+
+			*createmark lines 1 "by points" $point_id
+			set line_2_ids [hm_getmark lines 1]
+			# puts "cal_line_2_ids : $line_2_ids"
+			foreach line_temp_id $line_2_ids {
+				line_to_points $line_temp_id
+			}
+		}
+	}
+
+	set ::TempData::line_ids []
+	set ::TempData::point_ids []
+	line_to_points $line_id
+	# puts "line_ids : $::TempData::line_ids"
+	# puts "point_ids : $::TempData::point_ids"
+	set line_ids $::TempData::line_ids
+	set point_ids $::TempData::point_ids
+	set ::TempData::line_ids []
+	set ::TempData::point_ids []
+	return "{$line_ids} {$point_ids}"
+}
+
+# 根据line_id 获取闭环数据 point\line in lines
+proc get_circle_data_by_line_in_lines {line_id base_ids} {
+	# line_id 需在 base_ids 里
+
+	namespace eval ::TempData {
+	    variable line_ids []
+	    variable point_ids []
+	    variable base_ids []
+	}
+
+	proc line_to_points {line_id} {
+		
+		if {$line_id in $::TempData::line_ids} {return}
+		if {$line_id in $::TempData::base_ids} {} else {return}
+		lappend ::TempData::line_ids "$line_id"
+
+		*createmark points 1 "by lines" $line_id
+		set point_ids [hm_getmark points 1]
+		if {[llength $point_ids]<2} {
+			lappend ::TempData::point_ids $point_ids
+			return
+		}
+		# puts "cal_line : $line_id"
+		foreach point_id $point_ids {
+			if {$point_id in $::TempData::point_ids} {
+				continue
+			} else {
+				lappend ::TempData::point_ids $point_id
+			}
+
+			*createmark lines 1 "by points" $point_id
+			set line_2_ids [hm_getmark lines 1]
+			# puts "cal_line_2_ids : $line_2_ids"
+			foreach line_temp_id $line_2_ids {
+				line_to_points $line_temp_id
+			}
+		}
+	}
+
+	set ::TempData::line_ids []
+	set ::TempData::point_ids []
+	set ::TempData::base_ids $base_ids
+	line_to_points $line_id
+	# puts "line_ids : $::TempData::line_ids"
+	# puts "point_ids : $::TempData::point_ids"
+	set line_ids $::TempData::line_ids
+	set point_ids $::TempData::point_ids
+	set ::TempData::line_ids []
+	set ::TempData::point_ids []
+	set ::TempData::base_ids []
+	return "{$line_ids} {$point_ids}"
+}
+
+
+# 根据 line 获取 相应面的 闭环line\point id
+proc get_surf_data_by_line {line_id} {
+
+	*createmark surfs 1 "by lines" $line_id
+	set surf_id [hm_getmark surfs 1]
+	*createmark lines 1 "by surface" $surf_id
+	set line_surf_ids [hm_getmark lines 1]
+	puts "line_surf_ids : $line_surf_ids"
+	set line_cur_ids []
+
+	set circle_data [get_circle_data_by_line_in_lines [lindex $line_surf_ids 0] $line_surf_ids]
+	set circle_data_list "{$circle_data}"
+	set line_cur_ids [concat $line_cur_ids [lindex $circle_data 0]]
+
+	foreach line_surf_id [lrange $line_surf_ids 1 end] {
+		if {$line_surf_id in $line_cur_ids} {continue} else {
+			set circle_data [get_circle_data_by_line_in_lines $line_surf_id $line_surf_ids]
+			lappend circle_data_list $circle_data
+			set line_cur_ids [concat $line_cur_ids [lindex $circle_data 0]]			
+			puts "cur_line_cur_ids : $line_cur_ids"
+		}
+	}
+	return $circle_data_list
+}
+
