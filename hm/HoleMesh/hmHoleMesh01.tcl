@@ -521,7 +521,7 @@ namespace eval ::HoleMeshControlParam {
 
 
 # 主函数
-proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
+proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_params} {
 
     set square_num    [dict get $control_params square_num]
     set circle_in_num    [dict get $control_params circle_in_num]
@@ -619,45 +619,43 @@ proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
 }
 
 
+proc main_test {} {
+    dict set control_params circle_offset 5
+    dict set control_params square_offset 16
+    dict set control_params elem_size 10
+
+    # type 1
+    dict set control_params circle_in_num 8
+    dict set control_params circle_out_num 8
+    dict set control_params square_num 4
+    dict set control_params cirlce_line_point_num 0
+    dict set control_params square_line_point_num 3
+
+    # # type 2
+    # dict set control_params circle_in_num 8
+    # dict set control_params circle_out_num 4
+    # dict set control_params square_num 4
+    # dict set control_params cirlce_line_point_num 1
+    # dict set control_params square_line_point_num 3
 
 
 
+    # -----------------------------------
+    puts "---start---"
+    *nodecleartempmark
 
-dict set control_params circle_offset 5
-dict set control_params square_offset 16
-dict set control_params elem_size 10
+    *createmarkpanel lines 1 "base_line_select"
+    set line_base_id [hm_getmark lines 1]
 
-# type 1
-dict set control_params circle_in_num 8
-dict set control_params circle_out_num 8
-dict set control_params square_num 4
-dict set control_params cirlce_line_point_num 0
-dict set control_params square_line_point_num 3
+    # 目标线 ID  - 必须为圆
+    *createmarkpanel lines 1 "circle_line_select"
+    set line_circle_ids [hm_getmark lines 1]
 
-# # type 2
-# dict set control_params circle_in_num 8
-# dict set control_params circle_out_num 4
-# dict set control_params square_num 4
-# dict set control_params cirlce_line_point_num 1
-# dict set control_params square_line_point_num 3
+    main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
 
+    # *surfaceaddpoint 13 807.272413 201.135743 52.5
 
-
-# -----------------------------------
-puts "---start---"
-*nodecleartempmark
-
-*createmarkpanel lines 1 "base_line_select"
-set line_base_id [hm_getmark lines 1]
-
-# 目标线 ID  - 必须为圆
-*createmarkpanel lines 1 "circle_line_select"
-set line_circle_ids [hm_getmark lines 1]
-
-main_hole_mesh_by_two_line $line_base_id $line_circle_ids $control_params
-
-# *surfaceaddpoint 13 807.272413 201.135743 52.5
-
-*clearmarkall 1
-*clearmarkall 2
-puts "---end---"
+    *clearmarkall 1
+    *clearmarkall 2
+    puts "---end---"
+}

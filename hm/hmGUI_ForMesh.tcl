@@ -69,8 +69,9 @@ for { set i 1 } { $i < 10 } { incr i 1 } {
 # -------------------
 set 	line "网格划分-处理-1"
 lappend line "{Elem_以solid复制} {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
+lappend line "{Mesh_孔周围_创建} {HoleMesh/hmHoleMeshUI.tcl}"
 # lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
-# lappend line "{Node_孔周围_创建} {HoleMesh/hmHoleMesh01.tcl}"
+
 create_label_button 3 $line
 
 # -------------------
