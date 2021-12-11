@@ -357,6 +357,7 @@ proc create_circle_node_by_line {line_circle_id line_base_id dis_offsets node_nu
 }
 
 
+# 
 proc create_circle_node_4_with_v {new_v new_u circle_center_loc dis} {
 
     # 顺序连线
@@ -379,6 +380,27 @@ proc create_circle_node_4_with_v {new_v new_u circle_center_loc dis} {
 }
 
 
+# 
+proc create_circle_node_6_with_v {new_v new_u circle_center_loc dis} {
+
+    set circle_v [v_one [v_multi_x $new_v $new_u]]
+    set new_u [v_one $new_u]
+    set node_ids []
+    foreach num "0 1 2 3 4 5" {
+        set loc1 [v_rotate_point $circle_v $new_u [expr double($num)*60.0/180.0*3.141592654]]
+        set loc1 [v_multi_c $loc1 $dis]
+        puts "num:$num ; loc1:$loc1"
+        *clearmark nodes 1
+        set node_loc1 [v_add $loc1 $circle_center_loc]
+        eval "*createnode $node_loc1 0 0 0"
+        *createmarklast nodes 1
+        lappend node_ids [hm_getmark nodes 1]
+    }
+    return $node_ids
+}
+
+
+# 
 proc create_circle_node_8_with_v {new_v new_u circle_center_loc dis} {
 
     # 顺序连线
@@ -398,25 +420,6 @@ proc create_circle_node_8_with_v {new_v new_u circle_center_loc dis} {
         *createmarklast nodes 1
         lappend node_ids [hm_getmark nodes 1]
 
-    }
-    return $node_ids
-}
-
-
-proc create_circle_node_6_with_v {new_v new_u circle_center_loc dis} {
-
-    set circle_v [v_one [v_multi_x $new_v $new_u]]
-    set new_u [v_one $new_u]
-    set node_ids []
-    foreach num "0 1 2 3 4 5" {
-        set loc1 [v_rotate_point $circle_v $new_u [expr double($num)*60.0/180.0*3.141592654]]
-        set loc1 [v_multi_c $loc1 $dis]
-        puts "num:$num ; loc1:$loc1"
-        *clearmark nodes 1
-        set node_loc1 [v_add $loc1 $circle_center_loc]
-        eval "*createnode $node_loc1 0 0 0"
-        *createmarklast nodes 1
-        lappend node_ids [hm_getmark nodes 1]
     }
     return $node_ids
 }
@@ -614,6 +617,8 @@ proc main_hole_mesh_by_two_line {line_base_id line_circle_ids control_params} {
 
     }
 }
+
+
 
 
 
