@@ -512,12 +512,12 @@ proc func_surfacesplitwithcoords {surf_id loc1 loc2} {
 
 
 
-namespace eval ::HoleMeshControlParam {
-    variable circle_offset
-    variable square_offset
-    variable node_num
-    variable elem_size
-}
+# namespace eval ::HoleMeshControlParam {
+#     variable circle_offset
+#     variable square_offset
+#     variable node_num
+#     variable elem_size
+# }
 
 
 # 主函数
