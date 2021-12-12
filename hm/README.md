@@ -20,11 +20,11 @@
 + Tie接触相关
 	+ TieSurfToSurfCreate 	面-面接触
 	+ TiePointToSurfCreateSelect 点-面接触-手动
-	+ TiePointToSurfCreate  点-面接触-未完成
+	+ TiePointToSurfCreate  点-面接触-未完成!!
 	+ CheckElemAttachTie 	根据接触的网格检查所有网格的共节点情况
 
 
-
+----------------------
 ## 相关变更
 
 + 20211207

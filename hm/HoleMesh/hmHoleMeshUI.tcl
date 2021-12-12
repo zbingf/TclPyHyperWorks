@@ -15,9 +15,11 @@ namespace eval ::HoleMesh {
 
     variable file_dir [file dirname [info script]]
     variable tcl_path
+    variable tcl_path2
 }
 
 set ::HoleMesh::tcl_path [format "%s/hmHoleMesh01.tcl" $::HoleMesh::file_dir]
+set ::HoleMesh::tcl_path2 [format "%s/hmHoleMesh02.tcl" $::HoleMesh::file_dir]
 if {[info exists ::HoleMesh::circle_offset]==0} {set ::HoleMesh::circle_offset 5}
 if {[info exists ::HoleMesh::square_offset]==0} {set ::HoleMesh::square_offset 15}
 if {[info exists ::HoleMesh::elem_size]==0} {set ::HoleMesh::elem_size 10}
@@ -56,7 +58,7 @@ proc ::HoleMesh::GUI { args } {
     set recess [::hwt::WindowRecess winHoleMesh];
 
     grid columnconfigure $recess 1 -weight 1;
-    grid rowconfigure    $recess 10 -weight 1;
+    grid rowconfigure    $recess 12 -weight 1;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line1 "单元选择";
@@ -104,8 +106,10 @@ proc ::HoleMesh::GUI { args } {
 
     radiobutton $recess.radio_1 -text "2Circle-1"  -variable ::HoleMesh::meshType -value 1 -anchor w -font {MS 10}
     radiobutton $recess.radio_2 -text "2Circle-2" -variable ::HoleMesh::meshType -value 2 -anchor w -font {MS 10}
+    radiobutton $recess.radio_3 -text "2Circle-Out-1" -variable ::HoleMesh::meshType -value 3 -anchor w -font {MS 10}
     grid $recess.radio_1 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
     grid $recess.radio_2 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_3 -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
 
 
     checkbutton $recess.checkSelect \
@@ -115,7 +119,7 @@ proc ::HoleMesh::GUI { args } {
         -variable ::HoleMesh::isSaveSelect \
         -command ::HoleMesh::fun_checkSelectButton
         # -width 16;
-    grid $recess.checkSelect -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.checkSelect -row 11 -column 0 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow winHoleMesh -onDeleteWindow ::HoleMesh::Quit;
@@ -127,6 +131,12 @@ proc ::HoleMesh::OkExit { args } {
     set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
     if {$choice != yes} {return;}
 
+    puts "---start---"
+    # *nodecleartempmark
+
+    set line_base_id $::HoleMesh::line_base_id
+    set line_circle_ids $::HoleMesh::line_circle_ids
+
     dict set control_params circle_offset $::HoleMesh::circle_offset
     dict set control_params square_offset $::HoleMesh::square_offset
     dict set control_params elem_size $::HoleMesh::elem_size
@@ -137,7 +147,10 @@ proc ::HoleMesh::OkExit { args } {
         dict set control_params circle_out_num 8
         dict set control_params square_num 4
         dict set control_params cirlce_line_point_num 0
-        dict set control_params square_line_point_num 3    
+        dict set control_params square_line_point_num 3 
+        source $::HoleMesh::tcl_path
+        main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
+
     } elseif {$::HoleMesh::meshType==2} {
         # type 2
         dict set control_params circle_in_num 8
@@ -145,22 +158,29 @@ proc ::HoleMesh::OkExit { args } {
         dict set control_params square_num 4
         dict set control_params cirlce_line_point_num 1
         dict set control_params square_line_point_num 3
+        source $::HoleMesh::tcl_path
+        main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
+
+    } elseif {$::HoleMesh::meshType==3} {
+        dict set control_params circle_in_num 8
+        dict set control_params circle_out_num 8
+        dict set control_params square_num 4
+        dict set control_params cirlce_line_point_num 0
+        dict set control_params square_line_point_num 3 
+        source $::HoleMesh::tcl_path2
+        main_hole_mesh_2circle_by_two_line_out1 $line_base_id $line_circle_ids $control_params
+        # puts "::HoleMesh::meshType : $::HoleMesh::meshType"
     }
-        
-    set line_base_id $::HoleMesh::line_base_id
-    set line_circle_ids $::HoleMesh::line_circle_ids
 
     # -----------------------------------
-    puts "---start---"
-    # *nodecleartempmark
-    source $::HoleMesh::tcl_path
-    main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
+    
     puts "-----End-----"
     *clearmarkall 1
     *clearmarkall 2
     tk_messageBox -message "Run End!!!" 
     
     ::HoleMesh::fun_checkSelectButton
+    
 }
 
 
