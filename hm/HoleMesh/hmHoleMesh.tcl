@@ -115,6 +115,18 @@ proc v_rotate_point {vector point_loc rad} {
 }
 
 
+# 对坐标四舍五入
+proc v_loc_round_num {loc1 num} {
+    set x [lindex $loc1 0]
+    set y [lindex $loc1 1]
+    set z [lindex $loc1 2]
+    set new_x [expr round($x*(10**$num))*1.0/(10**$num)]
+    set new_y [expr round($y*(10**$num))*1.0/(10**$num)]
+    set new_z [expr round($z*(10**$num))*1.0/(10**$num)]
+    return "$new_x $new_y $new_z"
+}
+
+
 # 垂点
 proc vertical_point {line_p1_loc line_p2_loc p3_loc} {
 
@@ -548,6 +560,7 @@ proc func_surfacesplitwithcoords {surf_id loc1 loc2} {
         set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
         set line_v_2 [v_sub $loc1 $loc2]
 
+        if {[v_abs $line_v] < 0.01} { continue }
         set angle [lindex [angle_2vector $line_v $line_v_2] 1]
         set dis_del_percent [ expr abs(([v_abs $line_v]-[v_abs $line_v_2])/[v_abs $line_v]) ]
         if {[expr abs($angle)] < $tolerance_angle | [expr abs($angle-180)] < $tolerance_angle} {
@@ -652,8 +665,9 @@ proc get_nodes_center_loc {node_ids} {
 }
 
 
+# 用于1线分割面，左右surf判定的情况
 # 判定是否为目标面(以line为界限, 各node的均值坐标点, 与surf的几何中心是否一致) 
-proc is_target_surf_by_line_nodes {surf_id line_id node_ids} {
+proc is_target_surf_by_line_and_nodes {surf_id line_id node_ids} {
     # line_id 在 surf_id对应的面上
     # 通过法向量是否通向进行判断
 
@@ -662,10 +676,13 @@ proc is_target_surf_by_line_nodes {surf_id line_id node_ids} {
     *createmark surfs 1 $surf_id
     set surf_loc [hm_getcentroid surfs 1]
 
-    *createmark points 1 "by lines" $line_id
-    set point_line_ids [hm_getmark points 1]
-    set base_loc [hm_getcoordinates point [lindex $point_line_ids 0]]
-    set base_loc2 [hm_getcoordinates point [lindex $point_line_ids 1]]
+    # *createmark points 1 "by lines" $line_id
+    # set point_line_ids [hm_getmark points 1]
+    # set base_loc [hm_getcoordinates point [lindex $point_line_ids 0]]
+    # set base_loc2 [hm_getcoordinates point [lindex $point_line_ids 1]]
+    set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
+    set base_loc  [lindex $point_locs 0]
+    set base_loc2 [lindex $point_locs 1]
     set node_center_loc [get_nodes_center_loc $node_ids]
 
     set v_base_line [v_sub $base_loc2 $base_loc]
@@ -685,6 +702,39 @@ proc is_target_surf_by_line_nodes {surf_id line_id node_ids} {
 }
 
 
+# 判定是否为目标面, 根据面上的点是否包含所有inner_node_ids点
+proc is_target_surf_by_nodes {surf_id inner_node_ids} {
+
+    # 
+    set node_locs []
+    foreach node_id $inner_node_ids {
+        set loc1 [get_node_locs $node_id]
+        set new_loc1 [v_loc_round_num $loc1 1]
+        lappend node_locs $new_loc1
+    }
+
+    set point_locs []
+    *createmark points 1 "by surface" $surf_id
+    foreach point_id [hm_getmark points 1] {
+        set loc1 [hm_getcoordinates point $point_id]
+        set new_loc1 [v_loc_round_num $loc1 1]
+        lappend point_locs $new_loc1
+    }
+    set num_ture 0
+    foreach node_loc $node_locs {
+        if {$node_loc in $point_locs} {
+            set num_ture [expr $num_ture+1]
+        }
+    }
+    if {$num_ture == [llength $inner_node_ids]} {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+
+
 # 连点坐标分割面 - try
 proc func_surfacemarksplitwithlines_try {surf_id line_id surf_v loc1 loc2} {
     set tolerance_dis 0.1
@@ -695,7 +745,8 @@ proc func_surfacemarksplitwithlines_try {surf_id line_id surf_v loc1 loc2} {
         eval "*createvector 1 $surf_v"
         hm_entityrecorder lines on
         hm_entityrecorder surfs on
-        *surfacemarksplitwithlines 1 1 1 1 0.5
+        # *surfacemarksplitwithlines 1 1 1 1 0.5
+        *surfacemarksplitwithlines 1 1 0 13 0
         hm_entityrecorder lines off
         hm_entityrecorder surfs off
         set surf_ids [hm_entityrecorder surfs ids]
@@ -707,6 +758,8 @@ proc func_surfacemarksplitwithlines_try {surf_id line_id surf_v loc1 loc2} {
     # puts "corder_line_ids: $line_ids"
     foreach line_id $line_ids {
         set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
+        set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
+        if {[v_abs $line_v] < 0.1} { continue }
         if {[llength $point_locs]==1} {continue}
         # puts "is_close_line_locs_in_surf {$loc1} {$loc2} $point_locs $tolerance_dis"
 
@@ -723,7 +776,7 @@ proc func_surfacemarksplitwithlines_try {surf_id line_id surf_v loc1 loc2} {
 
 
 # surf分割, 1组node列表前后连接分割
-proc surf_split_by_4nodes_try {surf_id node_ids insert_point_num} {
+proc surf_split_by_nodes_try_old {surf_id node_ids insert_point_num} {
     # ---------------------
     # surf 面
     # node_ids 列表
@@ -759,10 +812,10 @@ proc surf_split_by_4nodes_try {surf_id node_ids insert_point_num} {
         if {[llength [lindex $line_data 0]] > 0} {
             # 判定是否为目标面
             set line_surf_id [lindex $line_data 2]
-            if {[is_target_surf_by_line_nodes $surf_id $line_surf_id $node_ids]==0} {
+            if {[is_target_surf_by_line_and_nodes $surf_id $line_surf_id $node_ids]==0} {
                 set surf_id [lindex $line_data 0]
-                set line_data "{$surf_id} {[lindex $line_data 1]} {[lindex $line_data 2]}"
             }
+            set line_data "{$surf_id} {[lindex $line_data 1]} {[lindex $line_data 2]}"
         }
         lappend line_datas $line_data    
         # puts "line_data: $line_data"
@@ -773,15 +826,15 @@ proc surf_split_by_4nodes_try {surf_id node_ids insert_point_num} {
     if {$insert_point_num!=0} {
         set surf_target_id [lindex [lindex $line_datas end] 0]
         set line_target_id [lindex [lindex $line_datas end] 2]
-        # puts "surf_split_by_4nodes_try:: \n  *surf_target_id : $surf_target_id\n  *line_target_id : $line_target_id"
+        # puts "surf_split_by_nodes_try_old:: \n  *surf_target_id : $surf_target_id\n  *line_target_id : $line_target_id"
 
         *createmark lines 1 "by surface" $surf_target_id
-        set circle_4lines_data [get_circle_data_by_line_in_lines $line_target_id [hm_getmark lines 1]]
-        # puts "circle_4lines_data : $circle_4lines_data"
-        set circle_4lines_ids [lindex $circle_4lines_data 0]
+        set circle_lines_data [get_circle_data_by_line_in_lines $line_target_id [hm_getmark lines 1]]
+        # puts "circle_lines_data : $circle_lines_data"
+        set circle_lines_ids [lindex $circle_lines_data 0]
 
-        foreach circle_4lines_id $circle_4lines_ids {
-            *createmark lines 1 $circle_4lines_id
+        foreach circle_lines_id $circle_lines_ids {
+            *createmark lines 1 $circle_lines_id
             *edgesmarkaddpoints 1 $insert_point_num    
         }
     }
@@ -789,8 +842,78 @@ proc surf_split_by_4nodes_try {surf_id node_ids insert_point_num} {
 }
 
 
-# 主函数, 边界双边超过界限(矩形钢适用)
-proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids control_params} {
+# surf分割, 1组node列表前后连接分割; 通过内环node点判定surf面是否正确
+proc surf_split_by_nodes_try_with_innernodes_tocirlce {surf_id node_ids insert_point_num inner_node_ids} {
+    # ---------------------
+    # surf 面
+    # node_ids 列表
+    # insert_point_num 线段插入point点数量
+    # ---------------------
+
+    set node_len [llength $node_ids]
+    set line_datas []
+    
+    # 获取面的法向量
+    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 1 3]
+    # puts "surf_v: $surf_v"
+    # set surf_temp_ids [$surf_id]
+    for { set i 0 } { $i < $node_len } { incr i 1 } {
+        if {$i < [expr $node_len-1]} {
+            set loc1 [get_node_locs [lindex $node_ids $i]]
+            set loc2 [get_node_locs [lindex $node_ids [expr $i+1]]]
+            set line_id [create_line_by_node [lindex $node_ids $i] [lindex $node_ids [expr $i+1]]]
+        } else {
+            set loc1 [get_node_locs [lindex $node_ids 0]]
+            set loc2 [get_node_locs [lindex $node_ids end]]
+            set line_id [create_line_by_node [lindex $node_ids 0] [lindex $node_ids end]]
+        }
+
+        # -------------------------
+        # 分割面
+        set line_data [func_surfacemarksplitwithlines_try $surf_id $line_id $surf_v $loc1 $loc2]
+        # 删除分割用的的线
+        *createmark lines 1 $line_id
+        *deletemark lines 1
+        if {$line_data==0} { continue }
+
+        if {[llength [lindex $line_data 0]] > 0} {
+            # 判定是否为目标面
+            set line_surf_id [lindex $line_data 2]
+            if {[is_target_surf_by_nodes $surf_id $inner_node_ids] == 0} {
+                set surf_id [lindex $line_data 0]
+            }
+            set line_data "{$surf_id} {[lindex $line_data 1]} {[lindex $line_data 2]}"
+        }
+        lappend line_datas $line_data    
+        # puts "line_data: $line_data"
+    }
+    
+    # -------------------------
+    # 插入point
+    if {$insert_point_num!=0} {
+        set surf_target_id [lindex [lindex $line_datas end] 0]
+        set line_target_id [lindex [lindex $line_datas end] 2]
+        # puts "surf_split_by_nodes_try_with_innernodes_tocirlce:: \n  *surf_target_id : $surf_target_id\n  *line_target_id : $line_target_id"
+
+        *createmark lines 1 "by surface" $surf_target_id
+        set circle_lines_data [get_circle_data_by_line_in_lines $line_target_id [hm_getmark lines 1]]
+        # puts "circle_lines_data : $circle_lines_data"
+        set circle_lines_ids [lindex $circle_lines_data 0]
+
+        foreach circle_lines_id $circle_lines_ids {
+            *createmark lines 1 $circle_lines_id
+            *edgesmarkaddpoints 1 $insert_point_num    
+        }
+    }
+    return $line_datas
+}
+
+
+# -----------------------------------
+# -----------------------------------
+
+# 主函数, 边界双边超过界限(矩形钢适用)，双环
+proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_params} {
     # -------------------------
     # line_base_id 参考周线line ID
     # line_circle_ids 目标圆孔lineID (1个圆孔1个lineID, 可以为列表)
@@ -806,23 +929,25 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
     # 外圆孔-偏置量(相对于内圆孔)
     set circle_offset         [dict get $control_params circle_offset]
     # 边界-偏置量(相对于内圆孔)
-    set square_offset         [dict get $control_params square_offset]
+    set edge_offset         [dict get $control_params edge_offset]
     # 网格单元尺寸定义
     set elem_size             [dict get $control_params elem_size]
     # 边界线-line插入point点数
-    set square_line_point_num [dict get $control_params square_line_point_num]
+    set edge_line_point_num [dict get $control_params edge_line_point_num]
     # 外圆孔-line插入point点数
     set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
 
 
     foreach line_circle_id $line_circle_ids {
 
+        # ----------------------------------------------
+        # ----------------------------------------------
+        # 压掉圆孔的point点
+
         # 获取圆孔数据
         set circle_data [get_circle_data_by_line $line_circle_id]
         # puts "circle_data : $circle_data"
-
-        # ----------------------------------------------
-        # 压掉圆孔的point点
+        
         eval "*createmark points 1 [lindex $circle_data 1]"
         *verticesmarksuppress 1 180 0
 
@@ -830,6 +955,7 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
         *createmarklast points 1
         set point_id [hm_getmark points 1]
         # puts "points: [hm_getmark points 1]"
+
         *createmark lines 1 "by points" $point_id
         set line_circle_id [hm_getmark lines 1]
         # puts "line_circle_id: $line_circle_id"
@@ -837,13 +963,17 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
         *createmark surfs 1 "by lines" $line_circle_id
         set surf_id [hm_getmark surfs 1]
 
+        
+        # ----------------------------------------------
         # ----------------------------------------------
         # ----------------创建node 点    
-        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_id "0 $circle_offset $square_offset" "$circle_in_num $circle_out_num $square_num"]
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_id "0 $circle_offset $edge_offset" "$circle_in_num $circle_out_num $square_num"]
         # puts "node_ids_dic : $node_ids_dic"
 
+
         # ----------------------------------------------
-        # ----------------线段划分
+        # ----------------------------------------------
+        # ----------------线段分割
         
         # 分割内外圆孔
         if {$circle_in_num == $circle_out_num} {
@@ -851,28 +981,30 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
             set line_1_datas [surf_split_by_two_nodes $surf_id [dict get $node_ids_dic 0] [dict get $node_ids_dic $circle_offset] 0]
             # puts "line_1_datas : $line_1_datas"
         }
-        set point_loc_1 [hm_getcoordinates point $point_id]
-        set is_point_del 1
-        foreach node_id [dict get $node_ids_dic 0] {
-            set loc_temp [get_node_locs $node_id]
-            eval "*surfaceaddpoint $surf_id $loc_temp"
-            # 点距离判断 ------------------------------------------------------------
-            if {[v_abs [v_sub $point_loc_1 $loc_temp]] < 0.1} { set is_point_del 0 }
+        catch {
+            set point_loc_1 [hm_getcoordinates point $point_id]
+            set is_point_del 1
+            foreach node_id [dict get $node_ids_dic 0] {
+                set loc_temp [get_node_locs $node_id]
+                eval "*surfaceaddpoint $surf_id $loc_temp"
+                # 点距离判断 -----------------------------------------------------------------------------------
+                if {[v_abs [v_sub $point_loc_1 $loc_temp]] < 0.1} { set is_point_del 0 }
+            }
+            # 尝试压掉 point_id
+            if {$is_point_del == 1} { *createmark points 1 $point_id; *verticesmarksuppress 1 180 0; }
         }
-        # 尝试压掉 point_id
-        if {$is_point_del == 1} { *createmark points 1 $point_id; *verticesmarksuppress 1 180 0; }
-        
-        # ========================
+
+        # ----------------
         # 分割外圆孔
         set line_circle_datas [surf_split_by_nodes $surf_id [dict get $node_ids_dic $circle_offset] $cirlce_line_point_num]
         # puts "line_circle_datas : $line_circle_datas"
         
-        # ========================
+        # ----------------
         # 分割边界
-        set line_square_datas [surf_split_by_4nodes_try $surf_id [dict get $node_ids_dic $square_offset] $square_line_point_num]
-        # puts "line_square_datas : $line_square_datas"
+        set line_edge_datas [surf_split_by_nodes_try_with_innernodes_tocirlce $surf_id [dict get $node_ids_dic $edge_offset] $edge_line_point_num [dict get $node_ids_dic $circle_offset]]
+        # puts "line_edge_datas : $line_edge_datas"
         
-        # ========================
+        # ----------------
         # 获取新创建的面 , 仅适用于当前画法
         # 内外圆孔间的分割面
         set new_surf_ids []
@@ -880,7 +1012,7 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
             lappend new_surf_ids [lindex $line_circle_datas 0]
         }
         # 边界圆孔
-        lappend new_surf_ids [lindex [lindex $line_square_datas end] 0]
+        lappend new_surf_ids [lindex [lindex $line_edge_datas end] 0]
         # 数据去空
         set surf_temp_ids []
         foreach new_surf_id $new_surf_ids {
@@ -892,6 +1024,112 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
         set new_surf_ids $surf_temp_ids
         # puts "base_surf_id : $surf_id \nnew_surf_ids : $new_surf_ids"
 
+
+        # ----------------------------------------------
+        # ----------------------------------------------
+        # ----------------网格划分
+        *startnotehistorystate {mesh hole elements}
+            hm_createmark surfs 1 $new_surf_ids
+            set new_surf_ids_len [llength $new_surf_ids]
+            *interactiveremeshsurf 1 $elem_size 1 1 2 1 1
+            for { set i 0 } { $i < $new_surf_ids_len } { incr i 1 } {
+                *set_meshfaceparams $i 5 1 0 0 1 0.5 1 1
+                *automesh $i 2 1
+            }
+            *storemeshtodatabase 1
+        *endnotehistorystate {mesh hole elements}
+    }
+}
+
+
+# 主函数, 边界双边超过界限(矩形钢适用)，单环
+proc main_hole_mesh_1circle_by_two_line {line_base_id line_circle_ids control_params} {
+    # -------------------------
+    # line_base_id 参考周线line ID
+    # line_circle_ids 目标圆孔lineID (1个圆孔1个lineID, 可以为列表)
+    # control_params 控制参数
+    # -------------------------
+
+    # 内圆孔-node点数
+    set circle_in_num         [dict get $control_params circle_in_num]
+    # 外圆孔-node点数
+    set circle_out_num        [dict get $control_params circle_out_num]
+    # 外圆孔-偏置量(相对于内圆孔)
+    set edge_offset         [dict get $control_params edge_offset]
+    # # 边界-偏置量(相对于内圆孔)
+    # 网格单元尺寸定义
+    set elem_size             [dict get $control_params elem_size]
+    # 外圆孔-line插入point点数
+    set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
+
+
+    foreach line_circle_id $line_circle_ids {
+
+        # ----------------------------------------------
+        # ----------------------------------------------
+        # 内圆孔去点
+
+        # 获取圆孔数据
+        set circle_data [get_circle_data_by_line $line_circle_id]
+        # puts "circle_data : $circle_data"
+
+        # 压掉圆孔的point点
+        eval "*createmark points 1 [lindex $circle_data 1]"
+        *verticesmarksuppress 1 180 0
+
+        # 重新获取圆孔 line ID
+        *createmarklast points 1
+        set point_id [hm_getmark points 1]
+        # puts "points: [hm_getmark points 1]"
+
+        *createmark lines 1 "by points" $point_id
+        set line_circle_id [hm_getmark lines 1]
+        # puts "line_circle_id: $line_circle_id"
+
+        *createmark surfs 1 "by lines" $line_circle_id
+        set surf_id [hm_getmark surfs 1]
+
+
+        # ----------------------------------------------
+        # ----------------------------------------------
+        # ----------------创建node 点    
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_id "0 $edge_offset" "$circle_in_num $circle_out_num "]
+        # puts "node_ids_dic : $node_ids_dic"
+
+
+        # ----------------------------------------------
+        # ----------------------------------------------
+        # ----------------分割
+
+        # ----------------
+        # 分割内圆孔-添加点
+        catch {
+            set point_loc_1 [hm_getcoordinates point $point_id]
+            set is_point_del 1
+            foreach node_id [dict get $node_ids_dic 0] {
+                set loc_temp [get_node_locs $node_id]
+                eval "*surfaceaddpoint $surf_id $loc_temp"
+                # 点距离判断 ------------------------------------------------------------
+                if {[v_abs [v_sub $point_loc_1 $loc_temp]] < 0.1} { set is_point_del 0 }
+            }
+            # 尝试压掉 point_id
+            if {$is_point_del == 1} { *createmark points 1 $point_id; *verticesmarksuppress 1 180 0; }
+        }
+
+        # ----------------
+        # 分割外圆孔(边界)
+        set line_circle_datas [surf_split_by_nodes_try_with_innernodes_tocirlce $surf_id [dict get $node_ids_dic $edge_offset] $cirlce_line_point_num [dict get $node_ids_dic 0]]
+        # puts "line_circle_datas : $line_circle_datas"
+        
+        # ----------------
+        # 获取新创建的面 , 仅适用于当前画法
+        # # 内外圆孔间的分割面
+        set new_surf_ids [lindex [lindex $line_circle_datas end] 0]
+        # puts "base_surf_id : $surf_id \nnew_surf_ids : $new_surf_ids"
+
+
+
+        # ----------------------------------------------
         # ----------------------------------------------
         # ----------------网格划分
         *startnotehistorystate {mesh hole elements}
@@ -906,49 +1144,6 @@ proc main_hole_mesh_2circle_by_two_line_out1 {line_base_id line_circle_ids contr
         *endnotehistorystate {mesh hole elements}
 
     }
-
-
 }
 
 
-# 
-proc main_test {} {
-    dict set control_params circle_offset 5
-    dict set control_params square_offset 16
-    dict set control_params elem_size 10
-
-    # type 1
-    dict set control_params circle_in_num 8
-    dict set control_params circle_out_num 8
-    dict set control_params square_num 4
-    dict set control_params cirlce_line_point_num 0
-    dict set control_params square_line_point_num 3
-
-    # # type 2
-    # dict set control_params circle_in_num 8
-    # dict set control_params circle_out_num 4
-    # dict set control_params square_num 4
-    # dict set control_params cirlce_line_point_num 1
-    # dict set control_params square_line_point_num 3
-
-
-
-    # -----------------------------------
-    puts "---start---"
-    *nodecleartempmark
-
-    *createmarkpanel lines 1 "base_line_select"
-    set line_base_id [hm_getmark lines 1]
-
-    # 目标线 ID  - 必须为圆
-    *createmarkpanel lines 1 "circle_line_select"
-    set line_circle_ids [hm_getmark lines 1]
-
-    main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
-
-    # *surfaceaddpoint 13 807.272413 201.135743 52.5
-
-    *clearmarkall 1
-    *clearmarkall 2
-    puts "---end---"
-}

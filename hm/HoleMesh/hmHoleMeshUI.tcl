@@ -3,7 +3,7 @@
 
 namespace eval ::HoleMesh {
     variable circle_offset
-    variable square_offset
+    variable edge_offset
     variable elem_size
 
     variable line_base_id
@@ -15,13 +15,12 @@ namespace eval ::HoleMesh {
 
     variable file_dir [file dirname [info script]]
     variable tcl_path
-    variable tcl_path2
 }
 
-set ::HoleMesh::tcl_path [format "%s/hmHoleMesh01.tcl" $::HoleMesh::file_dir]
-set ::HoleMesh::tcl_path2 [format "%s/hmHoleMesh02.tcl" $::HoleMesh::file_dir]
+# set ::HoleMesh::tcl_path [format "%s/hmHoleMesh01.tcl" $::HoleMesh::file_dir]
+set ::HoleMesh::tcl_path [format "%s/hmHoleMesh.tcl" $::HoleMesh::file_dir]
 if {[info exists ::HoleMesh::circle_offset]==0} {set ::HoleMesh::circle_offset 5}
-if {[info exists ::HoleMesh::square_offset]==0} {set ::HoleMesh::square_offset 15}
+if {[info exists ::HoleMesh::edge_offset]==0} {set ::HoleMesh::edge_offset 15}
 if {[info exists ::HoleMesh::elem_size]==0} {set ::HoleMesh::elem_size 10}
 if {[info exists ::HoleMesh::isSaveSelect]==0} {set ::HoleMesh::isSaveSelect 0}
 if {[info exists ::HoleMesh::meshType]==0} {set ::HoleMesh::meshType 1}
@@ -36,7 +35,7 @@ proc ::HoleMesh::GUI { args } {
     variable recess;
 
     set minx [winfo pixel . 225p];
-    set miny [winfo pixel . 190p];
+    set miny [winfo pixel . 220p];
     if {![OnPc]} {set miny [winfo pixel . 240p];}
     set graphArea [hm_getgraphicsarea];
     set x [lindex $graphArea 0];
@@ -58,7 +57,7 @@ proc ::HoleMesh::GUI { args } {
     set recess [::hwt::WindowRecess winHoleMesh];
 
     grid columnconfigure $recess 1 -weight 1;
-    grid rowconfigure    $recess 12 -weight 1;
+    grid rowconfigure    $recess 15 -weight 1;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line1 "单元选择";
@@ -93,9 +92,9 @@ proc ::HoleMesh::GUI { args } {
     entry $recess.entry1 -width 16 -textvariable ::HoleMesh::circle_offset
     grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel2 -text "Square Offset";
+    label $recess.entryLabel2 -text "Edge Offset";
     grid $recess.entryLabel2 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.entry2 -width 16 -textvariable ::HoleMesh::square_offset
+    entry $recess.entry2 -width 16 -textvariable ::HoleMesh::edge_offset
     grid $recess.entry2 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
     label $recess.entryLabel3 -text "Elem Size";
@@ -104,12 +103,15 @@ proc ::HoleMesh::GUI { args } {
     grid $recess.entry3 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
-    radiobutton $recess.radio_1 -text "2Circle-1"  -variable ::HoleMesh::meshType -value 1 -anchor w -font {MS 10}
-    radiobutton $recess.radio_2 -text "2Circle-2" -variable ::HoleMesh::meshType -value 2 -anchor w -font {MS 10}
-    radiobutton $recess.radio_3 -text "2Circle-Out-1" -variable ::HoleMesh::meshType -value 3 -anchor w -font {MS 10}
+    radiobutton $recess.radio_1 -text "2Circle-884"  -variable ::HoleMesh::meshType -value 1 -anchor w -font {MS 10}
+    radiobutton $recess.radio_2 -text "2Circle-844" -variable ::HoleMesh::meshType -value 2 -anchor w -font {MS 10}
+    radiobutton $recess.radio_3 -text "1Circle-84" -variable ::HoleMesh::meshType -value 3 -anchor w -font {MS 10}
+    radiobutton $recess.radio_4 -text "1Circle-88" -variable ::HoleMesh::meshType -value 4 -anchor w -font {MS 10}
     grid $recess.radio_1 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
     grid $recess.radio_2 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
     grid $recess.radio_3 -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_4 -row 10 -column 1 -padx 2 -pady 2 -sticky nw;
+    # grid $recess.radio_5 -row 11 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
     checkbutton $recess.checkSelect \
@@ -119,7 +121,7 @@ proc ::HoleMesh::GUI { args } {
         -variable ::HoleMesh::isSaveSelect \
         -command ::HoleMesh::fun_checkSelectButton
         # -width 16;
-    grid $recess.checkSelect -row 11 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.checkSelect -row 15 -column 0 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow winHoleMesh -onDeleteWindow ::HoleMesh::Quit;
@@ -138,39 +140,50 @@ proc ::HoleMesh::OkExit { args } {
     set line_circle_ids $::HoleMesh::line_circle_ids
 
     dict set control_params circle_offset $::HoleMesh::circle_offset
-    dict set control_params square_offset $::HoleMesh::square_offset
+    dict set control_params edge_offset $::HoleMesh::edge_offset
     dict set control_params elem_size $::HoleMesh::elem_size
     
     if {$::HoleMesh::meshType==1} {
-        # type 1
+
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 8
         dict set control_params square_num 4
         dict set control_params cirlce_line_point_num 0
-        dict set control_params square_line_point_num 3 
+        dict set control_params edge_line_point_num 3
         source $::HoleMesh::tcl_path
         main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
 
     } elseif {$::HoleMesh::meshType==2} {
-        # type 2
+
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 4
         dict set control_params square_num 4
         dict set control_params cirlce_line_point_num 1
-        dict set control_params square_line_point_num 3
+        dict set control_params edge_line_point_num 3
         source $::HoleMesh::tcl_path
         main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
 
     } elseif {$::HoleMesh::meshType==3} {
+
+        dict set control_params circle_in_num 8
+        dict set control_params circle_out_num 4
+        # dict set control_params square_num 4
+        dict set control_params cirlce_line_point_num 1
+        # dict set control_params edge_line_point_num 3 
+        source $::HoleMesh::tcl_path
+        main_hole_mesh_1circle_by_two_line $line_base_id $line_circle_ids $control_params
+
+    } elseif {$::HoleMesh::meshType==4} {
+
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 8
-        dict set control_params square_num 4
+        # dict set control_params square_num 4
         dict set control_params cirlce_line_point_num 0
-        dict set control_params square_line_point_num 3 
-        source $::HoleMesh::tcl_path2
-        main_hole_mesh_2circle_by_two_line_out1 $line_base_id $line_circle_ids $control_params
-        # puts "::HoleMesh::meshType : $::HoleMesh::meshType"
+        # dict set control_params edge_line_point_num 3 
+        source $::HoleMesh::tcl_path
+        main_hole_mesh_1circle_by_two_line $line_base_id $line_circle_ids $control_params
     }
+
 
     # -----------------------------------
     
