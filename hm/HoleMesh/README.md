@@ -65,4 +65,5 @@
 		+ 模式2 : 双环:: 内环 8 外环 4 边界4
 		+ 模式3 : 单环:: 内环 8 边界4
 		+ 模式4 : 单环:: 内环 8 边界8
-
++ v3.3
+	+ 修改create_circle_node_by_line, 将line_base_id 改为线上的两个坐标点line_base_2_locs, 避免line_base_id的变更引起的报错

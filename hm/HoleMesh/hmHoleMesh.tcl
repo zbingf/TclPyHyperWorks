@@ -360,15 +360,15 @@ proc get_end_line_id_by_surf {surf_id} {
 
 
 # 根据圆孔创建node点 - edit
-proc create_circle_node_by_line {line_circle_id line_base_id dis_offsets node_nums} {
+proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets node_nums} {
     # line_circle_id 线对应的ID
-    # line_base_id   基础轴线的ID
+    # line_base_id   基础轴线的ID 对应坐标 line_base_2_locs
 
     # 根据线获取面
     *createmark surfs 1 "by lines" $line_circle_id
     set surf_id [hm_getmark surfs 1]
 
-    set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
+    # set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
     set line_base_v [v_sub [lindex $line_base_2_locs 0] [lindex $line_base_2_locs 1]]
 
     # 根据线获取圆
@@ -787,7 +787,7 @@ proc surf_split_by_nodes_try_old {surf_id node_ids insert_point_num} {
     set line_datas []
     
     # 获取面的法向量
-    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 1 3]
+    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 0 2]
     # puts "surf_v: $surf_v"
     # set surf_temp_ids [$surf_id]
     for { set i 0 } { $i < $node_len } { incr i 1 } {
@@ -854,9 +854,9 @@ proc surf_split_by_nodes_try_with_innernodes_tocirlce {surf_id node_ids insert_p
     set line_datas []
     
     # 获取面的法向量
-    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 1 3]
+    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 0 2]
     # puts "surf_v: $surf_v"
-    # set surf_temp_ids [$surf_id]
+
     for { set i 0 } { $i < $node_len } { incr i 1 } {
         if {$i < [expr $node_len-1]} {
             set loc1 [get_node_locs [lindex $node_ids $i]]
@@ -937,7 +937,8 @@ proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_pa
     # 外圆孔-line插入point点数
     set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
 
-
+    set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
+    
     foreach line_circle_id $line_circle_ids {
 
         # ----------------------------------------------
@@ -967,7 +968,8 @@ proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_pa
         # ----------------------------------------------
         # ----------------------------------------------
         # ----------------创建node 点    
-        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_id "0 $circle_offset $edge_offset" "$circle_in_num $circle_out_num $square_num"]
+
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs "0 $circle_offset $edge_offset" "$circle_in_num $circle_out_num $square_num"]
         # puts "node_ids_dic : $node_ids_dic"
 
 
@@ -1062,7 +1064,7 @@ proc main_hole_mesh_1circle_by_two_line {line_base_id line_circle_ids control_pa
     # 外圆孔-line插入point点数
     set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
 
-
+    set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
     foreach line_circle_id $line_circle_ids {
 
         # ----------------------------------------------
@@ -1093,7 +1095,7 @@ proc main_hole_mesh_1circle_by_two_line {line_base_id line_circle_ids control_pa
         # ----------------------------------------------
         # ----------------------------------------------
         # ----------------创建node 点    
-        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_id "0 $edge_offset" "$circle_in_num $circle_out_num "]
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs "0 $edge_offset" "$circle_in_num $circle_out_num "]
         # puts "node_ids_dic : $node_ids_dic"
 
 
