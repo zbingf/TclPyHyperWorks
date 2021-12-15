@@ -120,9 +120,9 @@ proc v_loc_round_num {loc1 num} {
     set x [lindex $loc1 0]
     set y [lindex $loc1 1]
     set z [lindex $loc1 2]
-    set new_x [expr round($x*(10**$num))*1.0/(10**$num)]
-    set new_y [expr round($y*(10**$num))*1.0/(10**$num)]
-    set new_z [expr round($z*(10**$num))*1.0/(10**$num)]
+    set new_x [expr double(round($x*(10**$num))) / (10**$num)]
+    set new_y [expr double(round($y*(10**$num))) / (10**$num)]
+    set new_z [expr double(round($z*(10**$num))) / (10**$num)]
     return "$new_x $new_y $new_z"
 }
 
@@ -142,7 +142,7 @@ proc vertical_point {line_p1_loc line_p2_loc p3_loc} {
     set y0 [lindex $p3_loc 1]
     set z0 [lindex $p3_loc 2]
 
-    set k [expr -(($x1-$x0)*($x2-$x1)+($y1-$y0)*($y2-$y1)+($z1-$z0)*($z2-$z1))/(($x2-$x1)**2+($y2-$y1)**2+($z2-$z1)**2)]
+    set k [expr double(-(($x1-$x0)*($x2-$x1)+($y1-$y0)*($y2-$y1)+($z1-$z0)*($z2-$z1))) / double(($x2-$x1)**2+($y2-$y1)**2+($z2-$z1)**2)]
 
     set xn [expr $k*($x2-$x1) + $x1]
     set yn [expr $k*($y2-$y1) + $y1]
@@ -159,7 +159,7 @@ proc angle_2vector {base_v_loc target_v_loc} {
     set base_abs [v_abs $base_v_loc]
     set target_abs [v_abs $target_v_loc]
     set a_dob_b [v_multi_dot $base_v_loc $target_v_loc]
-    set value [expr $a_dob_b / ($base_abs*$target_abs)]
+    set value [expr double($a_dob_b) / ($base_abs*$target_abs)]
     if { $value > 1 } { 
         # puts "warning: acos(value) , value: $value"
         set value 1 
@@ -170,7 +170,7 @@ proc angle_2vector {base_v_loc target_v_loc} {
     }
     set rad [expr acos($value)]
     set surf_v [v_multi_x $base_v_loc $target_v_loc]
-    set angle [expr $rad*180/3.141592654]
+    set angle [expr double($rad*180) / 3.141592654]
     return "{$surf_v} $angle"
 }
 
@@ -360,7 +360,7 @@ proc get_end_line_id_by_surf {surf_id} {
 
 
 # 根据圆孔创建node点 - edit
-proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets node_nums} {
+proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets node_nums start_angles} {
     # line_circle_id 线对应的ID
     # line_base_id   基础轴线的ID 对应坐标 line_base_2_locs
 
@@ -404,17 +404,13 @@ proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets nod
     # puts "len circle_num : $circle_num ; dis_offsets: $dis_offsets ; node_nums:$node_nums"
     for { set num 0 } { $num < $circle_num } { incr num 1 } {
         # # 坐标相对远点的矢量
-        set dis_offset [lindex $dis_offsets $num]
-        set node_num   [lindex $node_nums $num]
+        set dis_offset  [lindex $dis_offsets $num]
+        set node_num    [lindex $node_nums $num]
+        set start_angle [lindex $start_angles $num]
 
         set dis [expr $R_circle+$dis_offset]
-        if {$node_num==4} {
-            set node_ids [create_circle_node_4_with_v $new_v $new_u $circle_center_loc $dis]    
-        } elseif {$node_num==6} {
-            set node_ids [create_circle_node_6_with_v $new_v $new_u $circle_center_loc $dis]
-        } elseif {$node_num==8} {
-            set node_ids [create_circle_node_8_with_v $new_v $new_u $circle_center_loc $dis]
-        }
+        set node_ids [create_circle_node_with_v $new_v $new_u $circle_center_loc $dis $node_num $start_angle]
+
         dict set node_ids_dic $dis_offset "$node_ids"
 
     }
@@ -424,6 +420,30 @@ proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets nod
 
 
 # 
+proc create_circle_node_with_v {new_v new_u circle_center_loc dis node_num start_angle} {
+    set circle_v [v_one [v_multi_x $new_v $new_u]]
+    set new_u [v_one $new_u]
+    set node_ids []
+    set start_rad [expr double($start_angle) / 180.0 * 3.141592654]
+    # puts "start_rad: $start_rad"
+    
+    for { set i 0 } { $i < $node_num } { incr i 1 } {
+
+        set loc1 [v_rotate_point $circle_v $new_u [expr $start_rad + double($i)*2.0*3.141592654 / double($node_num)]]
+        set loc1 [v_multi_c $loc1 $dis]
+        *clearmark nodes 1
+        set node_loc1 [v_add $loc1 $circle_center_loc]
+        set node_loc1 [v_add $loc1 $circle_center_loc]
+        eval "*createnode $node_loc1 0 0 0"
+        *createmarklast nodes 1
+        lappend node_ids [hm_getmark nodes 1]   
+    }
+    
+    return $node_ids   
+}
+
+
+# old
 proc create_circle_node_4_with_v {new_v new_u circle_center_loc dis} {
 
     # 顺序连线
@@ -446,16 +466,16 @@ proc create_circle_node_4_with_v {new_v new_u circle_center_loc dis} {
 }
 
 
-# 
+# old
 proc create_circle_node_6_with_v {new_v new_u circle_center_loc dis} {
 
     set circle_v [v_one [v_multi_x $new_v $new_u]]
     set new_u [v_one $new_u]
     set node_ids []
     foreach num "0 1 2 3 4 5" {
-        set loc1 [v_rotate_point $circle_v $new_u [expr double($num)*60.0/180.0*3.141592654]]
+        set loc1 [v_rotate_point $circle_v $new_u [expr double($num)*60.0 / 180.0*3.141592654]]
         set loc1 [v_multi_c $loc1 $dis]
-        puts "num:$num ; loc1:$loc1"
+        # puts "num:$num ; loc1:$loc1"
         *clearmark nodes 1
         set node_loc1 [v_add $loc1 $circle_center_loc]
         eval "*createnode $node_loc1 0 0 0"
@@ -466,7 +486,7 @@ proc create_circle_node_6_with_v {new_v new_u circle_center_loc dis} {
 }
 
 
-# 
+# old
 proc create_circle_node_8_with_v {new_v new_u circle_center_loc dis} {
 
     # 顺序连线
@@ -539,7 +559,6 @@ proc surf_split_by_two_nodes {surf_id node_1_ids node_2_ids insert_point_num} {
 }
 
 
-
 # 连点坐标分割面
 proc func_surfacesplitwithcoords {surf_id loc1 loc2} {
     set tolerance_angle 5
@@ -562,7 +581,7 @@ proc func_surfacesplitwithcoords {surf_id loc1 loc2} {
 
         if {[v_abs $line_v] < 0.01} { continue }
         set angle [lindex [angle_2vector $line_v $line_v_2] 1]
-        set dis_del_percent [ expr abs(([v_abs $line_v]-[v_abs $line_v_2])/[v_abs $line_v]) ]
+        set dis_del_percent [ expr double(abs(([v_abs $line_v]-[v_abs $line_v_2])) / double([v_abs $line_v])) ]
         if {[expr abs($angle)] < $tolerance_angle | [expr abs($angle-180)] < $tolerance_angle} {
             if {$dis_del_percent < $tolerance_dis_percent} {
                 set line_new_id $line_id
@@ -644,7 +663,7 @@ proc dis_point_to_line_loc {point_loc line_1_loc line_2_loc} {
     set d23 [dis_point_to_point_loc $line_1_loc $line_2_loc]
     set p [expr ($d12+$d13+$d23)*0.5]
     set s [expr ($p*($p-$d12) * ($p-$d13) * ($p-$d23)) **0.5]
-    set h [expr $s*2.0/$d23]
+    set h [expr $s*2.0 / $d23]
     return $h
 }
 
@@ -661,7 +680,7 @@ proc get_nodes_center_loc {node_ids} {
         set y_sum [expr $y_sum + [lindex $loc1 1]]
         set z_sum [expr $z_sum + [lindex $loc1 2]]
     }
-    return "[expr $x_sum/$n_len] [expr $y_sum/$n_len] [expr $z_sum/$n_len]"
+    return "[expr double($x_sum) / double($n_len)] [expr double($y_sum) / double($n_len)] [expr double($z_sum) / double($n_len)]"
 }
 
 
@@ -921,7 +940,7 @@ proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_pa
     # -------------------------
 
     # 边界-node点数
-    set square_num            [dict get $control_params square_num]
+    set edge_num              [dict get $control_params edge_num]
     # 内圆孔-node点数
     set circle_in_num         [dict get $control_params circle_in_num]
     # 外圆孔-node点数
@@ -929,15 +948,23 @@ proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_pa
     # 外圆孔-偏置量(相对于内圆孔)
     set circle_offset         [dict get $control_params circle_offset]
     # 边界-偏置量(相对于内圆孔)
-    set edge_offset         [dict get $control_params edge_offset]
+    set edge_offset           [dict get $control_params edge_offset]
     # 网格单元尺寸定义
     set elem_size             [dict get $control_params elem_size]
     # 边界线-line插入point点数
-    set edge_line_point_num [dict get $control_params edge_line_point_num]
+    set edge_line_point_num   [dict get $control_params edge_line_point_num]
     # 外圆孔-line插入point点数
     set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
 
+    # 起始角 - 外圆孔
+    set start_angle_circle_out [dict get $control_params start_angle_circle_out]
+    # 起始角 - 内圆孔
+    set start_angle_circle_in  [dict get $control_params start_angle_circle_in]
+    # 起始角 - 边界
+    set start_angle_edge       [dict get $control_params start_angle_edge]
+
     set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
+
     
     foreach line_circle_id $line_circle_ids {
 
@@ -967,11 +994,14 @@ proc main_hole_mesh_2circle_by_two_line {line_base_id line_circle_ids control_pa
         
         # ----------------------------------------------
         # ----------------------------------------------
-        # ----------------创建node 点    
-
-        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs "0 $circle_offset $edge_offset" "$circle_in_num $circle_out_num $square_num"]
+        # ----------------创建node 点
+        # *startnotehistorystate {create_node}
+        set dis_offsets  "0 $circle_offset $edge_offset"
+        set node_nums  "$circle_in_num $circle_out_num $edge_num"
+        set start_angles "$start_angle_circle_in $start_angle_circle_out $start_angle_edge"
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs $dis_offsets $node_nums $start_angles]
         # puts "node_ids_dic : $node_ids_dic"
-
+        # *endnotehistorystate {create_node}
 
         # ----------------------------------------------
         # ----------------------------------------------
@@ -1063,6 +1093,10 @@ proc main_hole_mesh_1circle_by_two_line {line_base_id line_circle_ids control_pa
     set elem_size             [dict get $control_params elem_size]
     # 外圆孔-line插入point点数
     set cirlce_line_point_num [dict get $control_params cirlce_line_point_num]
+    # 起始角 - 外圆孔
+    set start_angle_circle_out [dict get $control_params start_angle_circle_out]
+    # 起始角 - 内圆孔
+    set start_angle_circle_in  [dict get $control_params start_angle_circle_in]
 
     set line_base_2_locs [hm_getcoordinatesofpointsonline $line_base_id [list 0.0 0.1]]
     foreach line_circle_id $line_circle_ids {
@@ -1095,9 +1129,12 @@ proc main_hole_mesh_1circle_by_two_line {line_base_id line_circle_ids control_pa
         # ----------------------------------------------
         # ----------------------------------------------
         # ----------------创建node 点    
-        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs "0 $edge_offset" "$circle_in_num $circle_out_num "]
+        set dis_offsets  "0 $edge_offset"
+        set node_nums  "$circle_in_num $circle_out_num"
+        set start_angles "$start_angle_circle_in $start_angle_circle_out"
+        set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs $dis_offsets $node_nums $start_angles]
+        # set node_ids_dic [create_circle_node_by_line $line_circle_id $line_base_2_locs "0 $edge_offset" "$circle_in_num $circle_out_num "]
         # puts "node_ids_dic : $node_ids_dic"
-
 
         # ----------------------------------------------
         # ----------------------------------------------

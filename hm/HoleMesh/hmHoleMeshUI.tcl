@@ -19,11 +19,11 @@ namespace eval ::HoleMesh {
 
 # set ::HoleMesh::tcl_path [format "%s/hmHoleMesh01.tcl" $::HoleMesh::file_dir]
 set ::HoleMesh::tcl_path [format "%s/hmHoleMesh.tcl" $::HoleMesh::file_dir]
-if {[info exists ::HoleMesh::circle_offset]==0} {set ::HoleMesh::circle_offset 5}
-if {[info exists ::HoleMesh::edge_offset]==0} {set ::HoleMesh::edge_offset 15}
-if {[info exists ::HoleMesh::elem_size]==0} {set ::HoleMesh::elem_size 10}
-if {[info exists ::HoleMesh::isSaveSelect]==0} {set ::HoleMesh::isSaveSelect 0}
-if {[info exists ::HoleMesh::meshType]==0} {set ::HoleMesh::meshType 1}
+if {[info exists ::HoleMesh::circle_offset]==0}     {set ::HoleMesh::circle_offset 5}
+if {[info exists ::HoleMesh::edge_offset]==0}       {set ::HoleMesh::edge_offset 15}
+if {[info exists ::HoleMesh::elem_size]==0}         {set ::HoleMesh::elem_size 10}
+if {[info exists ::HoleMesh::isSaveSelect]==0}      {set ::HoleMesh::isSaveSelect 0}
+if {[info exists ::HoleMesh::meshType]==0}          {set ::HoleMesh::meshType 1}
 
 
 # -------------------------------------
@@ -55,6 +55,8 @@ proc ::HoleMesh::GUI { args } {
     ::hwt::KeepOnTop .winHoleMesh;
 
     set recess [::hwt::WindowRecess winHoleMesh];
+    set ::HoleMesh::recess $recess
+
 
     grid columnconfigure $recess 1 -weight 1;
     grid rowconfigure    $recess 15 -weight 1;
@@ -64,49 +66,55 @@ proc ::HoleMesh::GUI { args } {
     grid $recess.end_line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
 
     # ===================
-    label $recess.baseLabel -text "Base AxleLine";
+    label $recess.baseLabel -text "参考-轴线" -font {MS 10} ;
     grid $recess.baseLabel -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
 
     button $recess.baseButton \
-        -text "轴线参考" \
+        -text "轴线选择" \
         -command ::HoleMesh::fun_baseButton \
-        -width 16;
+        -width 16 \
+        -font {MS 10};
     grid $recess.baseButton -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
 
     # ===================
-    label $recess.targetLabel -text "Target CircleLine";
+    label $recess.targetLabel -text "目标-圆孔线" -font {MS 10} ;
     grid $recess.targetLabel -row 3 -column 1 -padx 2 -pady 2 -sticky nw;
 
     button $recess.targetButton \
         -text "CircleLine" \
         -command ::HoleMesh::fun_targetButton \
-        -width 16;
+        -width 16 \
+        -font {MS 10};
     grid $recess.targetButton -row 4 -column 1 -padx 2 -pady 2 -sticky nw;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line "";
     grid $recess.end_line -row 5 -column 0 -pady 6 -sticky ew -columnspan 2;
 
-    label $recess.entryLabel1 -text "Circle Offset";
+    label $recess.entryLabel1 -text "外圈偏置距离" -font {MS 10} ;
     grid $recess.entryLabel1 -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry1 -width 16 -textvariable ::HoleMesh::circle_offset
     grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel2 -text "Edge Offset";
+    label $recess.entryLabel2 -text "边界偏置距离" -font {MS 10} ;
     grid $recess.entryLabel2 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry2 -width 16 -textvariable ::HoleMesh::edge_offset
     grid $recess.entry2 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel3 -text "Elem Size";
+    label $recess.entryLabel3 -text "Elem Size" -font {MS 10} ;
     grid $recess.entryLabel3 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry3 -width 16 -textvariable ::HoleMesh::elem_size
     grid $recess.entry3 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
-    radiobutton $recess.radio_1 -text "2Circle-884"  -variable ::HoleMesh::meshType -value 1 -anchor w -font {MS 10}
-    radiobutton $recess.radio_2 -text "2Circle-844" -variable ::HoleMesh::meshType -value 2 -anchor w -font {MS 10}
-    radiobutton $recess.radio_3 -text "1Circle-84" -variable ::HoleMesh::meshType -value 3 -anchor w -font {MS 10}
-    radiobutton $recess.radio_4 -text "1Circle-88" -variable ::HoleMesh::meshType -value 4 -anchor w -font {MS 10}
+    radiobutton $recess.radio_1 -text "2Circle-884"  -variable ::HoleMesh::meshType -value 1 -anchor w -font {MS 10} \
+        -command ::HoleMesh::fun_meshType
+    radiobutton $recess.radio_2 -text "2Circle-844" -variable ::HoleMesh::meshType -value 2 -anchor w -font {MS 10} \
+        -command ::HoleMesh::fun_meshType
+    radiobutton $recess.radio_3 -text "1Circle-84" -variable ::HoleMesh::meshType -value 3 -anchor w -font {MS 10} \
+        -command ::HoleMesh::fun_meshType
+    radiobutton $recess.radio_4 -text "1Circle-88" -variable ::HoleMesh::meshType -value 4 -anchor w -font {MS 10} \
+        -command ::HoleMesh::fun_meshType
     grid $recess.radio_1 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
     grid $recess.radio_2 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
     grid $recess.radio_3 -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
@@ -114,17 +122,20 @@ proc ::HoleMesh::GUI { args } {
     # grid $recess.radio_5 -row 11 -column 1 -padx 2 -pady 2 -sticky nw;
 
 
-    checkbutton $recess.checkSelect \
-        -text "计算后保留选择" \
-        -onvalue 1 \
-        -offvalue 0 \
-        -variable ::HoleMesh::isSaveSelect \
-        -command ::HoleMesh::fun_checkSelectButton
-        # -width 16;
-    grid $recess.checkSelect -row 15 -column 0 -padx 2 -pady 2 -sticky nw;
+    # checkbutton $recess.checkSelect \
+    #     -text "保留参考线选择" \
+    #     -onvalue 1 \
+    #     -offvalue 0 \
+    #     -variable ::HoleMesh::isSaveSelect \
+    #     -command ::HoleMesh::fun_checkSelectButton \
+    #      -font {MS 10} 
+    #     # -width 16;
+    # grid $recess.checkSelect -row 15 -column 0 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow winHoleMesh -onDeleteWindow ::HoleMesh::Quit;
+
+    ::HoleMesh::fun_meshType
 }
 
 # 主程序
@@ -147,9 +158,14 @@ proc ::HoleMesh::OkExit { args } {
 
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 8
-        dict set control_params square_num 4
+        dict set control_params edge_num 4
         dict set control_params cirlce_line_point_num 0
         dict set control_params edge_line_point_num 3
+        
+        dict set control_params start_angle_circle_in 0
+        dict set control_params start_angle_circle_out 0
+        dict set control_params start_angle_edge 45
+
         source $::HoleMesh::tcl_path
         main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
 
@@ -157,9 +173,14 @@ proc ::HoleMesh::OkExit { args } {
 
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 4
-        dict set control_params square_num 4
+        dict set control_params edge_num 4
         dict set control_params cirlce_line_point_num 1
         dict set control_params edge_line_point_num 3
+
+        dict set control_params start_angle_circle_in 0
+        dict set control_params start_angle_circle_out 45
+        dict set control_params start_angle_edge 45
+
         source $::HoleMesh::tcl_path
         main_hole_mesh_2circle_by_two_line $line_base_id $line_circle_ids $control_params
 
@@ -167,9 +188,14 @@ proc ::HoleMesh::OkExit { args } {
 
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 4
-        # dict set control_params square_num 4
+        # dict set control_params edge_num 4
         dict set control_params cirlce_line_point_num 1
         # dict set control_params edge_line_point_num 3 
+
+        dict set control_params start_angle_circle_in 0
+        dict set control_params start_angle_circle_out 45
+        # dict set control_params start_angle_edge 45
+
         source $::HoleMesh::tcl_path
         main_hole_mesh_1circle_by_two_line $line_base_id $line_circle_ids $control_params
 
@@ -177,9 +203,14 @@ proc ::HoleMesh::OkExit { args } {
 
         dict set control_params circle_in_num 8
         dict set control_params circle_out_num 8
-        # dict set control_params square_num 4
+        # dict set control_params edge_num 4
         dict set control_params cirlce_line_point_num 0
         # dict set control_params edge_line_point_num 3 
+
+        dict set control_params start_angle_circle_in 0
+        dict set control_params start_angle_circle_out 0
+        # dict set control_params start_angle_edge 45
+
         source $::HoleMesh::tcl_path
         main_hole_mesh_1circle_by_two_line $line_base_id $line_circle_ids $control_params
     }
@@ -235,6 +266,24 @@ proc ::HoleMesh::fun_checkSelectButton {args} {
     set ::HoleMesh::line_circle_ids []
 }
 
+proc ::HoleMesh::fun_meshType {args} {
+
+    set recess $::HoleMesh::recess 
+    if {$::HoleMesh::meshType<3} {
+        catch {
+            label $recess.entryLabel1 -text "外圈偏置距离" -font {MS 10} ;
+            grid $recess.entryLabel1 -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+            entry $recess.entry1 -width 16 -textvariable ::HoleMesh::circle_offset
+            grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
+        }
+
+    } else {
+        catch {
+            destroy $recess.entryLabel1
+            destroy $recess.entry1
+        }
+    }
+}
 
 *clearmarkall 1
 *clearmarkall 2

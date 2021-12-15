@@ -39,3 +39,6 @@
 	if {[info exists ::ElemCopyBySolid::area_delta_value]==0} {set ::ElemCopyBySolid::area_delta_value 1}
 	if {[info exists ::ElemCopyBySolid::I_delta_value]==0} {set ::ElemCopyBySolid::I_delta_value 10}
 	```
+
++ v5.4
+	+ 增加镜像选项

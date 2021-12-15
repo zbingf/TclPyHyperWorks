@@ -32,4 +32,14 @@
 + v1.2
 	* 孔半径判定改为3点确定半径
 	* 增减BEAM创建
++ V1.3
+	* 兼容性校正
 
+	```python
+def points2circle(p1, p2, p3):
+	# temp = (temp03 @ temp03) / (temp01 @ temp01) / (temp02 @ temp02)
+    temp = v_multi_dot(temp03, temp03) / v_multi_dot(temp01, temp01) / v_multi_dot(temp02, temp02)
+    ...
+	# temp3 = np.array([p1 @ p1, p2 @ p2, p3 @ p3]).reshape(3, 1)
+    temp3 = np.array([v_multi_dot(p1, p1), v_multi_dot(p2, p2), v_multi_dot(p3, p3)]).reshape(3, 1)
+	```

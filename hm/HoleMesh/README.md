@@ -67,3 +67,12 @@
 		+ 模式4 : 单环:: 内环 8 边界8
 + v3.3
 	+ 修改create_circle_node_by_line, 将line_base_id 改为线上的两个坐标点line_base_2_locs, 避免line_base_id的变更引起的报错
+
++ v3.4
+	+ 节点创建优化, 增加起始偏转角
+	```
+		proc create_circle_node_with_v
+	```
+	+ 增加自定义UI界面
++ v3.5
+	+ 优化UI界面

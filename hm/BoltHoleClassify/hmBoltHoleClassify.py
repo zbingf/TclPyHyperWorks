@@ -55,7 +55,8 @@ def points2circle(p1, p2, p3):
     temp01 = p1 - p2
     temp02 = p3 - p2
     temp03 = np.cross(temp01, temp02)
-    temp = (temp03 @ temp03) / (temp01 @ temp01) / (temp02 @ temp02)
+    # temp = (temp03 @ temp03) / (temp01 @ temp01) / (temp02 @ temp02)
+    temp = v_multi_dot(temp03, temp03) / v_multi_dot(temp01, temp01) / v_multi_dot(temp02, temp02)
     if temp < 10**-6:
         return '\t三点共线, 无法确定圆'
         # return None
@@ -69,7 +70,8 @@ def points2circle(p1, p2, p3):
     p = +det(np.delete(mat1, 2, axis=1))
     q = -det(temp1)
 
-    temp3 = np.array([p1 @ p1, p2 @ p2, p3 @ p3]).reshape(3, 1)
+    # temp3 = np.array([p1 @ p1, p2 @ p2, p3 @ p3]).reshape(3, 1)
+    temp3 = np.array([v_multi_dot(p1, p1), v_multi_dot(p2, p2), v_multi_dot(p3, p3)]).reshape(3, 1)
     temp4 = np.hstack((temp3, mat1))
     temp5 = np.array([2 * q, -m, -n, -p, 0])
     mat2 = np.vstack((temp4, temp5))  # size = 4x5

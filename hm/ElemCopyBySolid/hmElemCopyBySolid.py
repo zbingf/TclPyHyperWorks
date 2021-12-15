@@ -128,7 +128,7 @@ target_third_dis_id = target_third_sorted_ids[third_loc]
 
 # print(f'{base_max_dis_id} {target_max_dis_id} {base_third_dis_id} {target_third_dis_id}')
 
-print('{} {} {} {target_third_dis_id}'.format(base_max_dis_id, target_max_dis_id, base_third_dis_id, target_third_dis_id))
+print('{} {} {} {}'.format(base_max_dis_id, target_max_dis_id, base_third_dis_id, target_third_dis_id))
 
 
 

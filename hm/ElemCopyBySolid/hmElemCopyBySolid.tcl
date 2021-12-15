@@ -403,14 +403,22 @@ proc edit_v_surf_1p_1v {center_loc surf_v} {
 
 # ==========
 # solid 及 网格复制移动
-proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
+proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids isReflect} {
+
+	# isReflect 是否先镜像数据
 
 	catch { hm_createmark elems 1 $elem_ids }
 	
 	# 复制
 	*createmark solids 1 $solid_id_base
 	*duplicatemark solids 1 1
-	catch { *duplicatemark elems 1 1}
+	catch { *duplicatemark elems 1 1 }
+
+	if {$isReflect == 1} {
+		*createplane 1 1 0 0 0 0 0
+		*reflectmark solids 1 1
+		catch { *reflectmark elems 1 1 }
+	}
 
 	# id重赋值	
 	set solid_id_base [hm_getmark solids 1]
@@ -506,6 +514,7 @@ proc solid_elems_copy_overlay {solid_id_base solid_id_target elem_ids} {
 	return 0
 }
 
+
 # ==================================
 # ==================================
 # GUI
@@ -516,7 +525,11 @@ namespace eval ::SolidElemsCopyMove {
     variable elem_ids;
     variable solid_id_base;
     variable solid_id_targets;
+    # variable isReflect;
+    variable copyType;
 }
+
+if {[info exists ::SolidElemsCopyMove::copyType]==0} {set ::SolidElemsCopyMove::copyType 0}
 
 proc ::SolidElemsCopyMove::GUI { args } {
     variable recess;
@@ -544,16 +557,17 @@ proc ::SolidElemsCopyMove::GUI { args } {
     set recess [::hwt::WindowRecess solidElemsCopyMoveWin];
 
     grid columnconfigure $recess 1 -weight 1;
-    grid rowconfigure    $recess 9 -weight 1;
+    grid rowconfigure    $recess 20 -weight 1;
 
     # ===================
     label $recess.addLabel -text "Elements";
     grid $recess.addLabel -row 0 -column 0 -padx 2 -pady 2 -sticky nw;
 
     button $recess.elemsButton \
-        -text "Select Elements" \
+        -text "要复制的单元" \
         -command ::SolidElemsCopyMove::fun_elemsButton \
-        -width 16;
+        -width 16 \
+        -font {MS 10} ;
     grid $recess.elemsButton -row 1 -column 0 -padx 5 -pady 2 -sticky nw;
 
     # ===================
@@ -561,43 +575,64 @@ proc ::SolidElemsCopyMove::GUI { args } {
     grid $recess.end_line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
 
     # ===================
-    label $recess.baseLabel -text "Base Solid";
+    label $recess.baseLabel -text "Base Solid" -font {MS 10} ;
     grid $recess.baseLabel -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
 
     button $recess.baseButton \
-        -text "Select Base Solid" \
+        -text "Base Solid" \
         -command ::SolidElemsCopyMove::fun_baseButton \
-        -width 16;
+        -width 16 \
+        -font {MS 10} ;
     grid $recess.baseButton -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
 
     # ===================
-    label $recess.targetLabel -text "Target Solids";
+    label $recess.targetLabel -text "Target Solids" -font {MS 10} ;
     grid $recess.targetLabel -row 3 -column 1 -padx 2 -pady 2 -sticky nw;
 
     button $recess.targetButton \
-        -text "Select Target Solid" \
+        -text "目标Solid" \
         -command ::SolidElemsCopyMove::fun_targetButton \
-        -width 16;
+        -width 16 \
+        -font {MS 10} ;
     grid $recess.targetButton -row 4 -column 1 -padx 2 -pady 2 -sticky nw;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line "";
     grid $recess.end_line -row 5 -column 0 -pady 6 -sticky ew -columnspan 2;
 
-    label $recess.vDelEntry_label -text "VolumeDeltaPercent";
+    label $recess.vDelEntry_label -text "VolumeDeltaPercent" -font {MS 10} ;
     grid $recess.vDelEntry_label -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.vDelEntry -width 16 -textvariable ::ElemCopyBySolid::volume_delta_percent
     grid $recess.vDelEntry -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.aDelEntry_label -text "AreaDelta";
+    label $recess.aDelEntry_label -text "AreaDelta" -font {MS 10} ;
     grid $recess.aDelEntry_label -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.aDelEntry -width 16 -textvariable ::ElemCopyBySolid::area_delta_value
     grid $recess.aDelEntry -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.iDelEntry_label -text "I delta";
+    label $recess.iDelEntry_label -text "I delta" -font {MS 10} ;
     grid $recess.iDelEntry_label -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.iDelEntry -width 16 -textvariable ::ElemCopyBySolid::I_delta_value
     grid $recess.iDelEntry -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
+
+
+
+    radiobutton $recess.radio_1 -text "不镜像"  -variable ::SolidElemsCopyMove::copyType -value 1 -anchor w -font {MS 10} 
+    radiobutton $recess.radio_2 -text "尝试镜像" -variable ::SolidElemsCopyMove::copyType -value 2 -anchor w -font {MS 10} 
+    radiobutton $recess.radio_3 -text "直接镜像" -variable ::SolidElemsCopyMove::copyType -value 3 -anchor w -font {MS 10} 
+    grid $recess.radio_1 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_2 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_3 -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+
+
+    # checkbutton $recess.checkSelect1 \
+    #     -text "是否镜像" \
+    #     -onvalue 1 \
+    #     -offvalue 0 \
+    #     -variable ::SolidElemsCopyMove::isReflect \
+    #     -font {MS 10} 
+    #     # -width 16;
+    # grid $recess.checkSelect1 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
 
 
     ::hwt::RemoveDefaultButtonBinding $recess;
@@ -615,12 +650,15 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 	set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
 	if {$choice != yes} {return;}
 
+
 	# puts $::SolidElemsCopyMove::elem_ids
 	# puts $::SolidElemsCopyMove::solid_id_base
 	# puts $::SolidElemsCopyMove::solid_id_targets
-	set elem_ids $::SolidElemsCopyMove::elem_ids
-	set solid_id_base $::SolidElemsCopyMove::solid_id_base
+	set elem_ids 		 $::SolidElemsCopyMove::elem_ids
+	set solid_id_base 	 $::SolidElemsCopyMove::solid_id_base
 	set solid_id_targets $::SolidElemsCopyMove::solid_id_targets
+	# set isReflect  		 $::SolidElemsCopyMove::isReflect
+	set copyType 		 $::SolidElemsCopyMove::copyType
 
 	puts "\n-----Start-----"
 	set false_targets []
@@ -642,7 +680,22 @@ proc ::SolidElemsCopyMove::OkExit { args } {
 			continue
 		}
 		puts "Is-Target, volume delta percent: $vol_del ; area_del: $area_del"
-		set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids]
+
+		if {$copyType==1} {
+			# set isReflect 0
+			# 不镜像
+			set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids 0]
+		} elseif {$copyType==2} {
+			# 不镜像
+			set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids 0]
+			if {$result == 0} {
+				# 计算失败, 进行镜像再计算
+				set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids 1]
+			}
+		} elseif {$copyType==3} {
+			# 直接进行计算
+			set result [solid_elems_copy_overlay $solid_id_base $solid_id_target $elem_ids 1]
+		}
 		if {$result == 0} {
 			lappend false_targets $solid_id_target
 		}
