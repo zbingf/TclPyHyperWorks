@@ -379,6 +379,87 @@ proc dis_point_to_line_loc {point_loc line_1_loc line_2_loc} {
 # }
 
 
+# # --------------
+# # 连点坐标分割面
+# proc surf_split_with_coords_old {surf_id loc1 loc2} {
+#     set tolerance_angle 5
+#     set tolerance_dis_percent 0.01
+
+#     hm_entityrecorder lines on
+#     hm_entityrecorder surfs on
+#     eval "*surfacesplitwithcoords $surf_id $loc1 $loc2"
+#     hm_entityrecorder lines off
+#     hm_entityrecorder surfs off
+#     set surf_ids [hm_entityrecorder surfs ids]
+#     set line_ids [hm_entityrecorder lines ids]
+    
+#     set line_angles []
+#     set line_dels []
+#     foreach line_id $line_ids {
+#         set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
+#         set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
+#         set line_v_2 [v_sub $loc1 $loc2]
+
+#         if {[v_abs $line_v] < 0.01} { continue }
+#         set angle [lindex [angle_2vector $line_v $line_v_2] 1]
+#         set dis_del_percent [ expr double(abs(([v_abs $line_v]-[v_abs $line_v_2])) / double([v_abs $line_v])) ]
+#         if {[expr abs($angle)] < $tolerance_angle | [expr abs($angle-180)] < $tolerance_angle} {
+#             if {$dis_del_percent < $tolerance_dis_percent} {
+#                 set line_new_id $line_id
+#                 break
+#             }
+#         }
+#         # puts "line_id: $line_id ; angle: $angle ; dis_del_percent: $dis_del_percent"
+#     }
+#     # puts "corder_surf_ids: $surf_ids"
+#     # puts "corder_line_ids: $line_ids"
+#     # puts "corder_line_new_id: $line_new_id"
+#     return "{$surf_ids} {$line_ids} {$line_new_id}"
+# }
+
+
+# # --------------
+# # 连点坐标分割面 - try
+# proc surf_split_with_lines_try_old {surf_id line_id surf_v loc1 loc2} {
+#     set tolerance_dis 0.1
+
+#     set status [catch {
+#         *createmark surfaces 1 $surf_id
+#         *createmark lines 1 $line_id
+#         eval "*createvector 1 $surf_v"
+#         hm_entityrecorder lines on
+#         hm_entityrecorder surfs on
+#         # *surfacemarksplitwithlines 1 1 1 1 0.5
+#         *surfacemarksplitwithlines 1 1 0 13 0
+#         hm_entityrecorder lines off
+#         hm_entityrecorder surfs off
+#         set surf_ids [hm_entityrecorder surfs ids]
+#         set line_ids [hm_entityrecorder lines ids]
+#     } res]
+#     if {$status} { return 0}
+
+#     # puts "corder_surf_ids: $surf_ids"
+#     # puts "corder_line_ids: $line_ids"
+#     foreach line_id $line_ids {
+#         set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
+#         set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
+#         if {[v_abs $line_v] < 0.1} { continue }
+#         if {[llength $point_locs]==1} {continue}
+#         # puts "is_close_line_locs_in_surf {$loc1} {$loc2} $point_locs $tolerance_dis"
+
+#         # 查找匹配的line
+#         set is_close_line [is_close_line_locs_in_surf "{$loc1} {$loc2}" $point_locs $tolerance_dis]
+#         # puts "is_close_line : $is_close_line"
+#         # 新创建的line
+#         if {$is_close_line==1} {set line_new_id $line_id; break}
+            
+#     }
+#     # puts "corder_line_new_id: $line_new_id"
+#     return "{$surf_ids} {$line_ids} {$line_new_id}"
+# }
+
+
+
 # ===================================================================
 # ===================================================================
 # ===================================================================
@@ -511,6 +592,45 @@ proc get_nodes_center_loc {node_ids} {
 }
 
 
+# 根据pintID 获取 line IDs
+proc get_lines_by_point_id {point_id} {
+    *createmark lines 1 "by points"
+    return [hm_getmark lines 1]
+}
+
+
+# 根据两点point ID 获取 line
+proc get_line_by_points {point_ids} {
+    if {[llength $point_ids]!=2} {
+        puts "warning : get_line_by_points point_ids!=2"
+        return 0
+    }
+    set point_1_id [lindex point_ids 0]
+    set point_2_id [lindex point_ids 1]
+    set line_1s [get_lines_by_point_id $point_1_id]
+    set line_2s [get_lines_by_point_id $point_1_id]
+    foreach line_1 $line_1s {
+        foreach line_2 $line_2s {
+            if {$line_1==$line_2} {
+                return $line_1
+            }
+        }
+    }
+}
+
+
+# 创建圆心node by line
+proc create_circle_center_node_by_line {line_id} {
+    
+    *clearmark nodes 1
+    *createmark lines 1 $line_id
+    *createbestcirclecenternode lines 1 0 1 0
+    *createmarklast nodes 1
+    set node_circle_center_id [hm_getmark nodes 1]
+    return $node_circle_center_id
+}
+
+
 # 根据线id获取圆心数据
 proc create_circle_center_node_data_by_line {line_id} {
 
@@ -524,18 +644,6 @@ proc create_circle_center_node_data_by_line {line_id} {
     set r_circle [dis_point_to_point_loc $loc1 $circle_center_loc]
     # puts "$node_circle_center_id {$circle_center_loc} $r_circle"
     return "$node_circle_center_id {$circle_center_loc} $r_circle"
-}
-
-
-# 创建圆心node by line
-proc create_circle_center_node_by_line {line_id} {
-    
-    *clearmark nodes 1
-    *createmark lines 1 $line_id
-    *createbestcirclecenternode lines 1 0 1 0
-    *createmarklast nodes 1
-    set node_circle_center_id [hm_getmark nodes 1]
-    return $node_circle_center_id
 }
 
 
@@ -573,7 +681,7 @@ proc create_circle_node_with_vector {new_v new_u circle_center_loc dis node_num 
 }
 
 
-# 根据圆孔创建node点 - edit
+# 根据圆孔创建圆孔node点
 proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets node_nums start_angles} {
     # line_circle_id 线对应的ID
     # line_base_id   基础轴线的ID 对应坐标 line_base_2_locs
@@ -633,89 +741,90 @@ proc create_circle_node_by_line {line_circle_id line_base_2_locs dis_offsets nod
 }
 
 
-# 判断两线是否接近共线
-proc is_close_line_locs_in_surf {line_1_locs line_2_locs tolerance} {
+# # 判断两线是否接近共线
+# proc is_close_line_locs_in_surf {line_1_locs line_2_locs tolerance} {
 
-    # set tolerance 0.1
-    set line_1_1_loc [lindex $line_1_locs 0]
-    set line_1_2_loc [lindex $line_1_locs 1]
-    set line_2_1_loc [lindex $line_2_locs 0]
-    set line_2_2_loc [lindex $line_2_locs 1]
+#     # set tolerance 0.1
+#     set line_1_1_loc [lindex $line_1_locs 0]
+#     set line_1_2_loc [lindex $line_1_locs 1]
+#     set line_2_1_loc [lindex $line_2_locs 0]
+#     set line_2_2_loc [lindex $line_2_locs 1]
 
-    # puts "$line_1_locs"
-    # puts "$line_2_locs"
-    # puts "$tolerance"
-    # puts "$line_1_1_loc $line_2_1_loc $line_2_2_loc"
+#     # puts "$line_1_locs"
+#     # puts "$line_2_locs"
+#     # puts "$tolerance"
+#     # puts "$line_1_1_loc $line_2_1_loc $line_2_2_loc"
         
-    if {[dis_point_to_point_loc $line_1_1_loc $line_1_2_loc] < 0.01} {
-        # puts "error : $line_1_1_loc $line_1_2_loc"
-        return 0
-    }
-    if {[dis_point_to_point_loc $line_2_1_loc $line_2_2_loc] < 0.01} {
-        # puts "error : $line_2_1_loc $line_2_2_loc"
-        return 0
-    }
+#     if {[dis_point_to_point_loc $line_1_1_loc $line_1_2_loc] < 0.01} {
+#         # puts "error : $line_1_1_loc $line_1_2_loc"
+#         return 0
+#     }
+#     if {[dis_point_to_point_loc $line_2_1_loc $line_2_2_loc] < 0.01} {
+#         # puts "error : $line_2_1_loc $line_2_2_loc"
+#         return 0
+#     }
 
-    set status1 [catch {
-        set dis1 [dis_point_to_line_loc $line_1_1_loc $line_2_1_loc $line_2_2_loc]
-    } res]
-    if {$status1} {
-        puts "error: dis_point_to_line_loc $line_1_1_loc $line_2_1_loc $line_2_2_loc"
-        set dis1 0
-    }
+#     set status1 [catch {
+#         set dis1 [dis_point_to_line_loc $line_1_1_loc $line_2_1_loc $line_2_2_loc]
+#     } res]
+#     if {$status1} {
+#         puts "error: dis_point_to_line_loc $line_1_1_loc $line_2_1_loc $line_2_2_loc"
+#         set dis1 0
+#     }
 
-    set status2 [catch {
-        set dis2 [dis_point_to_line_loc $line_1_2_loc $line_2_1_loc $line_2_2_loc]
-    } res]
-    if {$status2} {
-        puts "error dis_point_to_line_loc $line_1_2_loc $line_2_1_loc $line_2_2_loc"
-        set dis2 0
-    }
+#     set status2 [catch {
+#         set dis2 [dis_point_to_line_loc $line_1_2_loc $line_2_1_loc $line_2_2_loc]
+#     } res]
+#     if {$status2} {
+#         puts "error dis_point_to_line_loc $line_1_2_loc $line_2_1_loc $line_2_2_loc"
+#         set dis2 0
+#     }
 
-    # puts "dis1 :$dis1 ; dis2 : $dis2"
-    if {$dis1 < $tolerance & $dis2 < $tolerance} {
-        return 1
-    } else {
-        return 0
-    }
-}
+#     # puts "dis1 :$dis1 ; dis2 : $dis2"
+#     if {$dis1 < $tolerance & $dis2 < $tolerance} {
+#         return 1
+#     } else {
+#         return 0
+#     }
+# }
 
 
-# 用于1线分割面，左右surf判定的情况
-# 判定是否为目标面(以line为界限, 各node的均值坐标点, 与surf的几何中心是否一致) 
-proc is_target_surf_by_line_and_nodes {surf_id line_id node_ids} {
-    # line_id 在 surf_id对应的面上
-    # 通过法向量是否通向进行判断
+# # 用于1线分割面，左右surf判定的情况
+# # 判定是否为目标面(以line为界限, 各node的均值坐标点, 与surf的几何中心是否一致) 
+# proc is_target_surf_by_line_and_nodes {surf_id line_id node_ids} {
+#     # line_id 在 surf_id对应的面上
+#     # 通过法向量是否通向进行判断
 
-    set tolerance 0.01
+#     set tolerance 0.01
 
-    *createmark surfs 1 $surf_id
-    set surf_loc [hm_getcentroid surfs 1]
+#     *createmark surfs 1 $surf_id
+#     set surf_loc [hm_getcentroid surfs 1]
 
-    # *createmark points 1 "by lines" $line_id
-    # set point_line_ids [hm_getmark points 1]
-    # set base_loc [hm_getcoordinates point [lindex $point_line_ids 0]]
-    # set base_loc2 [hm_getcoordinates point [lindex $point_line_ids 1]]
-    set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
-    set base_loc  [lindex $point_locs 0]
-    set base_loc2 [lindex $point_locs 1]
-    set node_center_loc [get_nodes_center_loc $node_ids]
+#     # *createmark points 1 "by lines" $line_id
+#     # set point_line_ids [hm_getmark points 1]
+#     # set base_loc [hm_getcoordinates point [lindex $point_line_ids 0]]
+#     # set base_loc2 [hm_getcoordinates point [lindex $point_line_ids 1]]
+#     set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
+#     set base_loc  [lindex $point_locs 0]
+#     set base_loc2 [lindex $point_locs 1]
+#     set node_center_loc [get_nodes_center_loc $node_ids]
 
-    set v_base_line [v_sub $base_loc2 $base_loc]
-    set v_base_to_node_center [v_sub $node_center_loc $base_loc]
-    set v_base_to_surf_center [v_sub $surf_loc $base_loc]
+#     set v_base_line [v_sub $base_loc2 $base_loc]
+#     set v_base_to_node_center [v_sub $node_center_loc $base_loc]
+#     set v_base_to_surf_center [v_sub $surf_loc $base_loc]
 
-    # 叉乘获得法向量
-    # 点乘判定是否同向
-    set is_same [v_multi_dot [v_multi_x $v_base_line $v_base_to_node_center] [v_multi_x $v_base_line $v_base_to_surf_center] ]
+#     # 叉乘获得法向量
+#     # 点乘判定是否同向
+#     set is_same [v_multi_dot [v_multi_x $v_base_line $v_base_to_node_center] [v_multi_x $v_base_line $v_base_to_surf_center] ]
     
-    # puts "is_same : $is_same"
-    if {$is_same > 0} {
-        return 1
-    } else {
-        return 0 
-    }
-}
+#     # puts "is_same : $is_same"
+#     if {$is_same > 0} {
+#         return 1
+#     } else {
+#         return 0 
+#     }
+# }
+
 
 
 # 判定是否为目标面, 根据面上的点是否包含所有inner_node_ids点
@@ -750,6 +859,21 @@ proc is_target_surf_by_nodes {surf_id inner_node_ids} {
 }
 
 
+# 根据面内point,判断是否为目标面
+proc is_target_surf_by_point {surf_id inner_point_ids} {
+    *createmark points 1 "by surface" $surf_id
+    set point_surf_ids [hm_getmark points 1]
+    foreach inner_point_id $inner_point_ids {
+        if {$inner_point_id in $point_surf_ids} {
+        } else {
+            return 0
+        }
+    }
+    return 1
+}
+
+
+
 # 连点坐标分割面
 proc surf_split_with_coords {surf_id loc1 loc2} {
     set tolerance_angle 5
@@ -757,36 +881,18 @@ proc surf_split_with_coords {surf_id loc1 loc2} {
 
     hm_entityrecorder lines on
     hm_entityrecorder surfs on
+    hm_entityrecorder points on
     eval "*surfacesplitwithcoords $surf_id $loc1 $loc2"
     hm_entityrecorder lines off
     hm_entityrecorder surfs off
+    hm_entityrecorder points off
     set surf_ids [hm_entityrecorder surfs ids]
     set line_ids [hm_entityrecorder lines ids]
+    set point_ids [hm_entityrecorder points ids]
     
-    set line_angles []
-    set line_dels []
-    foreach line_id $line_ids {
-        set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
-        set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
-        set line_v_2 [v_sub $loc1 $loc2]
-
-        if {[v_abs $line_v] < 0.01} { continue }
-        set angle [lindex [angle_2vector $line_v $line_v_2] 1]
-        set dis_del_percent [ expr double(abs(([v_abs $line_v]-[v_abs $line_v_2])) / double([v_abs $line_v])) ]
-        if {[expr abs($angle)] < $tolerance_angle | [expr abs($angle-180)] < $tolerance_angle} {
-            if {$dis_del_percent < $tolerance_dis_percent} {
-                set line_new_id $line_id
-                break
-            }
-        }
-        # puts "line_id: $line_id ; angle: $angle ; dis_del_percent: $dis_del_percent"
-    }
-    # puts "corder_surf_ids: $surf_ids"
-    # puts "corder_line_ids: $line_ids"
-    # puts "corder_line_new_id: $line_new_id"
+    set line_new_id [get_line_by_points $point_ids]
     return "{$surf_ids} {$line_ids} {$line_new_id}"
 }
-
 
 # surf分割, 1组node列表前后连接分割
 proc surf_split_by_nodes {surf_id node_ids insert_point_num} {
@@ -836,8 +942,7 @@ proc surf_split_by_two_nodes {surf_id node_1_ids node_2_ids insert_point_num} {
 }
 
 
-
-# 连点坐标分割面 - try
+# 
 proc surf_split_with_lines_try {surf_id line_id surf_v loc1 loc2} {
     set tolerance_dis 0.1
 
@@ -847,38 +952,96 @@ proc surf_split_with_lines_try {surf_id line_id surf_v loc1 loc2} {
         eval "*createvector 1 $surf_v"
         hm_entityrecorder lines on
         hm_entityrecorder surfs on
+        hm_entityrecorder points on 
         # *surfacemarksplitwithlines 1 1 1 1 0.5
         *surfacemarksplitwithlines 1 1 0 13 0
         hm_entityrecorder lines off
         hm_entityrecorder surfs off
+        hm_entityrecorder points off 
         set surf_ids [hm_entityrecorder surfs ids]
         set line_ids [hm_entityrecorder lines ids]
+        set point_ids [hm_entityrecorder points ids]
     } res]
     if {$status} { return 0}
 
     # puts "corder_surf_ids: $surf_ids"
     # puts "corder_line_ids: $line_ids"
-    foreach line_id $line_ids {
-        set point_locs [hm_getcoordinatesofpointsonline $line_id [list 0.0 1.0]]
-        set line_v [v_sub [lindex $point_locs 0] [lindex $point_locs 1]]
-        if {[v_abs $line_v] < 0.1} { continue }
-        if {[llength $point_locs]==1} {continue}
-        # puts "is_close_line_locs_in_surf {$loc1} {$loc2} $point_locs $tolerance_dis"
-
-        # 查找匹配的line
-        set is_close_line [is_close_line_locs_in_surf "{$loc1} {$loc2}" $point_locs $tolerance_dis]
-        # puts "is_close_line : $is_close_line"
-        # 新创建的line
-        if {$is_close_line==1} {set line_new_id $line_id; break}
-            
-    }
-    # puts "corder_line_new_id: $line_new_id"
+    set line_new_id [get_line_by_points $point_ids]
     return "{$surf_ids} {$line_ids} {$line_new_id}"
 }
 
 
 # surf分割, 1组node列表前后连接分割; 通过内环node点判定surf面是否正确
 proc surf_split_by_nodes_try_with_innernodes_tocirlce {surf_id node_ids insert_point_num inner_node_ids} {
+    # ---------------------
+    # surf 面
+    # node_ids 列表
+    # insert_point_num 线段插入point点数量
+    # ---------------------
+
+    set node_len [llength $node_ids]
+    set line_datas []
+    
+    # 获取面的法向量
+    set surf_v [lrange [hm_getsurfacenormalatcoordinate $surf_id 0 0 0] 0 2]
+    # puts "surf_v: $surf_v"
+
+    for { set i 0 } { $i < $node_len } { incr i 1 } {
+        if {$i < [expr $node_len-1]} {
+            set loc1 [get_node_locs [lindex $node_ids $i]]
+            set loc2 [get_node_locs [lindex $node_ids [expr $i+1]]]
+            set line_id [create_line_by_node [lindex $node_ids $i] [lindex $node_ids [expr $i+1]]]
+        } else {
+            set loc1 [get_node_locs [lindex $node_ids 0]]
+            set loc2 [get_node_locs [lindex $node_ids end]]
+            set line_id [create_line_by_node [lindex $node_ids 0] [lindex $node_ids end]]
+        }
+
+        # -------------------------
+        # 分割面
+        set line_data [surf_split_with_lines_try $surf_id $line_id $surf_v $loc1 $loc2]
+        # 删除分割用的的线
+        *createmark lines 1 $line_id
+        *deletemark lines 1
+        if {$line_data==0} { continue }
+
+        if {[llength [lindex $line_data 0]] > 0} {
+            # 判定是否为目标面
+            set line_surf_id [lindex $line_data 2]
+            if {[is_target_surf_by_nodes $surf_id $inner_node_ids] == 0} {
+                set surf_id [lindex $line_data 0]
+            }
+            set line_data "{$surf_id} {[lindex $line_data 1]} {[lindex $line_data 2]}"
+        }
+        lappend line_datas $line_data    
+        # puts "line_data: $line_data"
+    }
+    
+    # -------------------------
+    # 插入point
+    if {$insert_point_num!=0} {
+        set surf_target_id [lindex [lindex $line_datas end] 0]
+        set line_target_id [lindex [lindex $line_datas end] 2]
+        # puts "surf_split_by_nodes_try_with_innernodes_tocirlce:: \n  *surf_target_id : $surf_target_id\n  *line_target_id : $line_target_id"
+
+        *createmark lines 1 "by surface" $surf_target_id
+        set circle_lines_data [get_circle_data_by_line_in_lines $line_target_id [hm_getmark lines 1]]
+        # puts "circle_lines_data : $circle_lines_data"
+        set circle_lines_ids [lindex $circle_lines_data 0]
+
+        foreach circle_lines_id $circle_lines_ids {
+            *createmark lines 1 $circle_lines_id
+            *edgesmarkaddpoints 1 $insert_point_num    
+        }
+    }
+    return $line_datas
+}
+
+
+
+# ing  ing 
+# surf分割, 1组node列表前后连接分割; 通过内环point点判定surf面是否正确
+proc surf_split_by_nodes_try_with_innerpoints_tocirlce {surf_id node_ids insert_point_num inner_point_id} {
     # ---------------------
     # surf 面
     # node_ids 列表
