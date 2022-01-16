@@ -10,12 +10,15 @@ hyperworks 相关模块, 以hypermesh前处理为主
 ### 模块
 + hm : hypermesh相关二次开发
 + hv : hyperview相关二次开发
-+ json_set : 相关配置设置
-+ tests : 测试文件
++ hg2d: hypergraph 2d相关二次开发
++ opt_fatigue: optistruct fatigue相关二次开发
++ tests : 部分测试用文件存放
 
 
 ### 文件
++ py_bat_opt_run : 监控并自动运行fem文件
 + py_cmf_read : hypermesh 命令解析
++ py_cmf_read_2021 : hypermesh 命令解析 2021
 + py_file_del : 计算文件删除
 + py_zip : 压缩文件, 用于备份
 + codes_hm_example : tcl相关代码

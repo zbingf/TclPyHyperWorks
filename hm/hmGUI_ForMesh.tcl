@@ -111,7 +111,8 @@ create_label_button 5 $line
 
 # -------------------
 # set 	line "其他"
-# # lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
+# lappend line "{CircleForceLoad} {CircleForceLoad/hmCircleForceLoad.tcl}"
+# lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
 # lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
 # lappend line "{删除-无用卡片} {hmDelEmptyEntity.tcl}"
 # lappend line "{测试} {zing_NodeToSurf/hmNodeToSurf.tcl}"
