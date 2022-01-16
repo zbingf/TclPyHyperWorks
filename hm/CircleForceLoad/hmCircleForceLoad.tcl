@@ -12,24 +12,25 @@ if {$p_script_dir in $auto_path} {} else {
 
 package require SubGeometry 1.0
 package require SubHm 1.0
-
+package require SubTk 1.0
 
 
 proc create_circle_force_load {start_angle end_angle num value} {
 
     *createmarkpanel nodes 1
     set node_id [hm_getmark nodes 1]
+    if {$node_id==""} { return; }
     set center_loc [get_loc_by_node $node_id]
 
     *createmarkpanel vectors 1
     set vector_id [hm_getmark vectors 1]
+    if {$vector_id==""} { return; }
     set v_u [get_v_by_vector $vector_id]
-
 
     *createmarkpanel vectors 1 "surf_v"
     set vector_id [hm_getmark vectors 1]
+    if {$vector_id==""} { return; }
     set surf_v [get_v_by_vector $vector_id]
-
 
     set v_v [v_multi_x $v_u $surf_v]
 
@@ -75,13 +76,49 @@ proc create_circle_force_load {start_angle end_angle num value} {
     }
 }
 
-set start_angle 0
-set end_angle 180
-set num 3
-set value 100
 
-create_circle_force_load $start_angle $end_angle $num $value
+# -----------------------------------------------
+namespace eval ::hmCircleForceLoad {
+    variable width 300
+    variable height 200
+    variable entry_width 16
+    variable button_width 16
+    variable recess
+    variable file_dir [file dirname [info script]]
+
+    variable start_angle 0
+    variable end_angle 180
+    variable num_load 3
+    variable force_value 100
+}
 
 
-# proc entrty
-# name 
+proc ::hmCircleForceLoad::fun_calc { args } {
+    variable start_angle 
+    variable end_angle 
+    variable num_load 
+    variable force_value
+
+    create_circle_force_load $start_angle $end_angle $num_load $force_value
+}
+
+
+proc ::hmCircleForceLoad::fun_clear {args} \
+{
+    variable start_angle []
+    variable end_angle []
+    variable num_load []
+    variable force_value []
+}
+
+
+
+::zbingf_UI::main_ui_start hmCircleForceLoad
+::zbingf_UI::tk_entry hmCircleForceLoad "start_angle" 1 start_angle 
+::zbingf_UI::tk_entry hmCircleForceLoad "end_angle" 2 end_angle 
+::zbingf_UI::tk_entry hmCircleForceLoad "num_load" 3 num_load 
+::zbingf_UI::tk_entry hmCircleForceLoad "force_value" 4 force_value 
+::zbingf_UI::tk_button hmCircleForceLoad "clear" 5 fun_clear
+::zbingf_UI::main_ui_end hmCircleForceLoad
+
+
