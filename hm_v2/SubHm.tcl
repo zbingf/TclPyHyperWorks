@@ -284,45 +284,46 @@ proc create_line_by_node {node_id1 node_id2} {
 }
 
 
-# 根据矢量创建node点, 根据起始角, 终点角, node点数进行控制
-proc create_circle_nodes_with_vector_start_end {new_v new_u circle_center_loc dis node_num start_angle end_angle} {
+# # 根据矢量创建node点, 根据起始角, 终点角, node点数进行控制
+# proc create_circle_nodes_with_vector_start_end {new_v new_u circle_center_loc dis node_num start_angle end_angle} {
     
-    # 法向Z ; v:X ; u:Y
-    set circle_v [v_one [v_multi_x $new_v $new_u]]
-    set new_u [v_one $new_u]
-    # set node_ids []
+#     # 法向Z ; v:X ; u:Y
+#     set circle_v [v_one [v_multi_x $new_v $new_u]]
+#     set new_u [v_one $new_u]
+#     # set node_ids []
     
-    set start_rad [angle2rad $start_angle]
-    set end_rad   [angle2rad $end_angle]
-    # puts "start_rad: $start_rad"
+#     set start_rad [angle2rad $start_angle]
+#     set end_rad   [angle2rad $end_angle]
+#     puts "start_rad: $start_rad"
+#     puts "end_rad: $end_rad"
     
-    if {$node_num==1} {
-        set rad_single [expr (double($end_rad - $start_rad)) / (double($node_num))]
-    } else {
-        set rad_single [expr (double($end_rad - $start_rad)) / (double($node_num)-1)]        
-    }
+#     if {$node_num==1} {
+#         set rad_single [expr (double($end_rad - $start_rad)) / (double($node_num))]
+#     } else {
+#         set rad_single [expr (double($end_rad - $start_rad)) / (double($node_num)-1)]        
+#     }
 
-    # puts "rad_single: $rad_single"
-    hm_entityrecorder nodes on
-    for { set i 0 } { $i < $node_num } { incr i 1 } {
-        set cur_rad [expr $start_rad + double($i)*$rad_single]
-        if {$cur_rad > [expr $end_rad + $rad_single*0.1]} {break}
+#     # puts "rad_single: $rad_single"
+#     hm_entityrecorder nodes on
+#     for { set i 0 } { $i < $node_num } { incr i 1 } {
+#         set cur_rad [expr $start_rad + double($i)*$rad_single]
+#         if {$cur_rad > [expr $end_rad + $rad_single*0.1]} {break}
 
-        set loc1 [v_rotate_point $circle_v $new_u $cur_rad]
-        set loc1 [v_multi_c $loc1 $dis]
-        # *clearmark nodes 1
-        set node_loc1 [v_add $loc1 $circle_center_loc]
-        set node_loc1 [v_add $loc1 $circle_center_loc]
-        eval "*createnode $node_loc1 0 0 0"
-        # *createmarklast nodes 1
-        # lappend node_ids [hm_getmark nodes 1]   
-        # if {$node_num == 1} { break }
-    }
-    hm_entityrecorder nodes off
-    set node_ids [hm_entityrecorder nodes ids]
-    return $node_ids   
-    # create_circle_nodes_with_vector_start_end "0 0 1" "0 1 0" "0 0 0" 10 3 20 50
-}
+#         set loc1 [v_rotate_point $circle_v $new_u $cur_rad]
+#         set loc1 [v_multi_c $loc1 $dis]
+#         # *clearmark nodes 1
+#         set node_loc1 [v_add $loc1 $circle_center_loc]
+#         set node_loc1 [v_add $loc1 $circle_center_loc]
+#         eval "*createnode $node_loc1 0 0 0"
+#         # *createmarklast nodes 1
+#         # lappend node_ids [hm_getmark nodes 1]   
+#         # if {$node_num == 1} { break }
+#     }
+#     hm_entityrecorder nodes off
+#     set node_ids [hm_entityrecorder nodes ids]
+#     return $node_ids   
+#     # create_circle_nodes_with_vector_start_end "0 0 1" "0 1 0" "0 0 0" 10 3 20 50
+# }
 
 
 # 根据矢量创建node点, 默认环绕圆 create_circle_node_with_vector

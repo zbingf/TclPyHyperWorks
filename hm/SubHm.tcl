@@ -294,7 +294,8 @@ proc create_circle_nodes_with_vector_start_end {new_v new_u circle_center_loc di
     
     set start_rad [angle2rad $start_angle]
     set end_rad   [angle2rad $end_angle]
-    # puts "start_rad: $start_rad"
+    # puts "start_rad: $start_rad $start_angle"
+    # puts "end_rad: $end_rad $end_angle"
     
     if {$node_num==1} {
         set rad_single [expr (double($end_rad - $start_rad)) / (double($node_num))]
@@ -306,9 +307,10 @@ proc create_circle_nodes_with_vector_start_end {new_v new_u circle_center_loc di
     hm_entityrecorder nodes on
     for { set i 0 } { $i < $node_num } { incr i 1 } {
         set cur_rad [expr $start_rad + double($i)*$rad_single]
+        # puts "cur_rad: $cur_rad"
         if {$cur_rad > [expr $end_rad + $rad_single*0.1]} {break}
 
-        set loc1 [v_rotate_point $circle_v $new_u $cur_rad]
+        set loc1 [v_rotate_point_rad $circle_v $new_u $cur_rad]
         set loc1 [v_multi_c $loc1 $dis]
         # *clearmark nodes 1
         set node_loc1 [v_add $loc1 $circle_center_loc]

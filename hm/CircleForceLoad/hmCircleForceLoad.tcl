@@ -26,7 +26,7 @@ proc create_circle_force_load {start_angle end_angle num value} {
     set v_u [get_v_by_vector $vector_id]
 
 
-    *createmarkpanel vectors 1
+    *createmarkpanel vectors 1 "surf_v"
     set vector_id [hm_getmark vectors 1]
     set surf_v [get_v_by_vector $vector_id]
 
@@ -76,8 +76,12 @@ proc create_circle_force_load {start_angle end_angle num value} {
 }
 
 set start_angle 0
-set end_angle 60
+set end_angle 180
 set num 3
 set value 100
 
 create_circle_force_load $start_angle $end_angle $num $value
+
+
+# proc entrty
+# name 
