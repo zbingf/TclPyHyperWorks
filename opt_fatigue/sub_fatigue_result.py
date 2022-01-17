@@ -98,6 +98,12 @@ def read_data(fem_path):
             elem2nodes[e_id] = [get_line_n(line, n) for n in [3, 4, 5, 6]]
             continue
 
+        # if "SET" in cline[:4]:
+        #     set_id = get_line_n(line, 1)
+        #     set_type = get_line_n(line, 2)
+        #     is_set = 
+        #     int(len(line)/8)
+
     for elem_id in elem2nodes:
         node_ids = elem2nodes[elem_id]
         for node_id in node_ids:

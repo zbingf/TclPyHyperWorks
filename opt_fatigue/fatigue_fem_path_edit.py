@@ -138,7 +138,7 @@ def edit_fem_lines(lines, h3d_path, mrf_path):
 # print(h3d_path)
 # print(mrf_paths)
 
-fem_path = tkinter.filedialog.askopenfilename(
+fem_paths = tkinter.filedialog.askopenfilenames(
 	filetypes = (('fem', '*.fem'),),
 	)
 
@@ -153,10 +153,18 @@ mrf_paths = tkinter.filedialog.askopenfilenames(
 	)
 
 
-lines = read_fem(fem_path)
-for mrf_path in mrf_paths:
-	edit_fem_lines(lines, h3d_path, mrf_path)
-	fem_path_new = mrf_path[:-3] + 'fem'
-	write_fem(fem_path_new, lines)
+for fem_path in fem_paths:
+
+	lines = read_fem(fem_path)
+
+	name = os.path.basename(fem_path)[:-4]
+
+	for mrf_path in mrf_paths:
+		edit_fem_lines(lines, h3d_path, mrf_path)
+		# new_name = name + os.path.basename(mrf_path)[:-3] + 'fem'
+		new_name = os.path.basename(mrf_path)[:-4] + '_' + name + '.fem'
+		new_dir = os.path.dirname(mrf_path)
+		fem_path_new = os.path.join(new_dir ,new_name)
+		write_fem(fem_path_new, lines)
 
 

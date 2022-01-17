@@ -76,7 +76,7 @@ proc ::hvSearchNode::GUI { args } {
 # 主程序
 proc ::hvSearchNode::OkExit { args } {
 	
-	set py_path [format "%s/fatigue_result.py" $::hvSearchNode::file_dir]
+	set py_path [format "%s/sub_fatigue_result.py" $::hvSearchNode::file_dir]
 	set temp_csv_path [format "%s/__temp.csv" $::hvSearchNode::file_dir]
 
 	fatigue_result_damdage temp_csv_path $::hvSearchNode::value_limit
