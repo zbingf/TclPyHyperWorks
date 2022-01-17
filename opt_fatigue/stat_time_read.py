@@ -33,16 +33,17 @@ def read_out_time(stat_path):
 	return None
 
 
+if __name__ == '__main__':
 
-stat_paths = tkinter.filedialog.askopenfilenames(
-    filetypes = (('stat', '*.stat'),),
-    )
+	stat_paths = tkinter.filedialog.askopenfilenames(
+	    filetypes = (('stat', '*.stat'),),
+	    )
 
-for stat_path in stat_paths:
-	run_time = read_out_time(stat_path)
-	stat_name = os.path.basename(stat_path)
-	print('{}, {} min'.format(stat_name, run_time))
+	for stat_path in stat_paths:
+		run_time = read_out_time(stat_path)
+		stat_name = os.path.basename(stat_path)
+		print('{}, {} min'.format(stat_name, run_time))
 
 
-import time
-time.sleep(300)
+	import time
+	time.sleep(300)

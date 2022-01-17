@@ -11,10 +11,10 @@ import sys
 import logging
 import math
 file_dir = os.path.dirname(__file__)
-log_path = os.path.join(file_dir, 'fatigue_fem_set_select.log')
+log_path = os.path.join(file_dir, 'fatigue_search_fem.log')
 with open(log_path, 'w') as f: pass
 logging.basicConfig(level=logging.INFO, filename=log_path)  # 设置日志级别
-logger = logging.getLogger('fatigue_fem_set_select')
+logger = logging.getLogger('fatigue_search_fem')
 
 tkinter.Tk().withdraw()
 
@@ -67,7 +67,7 @@ def read_fem_set(fem_path, set_id_range=None):
             if set_id_range != None:
                 if int(set_id) < set_id_range[0] or \
                     int(set_id) > set_id_range[1]:
-                    logger.info('set_id {} not in set_id_range {}'.format(set_id, set_id_range))
+                    print('set_id {} not in set_id_range {}'.format(set_id, set_id_range))
                     continue
 
             set2line[set_id] = {}
@@ -75,22 +75,22 @@ def read_fem_set(fem_path, set_id_range=None):
             set2line[set_id]['start'] = n_read
             continue
 
-        if is_set: # set设置范围
-            if cline[0] == '+': # 续接 set
+        if is_set:
+            if cline[0] == '+':
                 n_len = round(len(line)/8)
                 for n in range(1, n_len):
                     elem_id = get_line_n(line, n)
                     if elem_id in elem2set: 
-                        logger.info('elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id))
-                    
+                        logger.info('elem_id 不同set_id中存在: {} {}'.format(elem_id, elem2set[elem_id]))
                     elem2set[elem_id] = set_id
                     elem_ids.append(elem_id)
-            
-            else: # 中断set读取
+            else:
                 set2line[set_id]['end'] = n_read
                 is_set = False
                 set2elems[set_id] = elem_ids
                 elem_ids = []
+        
+        
 
     data = {
         'set2elems': set2elems,
@@ -113,7 +113,7 @@ def edit_lines_by_elems(data, elem_ids):
     lines = data['lines']
 
     def is_inedit(edit_sets, loc):
-        # 判定是否在修改范围内
+
         for set_id in edit_sets:
             start_loc, end_loc = edit_sets[set_id]['start'], edit_sets[set_id]['end']
             if loc >= start_loc and \
@@ -263,47 +263,52 @@ def edit_lines_fatdef(lines, set_ids, n_lines, set2pfat):
     return new_lines
 
 
-def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
-    """
-        fem_path 路径
-        max_num 网格上限设置
-        set_range = (10000, 90000) 目标setID
-
-    """
-    # max_num = 15000
-    # set_id_min = 10000
-    # set_id_max = 90000
-
-    data = read_fem_set(fem_path, set_range)
-    set2elems = data['set2elems']
-    for set_id in set2elems:
-        elem_ids = set2elems[set_id]
-        num = round(len(elem_ids)/max_num)
-        for n in range(num):
-            if n < num-1:
-                elem_ids_1 = elem_ids[n*max_num : (n+1)*max_num]
-            else:
-                elem_ids_1 = elem_ids[n*max_num:]
-
-            new_fem_path = fem_path[:-4] + '_{}_{}.fem'.format(set_id, n)
-            lines = edit_lines_by_elems(data, elem_ids)
-            n_lines, set2pfat = search_fatdef(lines)
-            new_lines = edit_lines_fatdef(lines, [set_id], n_lines, set2pfat)
-            write_file(new_fem_path, new_lines)
 
 
-def test_split_fatigue_fatdef_set_limit():
+def test_edit_lines_by_elems():
+
     fem_path = tkinter.filedialog.askopenfilename(
         filetypes = (('fem', '*.fem'),),
         )
-    set_range = (10000, 90000)
-    max_num = 15000
 
-    split_fatigue_fatdef_set_limit(fem_path, set_range, max_num)
+    data = read_fem_set(fem_path, (10000, 90000))
+    set_id = '70001'
+    elem_ids = data['set2elems'][set_id][:100]
+
+    new_fem_path = fem_path[:-4] + '_new.fem'
+
+    lines = edit_lines_by_elems(data, elem_ids)
+
+    n_lines, set2pfat = search_fatdef(lines)
+    new_lines = edit_lines_fatdef(lines, ['70001'], n_lines, set2pfat)
+
+
+    write_file(new_fem_path, new_lines)
+
+
+def split_fatigue_fatdef_set(fem_path):
+                        
+    lines = read_fem(fem_path)
+    n_lines, set2pfat = search_fatdef(lines)
+    for set_id in set2pfat:
+        new_lines = edit_lines_fatdef(lines, [set_id], n_lines, set2pfat)
+        new_fem_path = fem_path[:-4] + '_{}.fem'.format(set_id)
+        write_file(new_fem_path, new_lines)
+        print('write_file: {}'.format(new_fem_path))
 
 
 
-test_split_fatigue_fatdef_set_limit()
+fem_paths = tkinter.filedialog.askopenfilenames(
+    filetypes = (('fem', '*.fem'),),
+    )
+
+for fem_path in fem_paths:
+    split_fatigue_fatdef_set(fem_path)
+
+# print(data['set2elems'].keys())
+
+# test_edit_lines_by_elems()
+# test_fatigue_set_split()
 
 
 

@@ -81,11 +81,10 @@ def read_fem_set(fem_path, set_id_range=None):
                 for n in range(1, n_len):
                     elem_id = get_line_n(line, n)
                     if elem_id in elem2set: 
-                        logger.info('elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id))
+                        logger.info('elem_id 不同set_id中存在: {} {}'.format(elem_id, elem2set[elem_id]))
                     
                     elem2set[elem_id] = set_id
                     elem_ids.append(elem_id)
-            
             else: # 中断set读取
                 set2line[set_id]['end'] = n_read
                 is_set = False
@@ -113,7 +112,7 @@ def edit_lines_by_elems(data, elem_ids):
     lines = data['lines']
 
     def is_inedit(edit_sets, loc):
-        # 判定是否在修改范围内
+
         for set_id in edit_sets:
             start_loc, end_loc = edit_sets[set_id]['start'], edit_sets[set_id]['end']
             if loc >= start_loc and \
