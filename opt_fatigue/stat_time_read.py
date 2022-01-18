@@ -4,16 +4,14 @@
 import tkinter
 import tkinter.filedialog
 import re
-import os
-import pysnooper
-import sys
+import os.path
 import logging
 
 file_dir = os.path.dirname(__file__)
-log_path = os.path.join(file_dir, 'fatigue_search_fem.log')
+log_path = os.path.join(file_dir, 'stat_time_read.log')
 with open(log_path, 'w') as f: pass
 logging.basicConfig(level=logging.INFO, filename=log_path)  # 设置日志级别
-logger = logging.getLogger('fatigue_search_fem')
+logger = logging.getLogger('stat_time_read')
 
 tkinter.Tk().withdraw()
 
@@ -42,8 +40,8 @@ if __name__ == '__main__':
 	for stat_path in stat_paths:
 		run_time = read_out_time(stat_path)
 		stat_name = os.path.basename(stat_path)
-		print('{}, {} min'.format(stat_name, run_time))
+		logger.info('{}, {} min'.format(stat_name, run_time))
 
 
-	import time
-	time.sleep(300)
+	# import time
+	# time.sleep(300)

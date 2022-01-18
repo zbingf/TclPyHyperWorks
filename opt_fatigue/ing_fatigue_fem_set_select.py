@@ -286,11 +286,11 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
                 elem_ids_1 = elem_ids[n*max_num:]
 
             new_fem_path = fem_path[:-4] + '_{}_{}.fem'.format(set_id, n)
-            lines = edit_lines_by_elems(data, elem_ids)
+            lines = edit_lines_by_elems(data, elem_ids_1)
             n_lines, set2pfat = search_fatdef(lines)
             new_lines = edit_lines_fatdef(lines, [set_id], n_lines, set2pfat)
             write_file(new_fem_path, new_lines)
-
+            print('write: {}'.format(new_fem_path))
 
 def test_split_fatigue_fatdef_set_limit():
     fem_path = tkinter.filedialog.askopenfilename(

@@ -15,14 +15,15 @@ fatigue 路径替换-计算用
 + 生成新的fem文件
 
 
-## fatigue_fem_set_select.py
-fatigue set选择性截取
+## fatigue_fem_fatdef_split_limit.py
+fatigue set分割-计算用, 设置网格调整上限
+
 
 
 ## fatigue_fem_fatdef_split.py
 fatigue set分割-计算用
 
-+  fem分割, 创建新的fem文件
++ fem分割, 创建新的fem文件
 + FATDEF分割成单个set
 + 用于各set单独计算
 
@@ -36,5 +37,21 @@ stat文件读取, 获取opt计算时长
 + 调用文件
 	+ sub_fatigue_result.py
 		+ 根据fem查找数据
+
+
+
+
+
+# 使用顺序
+
+1、 fatigue_fem_path_edit
++ 对fem文件重定义h3d、mrf路径，生成可计算fem
+
+2、 fatigue_fem_fatdef_split_limit
++ 对fem文件set进行分割，并设置调整网格上限，生成多个
+
+3、 stat_time_read
++ 查看结果计算时长
++ 将结果存放于 stat_time_read.log 中
 
 
