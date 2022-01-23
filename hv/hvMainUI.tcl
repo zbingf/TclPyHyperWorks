@@ -1,12 +1,7 @@
 # source D:/github/TclPyHyperWorks/hv/hvMainUI.tcl
 # hyperview 2021.1
 
-
 namespace eval ::hvMainUI {
-    variable result_path
-    variable value_limit
-    variable dis_limit
-
     variable recess
     variable file_dir [file dirname [info script]]
 }
@@ -14,10 +9,10 @@ namespace eval ::hvMainUI {
 
 # UI界面
 proc ::hvMainUI::GUI { args } {
-    variable recess;
+    variable recess
 
-    set minx [winfo pixel . 150p];
-    set miny [winfo pixel . 100p];
+    set minx [winfo pixel . 150p]
+    set miny [winfo pixel . 150p]
     
     # 主窗口
     ::hwt::CreateWindow hvMainUIWin \
@@ -27,45 +22,70 @@ proc ::hvMainUI::GUI { args } {
         -resizeable 1 1 \
         -propagate 1 \
         -minsize $minx $miny \
-         noGeometrySaving;
+         noGeometrySaving
 
     # -addButton OK ::hvMainUI::OkExit no_icon 
-    ::hwt::KeepOnTop .hvMainUIWin;
+    ::hwt::KeepOnTop .hvMainUIWin
 
-    set recess [::hwt::WindowRecess hvMainUIWin];
+    set recess [::hwt::WindowRecess hvMainUIWin]
 
-    grid columnconfigure $recess 1 -weight 1;
-    grid rowconfigure    $recess 10 -weight 1;
-
-    # ===================
-    ::hwt::LabeledLine $recess.end_line1 "程序集成";
-    grid $recess.end_line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
+    grid columnconfigure $recess 1 -weight 1
+    grid rowconfigure    $recess 10 -weight 1
 
     # ===================
-    button $recess.csvPathButton \
-        -text "视角记录" \
+    ::hwt::LabeledLine $recess.end_line1 "程序集成" -font {MS 10}
+    grid $recess.end_line1 -row 1 -column 0 -pady 6 -sticky ew -columnspan 2
+
+    # ===================
+    button $recess.button_01 \
+        -text "视角View管理" \
         -command ::hvMainUI::fun_01 \
-        -width 16;
-    grid $recess.csvPathButton -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
-
+        -width 16 -font {MS 10}
+    grid $recess.button_01 -row 2 -column 0 -padx 2 -pady 2 -sticky nw
 
     # ===================
-    ::hwt::RemoveDefaultButtonBinding $recess;
-    ::hwt::PostWindow hvMainUIWin -onDeleteWindow ::hvMainUI::Quit;
+    button $recess.button_02 \
+        -text "FatigueLimit" \
+        -command ::hvMainUI::fun_02 \
+        -width 16 -font {MS 10}
+    grid $recess.button_02 -row 3 -column 0 -padx 2 -pady 2 -sticky nw
+
+    # ===================
+    button $recess.button_03 \
+        -text "CurElemSearch" \
+        -command ::hvMainUI::fun_03 \
+        -width 16 -font {MS 10}
+    grid $recess.button_03 -row 4 -column 0 -padx 2 -pady 2 -sticky nw
+
+    # ===================
+    ::hwt::RemoveDefaultButtonBinding $recess
+    ::hwt::PostWindow hvMainUIWin -onDeleteWindow ::hvMainUI::Quit
 }
 
 
 proc ::hvMainUI::Quit { args } {
-    ::hwt::UnpostWindow hvMainUIWin;
+    ::hwt::UnpostWindow hvMainUIWin
 }
 
 
 proc ::hvMainUI::fun_01 {args} {
-	set cmd_str [format "source %s/%s/%s" $::hvMainUI::file_dir ing_hvViewRecoder hvViewRecoder.tcl]
+	set cmd_str [format "source %s/%s/%s" $::hvMainUI::file_dir hvViewRecord hvViewRecord.tcl]
 	puts $cmd_str
 	eval $cmd_str
 }
 
 
+proc ::hvMainUI::fun_02 {args} {
+    set cmd_str [format "source %s/%s/%s" $::hvMainUI::file_dir hvResultOutput hvFatigueResultSearch.tcl]
+    puts $cmd_str
+    eval $cmd_str
+}
 
-::hvMainUI::GUI;
+proc ::hvMainUI::fun_03 {args} {
+    set cmd_str [format "source %s/%s/%s" $::hvMainUI::file_dir hvResultOutput hvElemSearch.tcl]
+    puts $cmd_str
+    eval $cmd_str
+}
+
+
+::hvMainUI::GUI

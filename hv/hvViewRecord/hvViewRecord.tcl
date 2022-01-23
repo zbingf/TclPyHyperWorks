@@ -1,10 +1,12 @@
 # source D:/github/TclPyHyperWorks/opt_fatigue/fatigue_search_node_ids.tcl
-# 视角操作
+# 视角view记录操作
 # hyperview 2021.1
 
 namespace eval ::hvViewRecord {
-    variable view_name []
-    variable view_name2tcl []
+    variable view_name 
+    variable view_name2tcl
+    variable view_list
+    variable view_name_select
 
     variable recess
     variable file_dir [file dirname [info script]]
@@ -54,16 +56,24 @@ proc ::hvViewRecord::GUI { args } {
     grid $recess.button_01 -row 3 -column 0 -padx 2 -pady 2 -sticky nw
 
     # ===================
-    ::hwt::LabeledLine $recess.end_line2 "操作" -font {MS 10}
+    ::hwt::LabeledLine $recess.end_line2 "视角管理" -font {MS 10}
     grid $recess.end_line2 -row 4 -column 0 -pady 6 -sticky ew -columnspan 2
 
-    # ===================
-	button $recess.button_02 \
-        -text "保存视角" \
-        -command ::hvViewRecord::save_view_file \
-        -width 16 -font {MS 10}
-    grid $recess.button_02 -row 5 -column 0 -padx 2 -pady 2 -sticky nw
 
+    # ===================
+    # button $recess.button_02 \
+    #     -text "记录清空" \
+    #     -command ::hvViewRecord::clear_view \
+    #     -width 16
+    # grid $recess.button_02 -row 4 -column 0 -padx 2 -pady 2 -sticky nw
+
+    listbox $recess.listbox_01  \
+    	-listvariable ::hvViewRecord::view_list \
+    	-selectmode single \
+    	-font {MS 10}
+    grid $recess.listbox_01 -row 5 -column 0 -padx 2 -pady 2 -sticky nw
+    # 选项监测
+    bind $recess.listbox_01 "<<ListboxSelect>>" ::hvViewRecord::bind_listbox_select_01
 
     # ===================
     button $recess.button_03 \
@@ -73,16 +83,27 @@ proc ::hvViewRecord::GUI { args } {
     grid $recess.button_03 -row 6 -column 0 -padx 2 -pady 2 -sticky nw
 
     # ===================
-    # button $recess.button_02 \
-    #     -text "记录清空" \
-    #     -command ::hvViewRecord::clear_view \
-    #     -width 16
-    # grid $recess.button_02 -row 4 -column 0 -padx 2 -pady 2 -sticky nw
+	button $recess.button_02 \
+        -text "保存视角" \
+        -command ::hvViewRecord::save_view_file \
+        -width 16 -font {MS 10}
+    grid $recess.button_02 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
+
+
+    # ===================
+	button $recess.button_04 \
+        -text "加载视角" \
+        -command ::hvViewRecord::load_view_file \
+        -width 16 -font {MS 10}
+    grid $recess.button_04 -row 8 -column 0 -padx 2 -pady 2 -sticky nw
 
 
     # ===================
     ::hwt::RemoveDefaultButtonBinding $recess
     ::hwt::PostWindow hvViewRecordWin -onDeleteWindow ::hvViewRecord::Quit
+
+    # ===================
+    ::hvViewRecord::get_view_list
 }
 
 
@@ -95,19 +116,32 @@ proc ::hvViewRecord::OkExit { args } {
 proc ::hvViewRecord::Quit { args } {
 
     ::hwt::UnpostWindow hvViewRecordWin
-
 }
 
+
+proc ::hvViewRecord::bind_listbox_select_01 { } {
+	variable recess
+	variable view_name_select
+	variable view_list
+
+	# set view_name_select [$recess.listbox_01 get active]
+	# puts "call: bind_listbox_select $view_name_select"
+	set n_loc [$recess.listbox_01 curselection]
+	set view_name_select [lindex $view_list $n_loc]
+	puts "call: bind_listbox_select $view_name_select"
+	hwc view restore $view_name_select
+
+}
 
 # 获取view相关数据
 proc ::hvViewRecord::record_current_view {} {
 	variable view_name2tcl
 	variable view_name
-
-	set cur_view_list [::hvViewRecord::get_view_list]
+	variable view_list
+	# set cur_view_list [::hvViewRecord::get_view_list]
 	# puts $cur_view_list
 
-	if {$view_name in $cur_view_list} {
+	if {$view_name in $view_list} {
 		set choice [tk_messageBox -type yesnocancel -default yes -message "名字重复,是否覆盖" -icon question ]
 		if {$choice != yes} {return}
 	}
@@ -126,6 +160,8 @@ proc ::hvViewRecord::record_current_view {} {
 	# puts $view_name2tcl 
 	
 	# return $view_matrix $view_ortho $cmd_tcl
+
+	::hvViewRecord::get_view_list
 	return 0
 }
 
@@ -204,7 +240,7 @@ proc ::hvViewRecord::get_cur_view_matrix_ortho {} {
 }
 
 
-# 保存视角记录
+# 保存-视角记录
 proc ::hvViewRecord::save_view_file {} {
 	variable file_dir
 
@@ -218,12 +254,32 @@ proc ::hvViewRecord::save_view_file {} {
 	hwc view export $view_path
 }
 
+# 加载-视角记录
+proc ::hvViewRecord::load_view_file {} {
+	variable file_dir
+	set view_path [tk_getOpenFile -title "保存路径"  -filetypes {"result .txt"} -defaultextension txt -initialdir $file_dir]
+	
+	if {$view_path == ""} {
+		# puts None
+		return 
+	}
+	hwc view import $view_path
+
+	# ===================
+    ::hvViewRecord::get_view_list
+    ::hvViewRecord::bind_listbox_select_01
+}
+
 
 # 删除view
 proc ::hvViewRecord::remove_view {} {
-	variable view_name
+	# variable view_name
+	
+	# 更新
+	# ::hvViewRecord::get_view_list
+	variable view_name_select
 
-	set choice [tk_messageBox -type yesnocancel -default yes -message "是否删除名称view" -icon question ]
+	set choice [tk_messageBox -type yesnocancel -default yes -message "是否删除名称view" -icon question]
 	if {$choice != yes} {return}
 
 	catch { hwi CloseStack }
@@ -234,8 +290,12 @@ proc ::hvViewRecord::remove_view {} {
 		page_handle GetWindowHandle window_handle [page_handle GetActiveWindow]
 		window_handle GetClientHandle client_handle
 		window_handle GetViewControlHandle viewctrl_handle
-			catch { viewctrl_handle RemoveView $view_name }
+			catch { viewctrl_handle RemoveView $view_name_select }
 	hwi CloseStack
+
+	# 更新
+	::hvViewRecord::get_view_list
+	::hvViewRecord::bind_listbox_select_01
 	return 1
 }
 

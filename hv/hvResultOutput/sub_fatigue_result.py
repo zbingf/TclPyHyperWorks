@@ -253,7 +253,7 @@ class FemFile:
         return list(set(nodes))
 
 
-def calc_by_node(fem_path, dis_limit, node_ids):
+def calc_comp2elems_by_node(fem_path, dis_limit, node_ids):
     fem_obj = FemFile(fem_path)
     fem_obj.read_fem()
     fem_obj.split_node_to_area(dis_limit)
@@ -269,7 +269,7 @@ def calc_by_node(fem_path, dis_limit, node_ids):
 
     return target_comp2elems
 
-def calc_by_elem(fem_path, dis_limit, elem_ids):
+def calc_comp2elems_by_elem(fem_path, dis_limit, elem_ids):
     fem_obj = FemFile(fem_path)
     fem_obj.read_fem()
     fem_obj.split_node_to_area(dis_limit)
@@ -308,42 +308,49 @@ def read_csv(csv_path):
     return values
 
 
+
+def print_comp2elems(comp2elems):
+    strs = []
+    for key in comp2elems:
+        strs.append(key)
+        value = ' '.join(comp2elems[key])
+        value = '{' + value + '}'
+        strs.append(value)
+    print(' '.join(strs))
+
+
+
 run_type = sys.argv[1]
-dis_limit = float(sys.argv[2])
+fem_path = sys.argv[2]
+dis_limit = float(sys.argv[3])
 
 # node_ids = ['181597', '181598']
 # dis_limit = 20
+# fem_path = tkinter.filedialog.askopenfilename(
+#         filetypes = (('2021.1 完整fem', '*.fem'),),
+#         )
 
-fem_path = tkinter.filedialog.askopenfilename(
-        filetypes = (('2021.1 完整fem', '*.fem'),),
-        )
-
-if run_type.upper() == 'ELEM':
-    type_ids = sys.argv[3]
+if run_type.upper() == 'ELEM2COMP_ELEM':
+    # 根据elemID数据, 获取 comp2elem 数据
+    type_ids = sys.argv[4]
     type_ids = [v for v in node_ids.split(' ') if v]
-    target_comp2elems = calc_by_elem(fem_path, dis_limit, type_ids)
-
-elif run_type.upper() == 'NODE':
-    type_ids = sys.argv[3]
+    target_comp2elems = calc_comp2elems_by_elem(fem_path, dis_limit, type_ids)
+    print_comp2elems(target_comp2elems)
+    
+elif run_type.upper() == 'ELEM2COMP_NODE':
+    # 根据nodeID数据, 获取 comp2elem 数据
+    type_ids = sys.argv[4]
     type_ids = [v for v in node_ids.split(' ') if v]
-    target_comp2elems = calc_by_node(fem_path, dis_limit, type_ids)
+    target_comp2elems = calc_comp2elems_by_node(fem_path, dis_limit, type_ids)
+    print_comp2elems(target_comp2elems)
 
-elif run_type.upper() == 'ELEM_CSV':
-    csv_path = sys.argv[3]
+elif run_type.upper() == 'ELEM2COMP_ELEM_CSV':
+    # 根据csv的elem数据, 获取 comp2elem 数据
+    csv_path = sys.argv[4]
     type_ids = read_csv(csv_path)
     logger.info('intput elem ids: {}'.format(type_ids))
-    target_comp2elems = calc_by_elem(fem_path, dis_limit, type_ids)
-
-
-
-strs = []
-for key in target_comp2elems:
-    strs.append(key)
-    value = ' '.join(target_comp2elems[key])
-    value = '{' + value + '}'
-    strs.append(value)
-
-print(' '.join(strs))
+    target_comp2elems = calc_comp2elems_by_elem(fem_path, dis_limit, type_ids)
+    print_comp2elems(target_comp2elems)
 
 # print(target_comp2elems)
 
