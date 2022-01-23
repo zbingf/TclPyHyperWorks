@@ -19,7 +19,6 @@ fatigue 路径替换-计算用
 fatigue set分割-计算用, 设置网格调整上限
 
 
-
 ## fatigue_fem_fatdef_split.py
 fatigue set分割-计算用
 
@@ -39,8 +38,15 @@ stat文件读取, 获取opt计算时长
 		+ 根据fem查找数据
 
 
+## hvSumH3dDamage.tcl
+hyperview
+批量线性叠加损伤结果, 配套耐久分割程序
++ 调用文件
+	+ sub_get_h3d_files.py
+		+ hyperview tk 无法读取大量文件路径, 故切换python读取
 
 
+----------------------
 
 # 使用顺序
 

@@ -90,7 +90,7 @@ def read_fem_set(fem_path, set_id_range=None):
                 is_set = False
                 set2elems[set_id] = elem_ids
                 elem_ids = []
-
+    # print(set2elems.keys())
     data = {
         'set2elems': set2elems,
         'elem2set': elem2set,
@@ -278,6 +278,8 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
     for set_id in set2elems:
         elem_ids = set2elems[set_id]
         num = round(len(elem_ids)/max_num)
+        if num==0: num = 1
+        
         for n in range(num):
             if n < num-1:
                 elem_ids_1 = elem_ids[n*max_num : (n+1)*max_num]

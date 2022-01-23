@@ -1,4 +1,4 @@
-# source 
+# source D:/github/TclPyHyperWorks/opt_fatigue/fatigue_search_node_ids.tcl
 # 
 # 
 
@@ -56,7 +56,7 @@ proc ::hvSearchNode::GUI { args } {
     ::hwt::LabeledLine $recess.end_line2 "设置";
     grid $recess.end_line2 -row 4 -column 0 -pady 6 -sticky ew -columnspan 2;
 
-    label $recess.entryLabel2 -text "value limit";
+    label $recess.entryLabel2 -text "damage limit";
     grid $recess.entryLabel2 -row 5 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry2 -width 16 -textvariable ::hvSearchNode::value_limit;
     grid $recess.entry2 -row 5 -column 1 -padx 2 -pady 2 -sticky nw;
@@ -103,7 +103,7 @@ proc ::hvSearchNode::Quit { args } {
 
 proc ::hvSearchNode::set_result_path {} {
 
-	set result_path [tk_getSaveFile -title "保存路径"  -filetypes {"result .txt"} -defaultextension csv]
+	set result_path [tk_getSaveFile -title "保存路径"  -filetypes {"result .txt"} -defaultextension txt]
 	set ::hvSearchNode::result_path $result_path
 
 }
