@@ -19,24 +19,24 @@ proc sum_h3d_damage {model_path result_path new_h3d_path subcase_id} {
 		hwi GetSessionHandle session_handle
 
 		session_handle GetProjectHandle project_handle
-			project_handle GetPageHandle page_handle [project_handle GetActivePage]
-				page_handle GetWindowHandle window_handle [page_handle GetActiveWindow]
-					window_handle GetClientHandle client_handle
-						client_handle GetModelHandle model_handle [client_handle GetActiveModel]
-							model_handle GetResultCtrlHandle result_handle
+		project_handle GetPageHandle page_handle [project_handle GetActivePage]
+		page_handle GetWindowHandle window_handle [page_handle GetActiveWindow]
+		window_handle GetClientHandle client_handle
+		client_handle GetModelHandle model_handle [client_handle GetActiveModel]
+		model_handle GetResultCtrlHandle result_handle
 
-								# 线性叠加
-								result_handle AddSubcase $subcase_name $subcase_id
-								result_handle GetSubcaseHandle subcase_handle $subcase_id
-									subcase_handle SetDerivedType superposition
-									# 导入的subcase
-									set t_subcase_ids [result_handle GetSubcaseList "base"]
-									foreach t_subcase_id $t_subcase_ids {
-										catch {
-											# 添加到 subcase 中
-											subcase_handle AppendSubcase $t_subcase_id
-										}
-									}
+		# 线性叠加
+		result_handle AddSubcase $subcase_name $subcase_id
+		result_handle GetSubcaseHandle subcase_handle $subcase_id
+			subcase_handle SetDerivedType superposition
+			# 导入的subcase
+			set t_subcase_ids [result_handle GetSubcaseList "base"]
+			foreach t_subcase_id $t_subcase_ids {
+				catch {
+					# 添加到 subcase 中
+					subcase_handle AppendSubcase $t_subcase_id
+				}
+			}
 	hwi CloseStack
 
 	# 界面切换

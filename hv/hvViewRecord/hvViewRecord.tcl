@@ -43,7 +43,7 @@ proc ::hvViewRecord::GUI { args } {
     grid $recess.end_line1 -row 1 -column 0 -pady 6 -sticky ew -columnspan 2
 
     # ===================
-	label $recess.entryLabel1 -text "其他名称" -font {MS 10}
+	label $recess.entryLabel1 -text "View名称" -font {MS 10}
     grid $recess.entryLabel1 -row 2 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry1 -width 16 -textvariable ::hvViewRecord::view_name  -font {MS 10}
     grid $recess.entry1 -row 2 -column 1 -padx 2 -pady 2 -sticky nw
@@ -70,32 +70,39 @@ proc ::hvViewRecord::GUI { args } {
     listbox $recess.listbox_01  \
     	-listvariable ::hvViewRecord::view_list \
     	-selectmode single \
+    	-height 15\
     	-font {MS 10}
     grid $recess.listbox_01 -row 5 -column 0 -padx 2 -pady 2 -sticky nw
     # 选项监测
     bind $recess.listbox_01 "<<ListboxSelect>>" ::hvViewRecord::bind_listbox_select_01
 
     # ===================
-    button $recess.button_03 \
+    frame $recess.frame_01 
+    grid $recess.frame_01 -row 5 -column 1  -sticky N
+
+    button $recess.frame_01.button_02 \
         -text "删除对应view" \
         -command ::hvViewRecord::remove_view \
         -width 16 -font {MS 10}
-    grid $recess.button_03 -row 6 -column 0 -padx 2 -pady 2 -sticky nw
+    # grid $recess.frame_01.button_03 -row 6 -column 0 -padx 2 -pady 2 -sticky n
+    grid $recess.frame_01.button_02
 
     # ===================
-	button $recess.button_02 \
+	button $recess.frame_01.button_03 \
         -text "保存视角" \
         -command ::hvViewRecord::save_view_file \
         -width 16 -font {MS 10}
-    grid $recess.button_02 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
+    # grid $recess.button_02 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
+    grid $recess.frame_01.button_03
 
 
     # ===================
-	button $recess.button_04 \
+	button $recess.frame_01.button_04 \
         -text "加载视角" \
         -command ::hvViewRecord::load_view_file \
         -width 16 -font {MS 10}
-    grid $recess.button_04 -row 8 -column 0 -padx 2 -pady 2 -sticky nw
+    # grid $recess.button_04 -row 8 -column 0 -padx 2 -pady 2 -sticky nw
+    grid $recess.frame_01.button_04
 
 
     # ===================
@@ -271,7 +278,7 @@ proc ::hvViewRecord::load_view_file {} {
 }
 
 
-# 删除view
+# 删除所选的view
 proc ::hvViewRecord::remove_view {} {
 	# variable view_name
 	
@@ -296,6 +303,7 @@ proc ::hvViewRecord::remove_view {} {
 	# 更新
 	::hvViewRecord::get_view_list
 	::hvViewRecord::bind_listbox_select_01
+
 	return 1
 }
 

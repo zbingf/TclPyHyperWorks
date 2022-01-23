@@ -67,12 +67,12 @@ proc ::hvFatigueResultSearch::GUI { args } {
     ::hwt::LabeledLine $recess.end_line2 "设置"
     grid $recess.end_line2 -row 5 -column 0 -pady 6 -sticky ew -columnspan 2
 
-    label $recess.entryLabel3 -text "Contour limit"
+    label $recess.entryLabel3 -text "Contour Limit"
     grid $recess.entryLabel3 -row 6 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry3 -width 16 -textvariable ::hvFatigueResultSearch::value_limit
     grid $recess.entry3 -row 6 -column 1 -padx 2 -pady 2 -sticky nw
 
-    label $recess.entryLabel4 -text "dis limit"
+    label $recess.entryLabel4 -text "Dis Limit"
     grid $recess.entryLabel4 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry4 -width 16 -textvariable ::hvFatigueResultSearch::dis_limit
     grid $recess.entry4 -row 7 -column 1 -padx 2 -pady 2 -sticky nw

@@ -71,7 +71,7 @@ proc ::hvElemSearch::GUI { args } {
     # entry $recess.entry3 -width 16 -textvariable ::hvElemSearch::value_limit
     # grid $recess.entry3 -row 6 -column 1 -padx 2 -pady 2 -sticky nw
 
-    label $recess.entryLabel4 -text "dis limit"
+    label $recess.entryLabel4 -text "Dis Limit"
     grid $recess.entryLabel4 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry4 -width 16 -textvariable ::hvElemSearch::dis_limit
     grid $recess.entry4 -row 7 -column 1 -padx 2 -pady 2 -sticky nw
@@ -146,5 +146,23 @@ proc ::hvElemSearch::output_cur_query {csv_path} {
 
 
 ::hvElemSearch::GUI
+
+
+
+# hwi OpenStack
+#     hwi GetSessionHandle session_handle
+#     session_handle GetProjectHandle project_handle
+#     project_handle GetPageHandle page_handle [project_handle GetActivePage]
+#     page_handle GetWindowHandle window_handle [page_handle GetActiveWindow]
+#     window_handle GetClientHandle client_handle
+#     client_handle GetModelHandle model_handle [client_handle GetActiveModel]
+
+#     model_handle GetSelectionSetHandle selection_set_handle [model_handle AddSelectionSet elem]
+
+#     selection_set_handle Clear
+#     selection_set_handle Add "idlist 17425 17532 17529 17535 16022 14354 14379 15925 14381 17536 17424 16882"
+#     puts "\nNum: [selection_set_handle GetSize]\nType: [selection_set_handle GetType]s"
+
+# hwi CloseStack
 
 
