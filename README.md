@@ -11,7 +11,7 @@ hyperworks 相关模块, 以hypermesh前处理为主
 + hm : hypermesh相关二次开发
 + hv : hyperview相关二次开发
 + hg2d: hypergraph 2d相关二次开发
-+ opt_fatigue: optistruct fatigue相关二次开发
++ Project_opt_fatigue: optistruct fatigue相关二次开发
 + tests : 部分测试用文件存放
 
 
