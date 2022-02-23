@@ -283,9 +283,9 @@ class TkUi:
         
         return True
 
-    def frame_buttons_RWR(self, params, frame=None): # 运行，保存，读取按钮
+    def frame_buttons_RWR(self, params, frame=None): # 运行保存读取按钮
         """
-            运行、保存、读取
+            运行保存读取
             {
                 'frame':'rrw',
                 'button_run_name':'a',
@@ -311,7 +311,7 @@ class TkUi:
 
         return True
 
-    def frame_note(self): # 备注框，配合self.print
+    def frame_note(self): # 备注框配合self.print
         """
             用于备注
         """
@@ -326,7 +326,7 @@ class TkUi:
 
         return True
 
-    def frame_value_edit(self, params, frame=None): # 注释+输入+滚动框，变量变更
+    def frame_value_edit(self, params, frame=None): # 注释+输入+滚动框变量变更
         """
             变量 编辑
             带 scale
@@ -475,15 +475,15 @@ class TkUi:
     def get_text(self, name): # 多行文本数据读取
         """
             获取 text 多行文本
-            name ： text的frame名称
+            name  text的frame名称
         """
         return self.text[name].get(1.0,tk.END)
 
     def set_text(self, name, str1): # 多行文本框写入
         """
             写入 text 多行文本
-            name ： text 的frame名称
-            str1 ： 写入字符窜
+            name  text 的frame名称
+            str1  写入字符窜
         """
         self.text[name].delete(1.0,tk.END)
         self.text[name].insert('insert',str1)
@@ -508,7 +508,7 @@ class TkUi:
         return params
 
     def get_vars_and_texts(self): # 所有 var及text数据导出
-        # 注：var与text的key不能重名
+        # 注var与text的key不能重名
         params = self.get_vars()
         params2 = self.get_texts()
         params.update(params2)
@@ -581,7 +581,7 @@ class TkUi:
                             self.set_text(name.split('_TYPE_TEXT')[0],values[name])
                             continue
                         else:
-                            self.print('读取错误，变量: {} 不存在'.format(name))
+                            self.print('读取错误变量: {} 不存在'.format(name))
                             # return False
                     try:
                         self.vars[name].set(values[name])
@@ -601,7 +601,7 @@ class TkUi:
                         self.set_text(name.split('_TYPE_TEXT')[0],sub_values[name])
                         continue
                     else:
-                        self.print('读取错误，变量: {} 不存在'.format(name))
+                        self.print('读取错误变量: {} 不存在'.format(name))
                         # return False
                 try:
                     self.vars[name].set(sub_values[name])
@@ -725,4 +725,5 @@ class TkUi:
         self.print('\n批量计算完成\n')
 
     def fun_run(self): pass  # 主运行函数
+
 

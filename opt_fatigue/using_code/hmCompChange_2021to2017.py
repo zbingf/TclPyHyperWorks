@@ -1,8 +1,8 @@
 """
     fem版本切换
-    主要变更：
+    主要变更
         comp从属关系
-    适用：
+    适用
         2021.1 转 2017 
 """
 
@@ -84,4 +84,5 @@ if __name__ == '__main__':
         tkinter.messagebox.showinfo('信息', '计算结束')
     else:
         tkinter.messagebox.showwarning('警告', '未选择fem文件')
+
 

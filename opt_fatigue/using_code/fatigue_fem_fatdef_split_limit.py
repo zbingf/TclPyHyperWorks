@@ -2,20 +2,15 @@
     编辑fatigue fem的set数据
 """
 
-import tkinter
-import tkinter.filedialog
 import re
 import os
 import logging
 import math
 
-file_dir = os.path.dirname(__file__)
-log_path = os.path.join(file_dir, 'fatigue_fem_fatdef_split_limit.log')
-with open(log_path, 'w') as f: pass
-logging.basicConfig(level=logging.INFO, filename=log_path)  # 设置日志级别
+
+
 logger = logging.getLogger('fatigue_fem_fatdef_split_limit')
 
-# tkinter.Tk().withdraw()
 
 get_line_n = lambda line, n: line[8*n:8*(n+1)].strip()
 
@@ -66,7 +61,9 @@ def read_fem_set(fem_path, set_id_range=None):
             if set_id_range != None:
                 if int(set_id) < set_id_range[0] or \
                     int(set_id) > set_id_range[1]:
-                    logger.info('set_id {} not in set_id_range {}'.format(set_id, set_id_range))
+                    print_str = 'set_id {} not in set_id_range {}'.format(set_id, set_id_range)
+                    logger.info(print_str)
+                    print(print_str)
                     continue
 
             set2line[set_id] = {}
@@ -80,7 +77,9 @@ def read_fem_set(fem_path, set_id_range=None):
                 for n in range(1, n_len):
                     elem_id = get_line_n(line, n)
                     if elem_id in elem2set: 
-                        logger.info('elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id))
+                        print_str = 'elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id)
+                        logger.info(print_str)
+                        print(print_str)
                     
                     elem2set[elem_id] = set_id
                     elem_ids.append(elem_id)
@@ -272,6 +271,7 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
     # max_num = 15000
     # set_id_min = 10000
     # set_id_max = 90000
+    new_fem_paths = []
 
     data = read_fem_set(fem_path, set_range)
     set2elems = data['set2elems']
@@ -279,7 +279,6 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
         elem_ids = set2elems[set_id]
         num = round(len(elem_ids)/max_num)
         if num==0: num = 1
-        
         for n in range(num):
             if n < num-1:
                 elem_ids_1 = elem_ids[n*max_num : (n+1)*max_num]
@@ -291,7 +290,14 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
             n_lines, set2pfat = search_fatdef(lines)
             new_lines = edit_lines_fatdef(lines, [set_id], n_lines, set2pfat)
             write_file(new_fem_path, new_lines)
-            logger.info('write: {}'.format(new_fem_path))
+
+            print_str = 'write: {}'.format(new_fem_path)
+            logger.info(print_str)
+            print(print_str)
+
+            new_fem_paths.append(new_fem_path)
+
+    return new_fem_paths
 
 
 # =========================================================
@@ -386,6 +392,11 @@ class FatigueFemFatdefSplitLimit(TkUi):
 
 
 def test_split_fatigue_fatdef_set_limit():
+
+    import tkinter
+    import tkinter.filedialog
+    tkinter.Tk().withdraw()
+
     fem_path = tkinter.filedialog.askopenfilename(
         filetypes = (('fem', '*.fem'),),
         )
@@ -395,16 +406,19 @@ def test_split_fatigue_fatdef_set_limit():
     split_fatigue_fatdef_set_limit(fem_path, set_range, max_num)
 
 
-
 # test_split_fatigue_fatdef_set_limit()
 
 
-
-
 if __name__ == '__main__':
-    pass
+
+    file_dir = os.path.dirname(__file__)
+    log_path = os.path.join(file_dir, 'fatigue_fem_fatdef_split_limit.log')
+    with open(log_path, 'w') as f: pass
+    logging.basicConfig(level=logging.INFO, filename=log_path)  # 设置日志级别
+
     # Ui测试
     obj = FatigueFemFatdefSplitLimit('Fatigue分割').run()
+
 
 
 

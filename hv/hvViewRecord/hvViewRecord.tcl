@@ -66,7 +66,7 @@ proc ::hvViewRecord::GUI { args } {
     #     -command ::hvViewRecord::clear_view \
     #     -width 16
     # grid $recess.button_02 -row 4 -column 0 -padx 2 -pady 2 -sticky nw
-
+    
     listbox $recess.listbox_01  \
     	-listvariable ::hvViewRecord::view_list \
     	-selectmode single \

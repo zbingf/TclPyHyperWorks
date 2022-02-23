@@ -2,8 +2,8 @@
 	fem_fatigue_edit.py
 	version 2.0
 	编辑opt耐久计算fem文件的配置
-	主要变更内容：
-		mrf路径、 h3d路径、 SUBCASE的LABEL字符
+	主要变更内容
+		mrf路径 h3d路径 SUBCASE的LABEL字符
 	输入
 		fem_path
 		mrf_path
@@ -12,14 +12,8 @@
 		new_fem_path
 """
 
-
-import tkinter
-import tkinter.filedialog
 import re
 import os
-# import pysnooper
-
-tkinter.Tk().withdraw()
 
 def read_fem(fem_path):
 
@@ -134,24 +128,9 @@ def edit_fem_lines(lines, h3d_path, mrf_path):
 	return lines
 
 
-# print(fem_path)
-# print(h3d_path)
-# print(mrf_paths)
-if __name__ == '__main__':
-	fem_paths = tkinter.filedialog.askopenfilenames(
-		filetypes = (('fem', '*.fem'),),
-		)
+def fatigue_fem_path_edit(fem_paths, h3d_path, mrf_paths):
 
-
-	h3d_path = tkinter.filedialog.askopenfilename(
-		filetypes = (('h3d', '*.h3d'),),
-		)
-
-
-	mrf_paths = tkinter.filedialog.askopenfilenames(
-		filetypes = (('mrf', '*.mrf'),),
-		)
-
+	new_fem_paths = []
 
 	for fem_path in fem_paths:
 
@@ -166,5 +145,41 @@ if __name__ == '__main__':
 			new_dir = os.path.dirname(mrf_path)
 			fem_path_new = os.path.join(new_dir ,new_name)
 			write_fem(fem_path_new, lines)
+			print('fem: {}'.format(fem_path_new))
+
+			new_fem_paths.append(fem_path_new)
+
+	return new_fem_paths
+
+
+
+if __name__ == '__main__':
+	import tkinter
+	import tkinter.filedialog
+	tkinter.Tk().withdraw()
+
+	fem_paths = tkinter.filedialog.askopenfilenames(
+		filetypes = (('fem', '*.fem'),),
+		)
+
+
+	h3d_path = tkinter.filedialog.askopenfilename(
+		filetypes = (('h3d', '*.h3d'),),
+		)
+
+
+	mrf_paths = tkinter.filedialog.askopenfilenames(
+		filetypes = (('mrf', '*.mrf'),),
+		)
+
+	# print(fem_path)
+	# print(h3d_path)
+	# print(mrf_paths)
+	# 
+	fatigue_fem_path_edit(fem_paths, h3d_path, mrf_paths)
+
+
+	print('----end----')
+
 
 

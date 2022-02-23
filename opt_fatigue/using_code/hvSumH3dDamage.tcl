@@ -1,5 +1,5 @@
 # optistruct 耐久计算后处理叠加专用
-# 
+# source "C:/Users/zheng.bingfeng/Documents/HW_TCL/hyperworks_code/opt_fatigue/hvSumH3dDamage.tcl"
 
 
 # hyperview 线性叠加后处理
@@ -46,7 +46,7 @@ proc sum_h3d_damage {model_path result_path new_h3d_path subcase_id} {
 	# 显示损伤
 	hwc result scalar load type=Damage system=global
 	# 保存为h3d
-	hwc save model h3d $new_h3d_path
+	hwc save model h3d $new_h3d_path compressionloss=0.00001
 }
 
 
@@ -102,7 +102,7 @@ proc main {} {
 	set file_dir [file dirname [info script]]
 	set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
 
-	set new_h3d_dir [get_dir "新h3d存放路径"]
+	set new_h3d_dir [get_dir "new h3d dir"]
 	set model_path [get_model_path]
 	# set new_h3d_dir "asdf"
 	# set model_path "asdf"
@@ -113,6 +113,7 @@ proc main {} {
 
 	set path2surfixs [split_result_path $result_path $surfix_num]
 	set path_list [dict keys $path2surfixs]
+	puts "H3d File Num: [llength $path_list]"
 	foreach path1 $path_list {
 		set new_path1 [join "{$path1} h3d" "."]
 		set new_path_name [lindex [file split $new_path1] end]
@@ -128,4 +129,5 @@ proc main {} {
 }
 
 main
+
 
