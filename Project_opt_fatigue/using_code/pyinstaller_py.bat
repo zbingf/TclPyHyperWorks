@@ -1,3 +1,5 @@
+rd /s /q dist
+
 pyinstaller -F main_fatigue.py
 pyinstaller -F fatigue_fem_fatdef_split_limit.py
 pyinstaller -F fatigue_fem_path_edit.py
@@ -12,6 +14,9 @@ rd /s /q build
 rd /s /q __pycache__
 
 copy hvSumH3dDamage.tcl dist
+copy hvAutoRun.tcl dist
+copy hmmenu.set dist
+copy hwpost.dat dist
 
 pause 
 

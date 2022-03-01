@@ -1,6 +1,5 @@
 # optistruct 耐久计算后处理叠加专用
-# source "C:/Users/zheng.bingfeng/Documents/HW_TCL/hyperworks_code/opt_fatigue/hvSumH3dDamage.tcl"
-
+# source "C:/Users/zheng.bingfeng/Documents/HW_TCL/hyperworks_code/opt_fatigue/main_code/hvSumH3dDamage.tcl"
 
 # hyperview 线性叠加后处理
 proc sum_h3d_damage {model_path result_path new_h3d_path subcase_id} {
@@ -97,24 +96,19 @@ proc split_result_path {result_path surfix_num} {
 }
 
 
-# 主程序
-proc main {} {
-	set file_dir [file dirname [info script]]
-	set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
+# ================================
+# 
+proc main_sum_h3d_damage {new_h3d_dir model_path result_path} {
 
-	set new_h3d_dir [get_dir "new h3d dir"]
-	set model_path [get_model_path]
-	# set new_h3d_dir "asdf"
-	# set model_path "asdf"
-	# set result_path [get_result_path]
-	set result_path [exec python $py_path]
 	set subcase_id 10000
 	set surfix_num 2
 
 	set path2surfixs [split_result_path $result_path $surfix_num]
+	# puts $path2surfixs
 	set path_list [dict keys $path2surfixs]
 	puts "H3d File Num: [llength $path_list]"
 	foreach path1 $path_list {
+		puts "path1: $path1"
 		set new_path1 [join "{$path1} h3d" "."]
 		set new_path_name [lindex [file split $new_path1] end]
 		# puts $new_path_name
@@ -126,8 +120,52 @@ proc main {} {
 		puts "path_num: [llength $cur_result_path]"
 		sum_h3d_damage $model_path $cur_result_path1 $new_h3d_path $subcase_id
 	}
+
 }
 
-main
+proc main_auto {} {
+	set file_dir [file dirname [info script]]
+	set param_file [format "%s/__temp_param" $file_dir]
+
+	set FileChannelID [open $param_file r]
+	set base_sush3d_dir [gets $FileChannelID]
+	set model_path [gets $FileChannelID]
+	set h3d_paths [gets $FileChannelID]
+	puts $base_sush3d_dir
+	puts $model_path
+	puts $h3d_paths
+	close $FileChannelID
+	
+	main_sum_h3d_damage $base_sush3d_dir $model_path $h3d_paths
+
+	# file delete $param_file
+}
+
+
+namespace eval ::hvSumH3dDamag {
+    variable file_dir [file dirname [info script]]
+}
+
+# 主程序
+proc main {} {
+		
+	set file_dir $::hvSumH3dDamag::file_dir
+
+	# set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
+	set exe_path   [format "%s/sub_get_h3d_files.exe" $file_dir]
+
+	set new_h3d_dir [get_dir "new h3d dir"]
+	set model_path [get_model_path]
+	
+	# set result_path [exec python $py_path]
+	set result_path [exec $exe_path]
+
+	main_sum_h3d_damage $new_h3d_dir $model_path $result_path
+}
+
+# main_auto
+
+
+
 
 

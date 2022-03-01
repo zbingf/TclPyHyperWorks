@@ -1,9 +1,10 @@
-# hyperworks_code
-hyperworks 相关模块, 以hypermesh前处理为主  
+# TclPyHyperWorks
++ 有限元
++ hyperworks 相关模块, 以hypermesh前处理为主  
 
 
 ### version版本
-+ hyperworks 13.0 / 2017
++ hyperworks 13.0 / 2017 /2021.1
 + python 3.7
 + tcl
 
@@ -11,7 +12,11 @@ hyperworks 相关模块, 以hypermesh前处理为主
 + hm : hypermesh相关二次开发
 + hv : hyperview相关二次开发
 + hg2d: hypergraph 2d相关二次开发
+
 + Project_opt_fatigue: optistruct fatigue相关二次开发
++ Project_feon_learning: 有限元框架Feon学习
++ Project_Platform_ARB: 稳定杆计算平台开发研究
+
 + tests : 部分测试用文件存放
 
 

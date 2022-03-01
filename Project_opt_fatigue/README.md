@@ -1,6 +1,7 @@
+# optistruct-耐久计算集成: using_code
 
+版本: 2021.1
 
-# optistruct-耐久计算集成
 ## 输入参数
 + flexbody.h3d 目标柔性体h3d文件
 + optistruct_fatigue.fem 耐久计算用fem基础文件未拆分set及设置路径前
@@ -48,7 +49,7 @@
 
 
 
-# opt_fatigue
+# opt_fatigue 各子模块
 用于optistruct的耐久计算, 相关项目
 
 
@@ -111,3 +112,12 @@ hyperview
 + 将结果存放于 stat_time_read.log 中
 
 
+
+# 版本差异
++ v08
+	+ 集成各功能: main_fatigue.py
+
++ v09
+	+ 修改fatigue_fem_fatdef_split_limit.py
+		+ set_id再检索范围内，但不在fatdef耐久计算卡片内时，绕过对应set_id
+		+ 在网格分割时，不再计算范围内的set不产生相应的fem文件

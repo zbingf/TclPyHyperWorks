@@ -232,16 +232,22 @@ def edit_lines_fatdef(lines, set_ids, n_lines, set2pfat):
     # lines fem各行数据
 
     pfat_ids = []
+    new_set_ids = []
     for set_id in set_ids:
         if set_id not in set2pfat:
-            print('set_id {} 不在 set2pfat 中'.format(set_id))
+            print_str = 'warning: set_id {} 不在 set2pfat 中, 绕过该set!!'.format(set_id)
+            logger.warning(print_str)
+            print(print_str)
             continue
         pfat_ids.append(set2pfat[set_id])
+        new_set_ids.append(set_id)
+
+    if not pfat_ids: return None
 
     # 新fatdef lines
     fatdef_lines = []
     loc = -1
-    for pfat_id, set_id in zip(pfat_ids, set_ids):
+    for pfat_id, set_id in zip(pfat_ids, new_set_ids):
         loc += 1
         if loc == 0:
             line = '+'.ljust(8) + 'ELSET'.ljust(8) + set_id.ljust(8) + pfat_id.ljust(8) + '\n'
@@ -289,12 +295,13 @@ def split_fatigue_fatdef_set_limit(fem_path, set_range, max_num=15000):
             lines = edit_lines_by_elems(data, elem_ids_1)
             n_lines, set2pfat = search_fatdef(lines)
             new_lines = edit_lines_fatdef(lines, [set_id], n_lines, set2pfat)
-            write_file(new_fem_path, new_lines)
+            if new_lines==None: continue  # 没有符合的set_id, 绕过该fem文件的创建
 
+            # 创建fem文件
+            write_file(new_fem_path, new_lines)
             print_str = 'write: {}'.format(new_fem_path)
             logger.info(print_str)
             print(print_str)
-
             new_fem_paths.append(new_fem_path)
 
     return new_fem_paths
