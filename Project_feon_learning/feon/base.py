@@ -19,6 +19,7 @@ import numpy as np
 #~ *********************************************************************
 __all__ = ["NodeBase","ElementBase","SystemBase"]
 
+# 节点
 class NodeBase(object):
     
     def __init__(self,*coord):
@@ -39,7 +40,7 @@ class NodeBase(object):
         l = self.coord
         l[key] = val
         self.coord = l
-    # =
+    # ==
     def __eq__(self,other):
         assert issubclass(type(other),NodeBase),"Must be Node type"
         a = np.array(self.coord)

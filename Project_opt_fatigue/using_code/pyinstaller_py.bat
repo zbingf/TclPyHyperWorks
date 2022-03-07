@@ -7,6 +7,7 @@ pyinstaller -F py_bat_opt_run.py
 pyinstaller -F stat_time_read.py
 pyinstaller -F hmCompChange_2021to2017.py
 pyinstaller -F sub_get_h3d_files.py
+pyinstaller -F auto_hvSumH3dDamage.py
 
 
 del /f /q *.spec
