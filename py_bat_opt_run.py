@@ -66,7 +66,7 @@ def opt_run(opt_path, run_dir, is_break=False, nthread=4):
             loginfo('fem_paths: {}'.format(str1))
             run_n = 0
         else:
-            if run_n <= 1: loginfo("------------waiting------------")
+            if run_n <= 1: loginfo("------------无计算-waiting------------")
 
             if run_n > 5 and is_break:
                 loginfo('break opt_run')
