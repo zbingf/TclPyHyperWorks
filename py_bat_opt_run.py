@@ -197,7 +197,13 @@ class BatOptRunUI(TkUi):
 
 
 
-if __name__=='__main__':
+import sys
+
+
+
+if len(sys.argv) <= 1:
+
+# if __name__=='__main__':
 
     # # 系统添加全局变量
     # # hwsolvers\scripts\.
@@ -208,3 +214,13 @@ if __name__=='__main__':
 
     BatOptRunUI('OptFemRun').run()
 
+else:
+    opt_path = sys.argv[1]
+    run_dir  =  sys.argv[2]
+    nthread = int(sys.argv[3])
+
+    print(opt_path)
+    print(run_dir)
+    print(nthread)
+
+    opt_run(opt_path, run_dir, is_break=False, nthread=nthread)
