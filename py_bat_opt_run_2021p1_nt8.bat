@@ -1,8 +1,12 @@
 
-
+REM optistruct.bat 路径
 set bat_path=D:\software\Altair\2021.1\hwsolvers\scripts\optistruct_v2021p1.bat
+
+REM 当前运行路径
 set run_dir=%cd%
-set nthread=24
+
+REM 线程数
+set nthread=8
 
 echo run_dir : %run_dir%
 echo bat_path : %bat_path%
