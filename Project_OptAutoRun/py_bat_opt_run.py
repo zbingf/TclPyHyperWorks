@@ -46,7 +46,6 @@ def run_fem(opt_path, fem_path, nthread):
 def opt_run(opt_path, run_dir, is_break=False, nthread=4):
     """
         批处理调用Optistruct(opt_path)计算run_dir目录下的fem文件
-
         is_break : True没有fem文件会中断运行, False持续保持检测运算状态
     """
 
@@ -216,10 +215,11 @@ if len(sys.argv) <= 1:
 else:
     opt_path = sys.argv[1]
     run_dir  =  sys.argv[2]
-    nthread = int(sys.argv[3])
+    nthread = sys.argv[3]
 
     print(opt_path)
     print(run_dir)
     print(nthread)
+    nthread = int(nthread)
 
     opt_run(opt_path, run_dir, is_break=False, nthread=nthread)

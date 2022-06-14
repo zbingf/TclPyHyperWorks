@@ -17,14 +17,12 @@
 + Project_feon_learning: 有限元框架Feon学习
 + Project_Platform_ARB: 稳定杆计算平台开发研究
 + Project_StrainPoint: 应变测点评估
++ Project_OptAutoRun: 监控并自动Optistruct运行fem文件
 
 + tests : 部分测试用文件存放
 
 
 ### 文件
-+ py_bat_opt_run : 监控并自动运行fem文件
-	+ 多线程计算
-	+ 调用 tkui
 + py_cmf_read : hypermesh 命令解析
 + py_cmf_read_2021 : hypermesh 命令解析 2021
 + py_file_del : 计算文件删除
