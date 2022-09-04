@@ -1,4 +1,5 @@
-
+# 主函数
+# 
 
 import os
 import shutil
@@ -8,8 +9,6 @@ import logging
 
 import tkui
 TkUi = tkui.TkUi
-
-
 
 from fatigue_fem_fatdef_split_limit import split_fatigue_fatdef_set_limit
 from fatigue_fem_path_edit import fatigue_fem_path_edit
