@@ -107,7 +107,8 @@ if __name__ == '__main__':
 	# 输入 cmf 文件路径
 	# cmfpath = r'C:\Users\ABING\Documents\command.cmf'
 
-	cmfpath = command_tcl_path_search('tcl')
+	# cmfpath = command_tcl_path_search('tcl')
+	cmfpath = r'D:\document\hypermesh\2019\command.tcl'
 	# cmfpath = command_tcl_path_search('cmf')
 	print(cmfpath)
 	cmf = CmfFile(cmfpath)

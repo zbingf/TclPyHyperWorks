@@ -2,12 +2,14 @@
 namespace eval ::BoltHoleConnect {
     variable recess
     variable isSaveSelect
+    variable isDoubleCircle
     
     variable new_edge_name "__edges"
     variable hole_comp_name 
 
     variable tolerance
-    variable c_limit
+    variable c_limit_upper
+    variable c_limit_lower
 
     variable comp_base_id
     variable comp_target_ids
@@ -19,14 +21,17 @@ namespace eval ::BoltHoleConnect {
 
 # 初始化
 set ::BoltHoleConnect::fem_path [format "%s/__temp.fem" $::BoltHoleConnect::file_dir]
-set ::BoltHoleConnect::py_path   [format "%s/hmBoltHoleConnect.py" $::BoltHoleConnect::file_dir]
+set ::BoltHoleConnect::py_path   [format "%s/hmBoltHoleConnect_CompBar2.py" $::BoltHoleConnect::file_dir]
 set ::BoltHoleConnect::comp_base_id []
 set ::BoltHoleConnect::comp_target_ids []   
 
 if {[info exists ::BoltHoleConnect::tolerance]==0} {set ::BoltHoleConnect::tolerance 30}
-if {[info exists ::BoltHoleConnect::c_limit]==0} {set ::BoltHoleConnect::c_limit 30}
+if {[info exists ::BoltHoleConnect::c_limit_upper]==0} {set ::BoltHoleConnect::c_limit_upper 30}
+if {[info exists ::BoltHoleConnect::c_limit_lower]==0} {set ::BoltHoleConnect::c_limit_lower 0}
 if {[info exists ::BoltHoleConnect::hole_comp_name]==0} {set ::BoltHoleConnect::hole_comp_name "__HoleConnect"}
 if {[info exists ::BoltHoleConnect::isSaveSelect]==0} {set ::BoltHoleConnect::isSaveSelect 0}
+if {[info exists ::BoltHoleConnect::isDoubleCircle]==0} {set ::BoltHoleConnect::isDoubleCircle 1}
+
 
 # 导出指定单元数据到fem
 proc print_elem_node_to_fem {fem_path elem_ids} {
@@ -121,7 +126,7 @@ proc ::BoltHoleConnect::GUI { args } {
     variable recess;
 
     set minx [winfo pixel . 225p];
-    set miny [winfo pixel . 180p];
+    set miny [winfo pixel . 200p];
     if {![OnPc]} {set miny [winfo pixel . 240p];}
     set graphArea [hm_getgraphicsarea];
     set x [lindex $graphArea 0];
@@ -173,20 +178,30 @@ proc ::BoltHoleConnect::GUI { args } {
     ::hwt::LabeledLine $recess.end_line "";
     grid $recess.end_line -row 5 -column 0 -pady 6 -sticky ew -columnspan 2;
 
+    # radiobutton $recess.radio_1 -text "单层Washer"  -variable ::BoltHoleConnect::isDoubleCircle -value 1 -anchor w -font {MS 10}
+    # radiobutton $recess.radio_2 -text "双层Washer" -variable ::BoltHoleConnect::isDoubleCircle -value 2 -anchor w -font {MS 10}
+    # grid $recess.radio_1 -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+    # grid $recess.radio_2 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
+
     label $recess.entryLabel1 -text "连接容差:";
-    grid $recess.entryLabel1 -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entryLabel1 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry1 -width 16 -textvariable ::BoltHoleConnect::tolerance
-    grid $recess.entry1 -row 6 -column 1 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entry1 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel2 -text "圆周长上限:";
-    grid $recess.entryLabel2 -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.entry2 -width 16 -textvariable ::BoltHoleConnect::c_limit
-    grid $recess.entry2 -row 7 -column 1 -padx 2 -pady 2 -sticky nw;
+    label $recess.entryLabel2 -text "圆周长-上限:";
+    grid $recess.entryLabel2 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.entry2 -width 16 -textvariable ::BoltHoleConnect::c_limit_upper
+    grid $recess.entry2 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    label $recess.entryLabel3 -text "孔网格-Comp名称:";
-    grid $recess.entryLabel3 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
-    entry $recess.entry3 -width 16 -textvariable ::BoltHoleConnect::hole_comp_name
-    grid $recess.entry3 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
+    label $recess.entryLabel3 -text "圆周长-下限:";
+    grid $recess.entryLabel3 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.entry3 -width 16 -textvariable ::BoltHoleConnect::c_limit_lower
+    grid $recess.entry3 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
+
+    label $recess.entryLabel4 -text "孔网格-Comp名称:";
+    grid $recess.entryLabel4 -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.entry4 -width 16 -textvariable ::BoltHoleConnect::hole_comp_name
+    grid $recess.entry4 -row 10 -column 1 -padx 2 -pady 2 -sticky nw;
 
     checkbutton $recess.checkSelect \
         -text "计算后保留选择" \
@@ -195,7 +210,7 @@ proc ::BoltHoleConnect::GUI { args } {
         -variable ::BoltHoleConnect::isSaveSelect \
         -command ::BoltHoleConnect::fun_checkSelectButton
         # -width 16;
-    grid $recess.checkSelect -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.checkSelect -row 10 -column 0 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow boltHoleConnect -onDeleteWindow ::BoltHoleConnect::Quit;
@@ -214,9 +229,11 @@ proc ::BoltHoleConnect::OkExit { args } {
     set comp_target_ids $::BoltHoleConnect::comp_target_ids
     set fem_path        $::BoltHoleConnect::fem_path
     set py_path         $::BoltHoleConnect::py_path
-    set c_limit         $::BoltHoleConnect::c_limit
+    set c_limit_upper         $::BoltHoleConnect::c_limit_upper
+    set c_limit_lower         $::BoltHoleConnect::c_limit_lower
     set hole_comp_name  $::BoltHoleConnect::hole_comp_name
     set tolerance       $::BoltHoleConnect::tolerance
+    set isDoubleCircle  $::BoltHoleConnect::isDoubleCircle
     # -------------------------------
 
 
@@ -236,7 +253,7 @@ proc ::BoltHoleConnect::OkExit { args } {
     }
     # ------------------------------------------
     # 调用 python数据
-    set node_ids [exec python $py_path $c_limit]
+    set node_ids [exec python $py_path $c_limit_upper $c_limit_lower]
     if {[llength $node_ids]==0} {
         tk_messageBox -message "无匹配数据,结束计算!!!" 
         return;

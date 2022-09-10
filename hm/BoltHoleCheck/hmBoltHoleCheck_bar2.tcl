@@ -12,7 +12,7 @@ namespace eval ::BoltHoleCheck {
 # 初始化
 set ::BoltHoleCheck::fem_path [format "%s/__temp.fem" $::BoltHoleCheck::file_dir]
 set ::BoltHoleCheck::csv_path [format "%s/__temp.csv" $::BoltHoleCheck::file_dir]
-set ::BoltHoleCheck::py_path   [format "%s/hmBoltHoleCheck.py" $::BoltHoleCheck::file_dir]
+set ::BoltHoleCheck::py_path   [format "%s/hmBoltHoleCheck_bar2.py" $::BoltHoleCheck::file_dir]
 
 if {[info exists ::BoltHoleCheck::angle_limit]==0} {set ::BoltHoleCheck::angle_limit 3}
 

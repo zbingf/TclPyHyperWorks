@@ -1,3 +1,4 @@
+# 
 
 import os.path
 import math
@@ -7,9 +8,10 @@ import os
 sys.setrecursionlimit(10000)
 
 try:
-    C_LIMIT = int(sys.argv[1])
+    input_node_ids = [n for n in sys.argv[1].split(' ') if n]
 except:
-    C_LIMIT = 30
+    # input_node_ids = [str(n) for n in [7374,7375,7422,7427,8169,8170,8217,8222]]
+    raise 'error input'
 
 
 MIN_NODE_NUM = 3
@@ -117,17 +119,28 @@ for num_cirlce in elem_circle_dic:
         node_id1, node_id2 = elem2node[elem_id]
         circle_c += dis_loc(node2loc[node_id1], node2loc[node_id2])
 
-    if circle_c < C_LIMIT:
-        target_circle_nums.append(num_cirlce)
+    for input_node_id in input_node_ids:
+        if input_node_id in node_circle_dic[num_cirlce]:
+            target_circle_nums.append(num_cirlce)
 
+target_circle_nums = list(set(target_circle_nums))
+# print(target_circle_nums)
 
-
-target_node_ids = []
+lines = []
 for circle_num in target_circle_nums:
-    one_node_id = elem2node[elem_circle_dic[circle_num][0]][0]
-    target_node_ids.append(one_node_id)
+    line = "{" + ' '.join(node_circle_dic[circle_num]) + "}"
+    lines.append(line)
 
-print(' '.join(target_node_ids))
+print(' '.join(lines))
+
+
+
+# target_node_ids = []
+# for circle_num in target_circle_nums:
+#     one_node_id = elem2node[elem_circle_dic[circle_num][0]][0]
+#     target_node_ids.append(one_node_id)
+
+# print(' '.join(target_node_ids))
 
 
 
