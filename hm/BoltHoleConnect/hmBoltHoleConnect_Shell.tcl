@@ -4,7 +4,14 @@ namespace eval ::BoltHoleConnect {
     
     variable new_edge_name "__edges"
     variable hole_comp_name 
+    
+    # 壳单元-层数
+    variable numShell
+
+    # 单圈或双圈
     variable isDoubleCircle
+    
+    # 连接类型
     variable type_connect
 
     variable elem_ids
@@ -20,8 +27,11 @@ set ::BoltHoleConnect::py_path   [format "%s/hmBoltHoleConnect_Shell.py" $::Bolt
 set ::BoltHoleConnect::elem_ids []
 
 if {[info exists ::BoltHoleConnect::hole_comp_name]==0} {set ::BoltHoleConnect::hole_comp_name "__HoleConnect"}
-if {[info exists ::BoltHoleConnect::isDoubleCircle]==0} {set ::BoltHoleConnect::isDoubleCircle 1}
-if {[info exists ::BoltHoleConnect::type_connect]==0} {set ::BoltHoleConnect::type_connect 1}
+if {[info exists ::BoltHoleConnect::numShell]==0} {set ::BoltHoleConnect::numShell 2}  
+if {[info exists ::BoltHoleConnect::isDoubleCircle]==0} {set ::BoltHoleConnect::isDoubleCircle 2}
+if {[info exists ::BoltHoleConnect::type_connect]==0} {set ::BoltHoleConnect::type_connect 1}  
+
+
 
 
 # 导出指定单元数据到fem
@@ -167,37 +177,45 @@ proc ::BoltHoleConnect::GUI { args } {
     ::hwt::LabeledLine $recess.end_line1 "Elem 选择";
     grid $recess.end_line1 -row 2 -column 0 -pady 6 -sticky ew -columnspan 2;
 
+    label $recess.entryLabel0 -text "连接层数";
+    grid $recess.entryLabel0 -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
+    entry $recess.entry0 -width 16 -textvariable ::BoltHoleConnect::numShell
+    grid $recess.entry0 -row 3 -column 1 -padx 2 -pady 2 -sticky nw;
 
-    radiobutton $recess.radio_1 -text "单层Washer"  -variable ::BoltHoleConnect::isDoubleCircle -value 1 -anchor w -font {MS 10}
-    radiobutton $recess.radio_2 -text "双层Washer" -variable ::BoltHoleConnect::isDoubleCircle -value 2 -anchor w -font {MS 10}
-    grid $recess.radio_1 -row 3 -column 0 -padx 2 -pady 2 -sticky nw;
-    grid $recess.radio_2 -row 3 -column 1 -padx 2 -pady 2 -sticky nw;
+
+
+    radiobutton $recess.radio_1 -text "单圈-Washer"  -variable ::BoltHoleConnect::isDoubleCircle -value 1 -anchor w -font {MS 10}
+    radiobutton $recess.radio_2 -text "双圈-Washer" -variable ::BoltHoleConnect::isDoubleCircle -value 2 -anchor w -font {MS 10}
+    grid $recess.radio_1 -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_2 -row 4 -column 1 -padx 2 -pady 2 -sticky nw;
 
     
-    radiobutton $recess.radio_3 -text "Rb2_123456"  -variable ::BoltHoleConnect::type_connect -value 1 -anchor w -font {MS 10}
-    radiobutton $recess.radio_4 -text "Bar2" -variable ::BoltHoleConnect::type_connect -value 2 -anchor w -font {MS 10}
-    grid $recess.radio_3 -row 4 -column 0 -padx 2 -pady 2 -sticky nw;
-    grid $recess.radio_4 -row 4 -column 1 -padx 2 -pady 2 -sticky nw;    
+    radiobutton $recess.radio_3 -text "A-Rb2-1~6"  -variable ::BoltHoleConnect::type_connect -value 1 -anchor w -font {MS 10}
+    radiobutton $recess.radio_4 -text "B-Rb2-1~6"  -variable ::BoltHoleConnect::type_connect -value 2 -anchor w -font {MS 10}
+    radiobutton $recess.radio_5 -text "Bar2" -variable ::BoltHoleConnect::type_connect -value 3 -anchor w -font {MS 10}
+    grid $recess.radio_3 -row 5 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.radio_4 -row 5 -column 1 -padx 2 -pady 2 -sticky nw;    
+    grid $recess.radio_5 -row 5 -column 2 -padx 2 -pady 2 -sticky nw;    
 
 
     # ===================
-    label $recess.baseLabel -text "选择目标两个 Elems";
-    grid $recess.baseLabel -row 5 -column 0 -padx 2 -pady 2 -sticky nw;
+    label $recess.baseLabel -text "选择目标 Elems";
+    grid $recess.baseLabel -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
 
     button $recess.baseButton \
         -text "Elems" \
         -command ::BoltHoleConnect::fun_baseButton \
         -width 16;
-    grid $recess.baseButton -row 6 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.baseButton -row 7 -column 0 -padx 2 -pady 2 -sticky nw;
 
     # ===================
     ::hwt::LabeledLine $recess.end_line "";
-    grid $recess.end_line -row 7 -column 0 -pady 6 -sticky ew -columnspan 2;
+    grid $recess.end_line -row 8 -column 0 -pady 6 -sticky ew -columnspan 2;
 
     label $recess.entryLabel3 -text "孔网格-Comp名称:";
-    grid $recess.entryLabel3 -row 8 -column 0 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entryLabel3 -row 9 -column 0 -padx 2 -pady 2 -sticky nw;
     entry $recess.entry3 -width 16 -textvariable ::BoltHoleConnect::hole_comp_name
-    grid $recess.entry3 -row 8 -column 1 -padx 2 -pady 2 -sticky nw;
+    grid $recess.entry3 -row 9 -column 1 -padx 2 -pady 2 -sticky nw;
 
     ::hwt::RemoveDefaultButtonBinding $recess;
     ::hwt::PostWindow boltHoleConnect -onDeleteWindow ::BoltHoleConnect::Quit;
@@ -218,12 +236,17 @@ proc ::BoltHoleConnect::OkExit { args } {
     set hole_comp_name  $::BoltHoleConnect::hole_comp_name
     set isDoubleCircle  $::BoltHoleConnect::isDoubleCircle
     set type_connect    $::BoltHoleConnect::type_connect
+    set numShell        $::BoltHoleConnect::numShell
     # -------------------------------
-
 
     catch { *createentity comps name=$::BoltHoleConnect::hole_comp_name }
     *currentcollector components "$::BoltHoleConnect::hole_comp_name"
     
+    if {$numShell < 1} { 
+        tk_messageBox -message "连接层数,需大于等于1层!!!" 
+        return;
+    }
+
     # 创建edge
     eval *createmark elems 1 $elem_ids
     *appendmark elems 1 "by attached"
@@ -247,51 +270,88 @@ proc ::BoltHoleConnect::OkExit { args } {
     # ------------------------------------------
     # 调用 python数据
     set node_ids [exec python $py_path "$target_nodes"]
-    set circle_node_ids_1 [lindex $node_ids 0]
-    set circle_node_ids_2 [lindex $node_ids 1]
-    # puts "circle_node_ids_1: $circle_node_ids_1"
-    # puts "circle_node_ids_2: $circle_node_ids_2"
 
-    
     if {$isDoubleCircle == 2} { 
-        # 双层washer
-        hm_createmark elems 1 "by node" "$circle_node_ids_1"
-        hm_createmark nodes 1 "by elems" "[hm_getmark elems 1]"
-        set circle_node_ids_1 [hm_getmark nodes 1]
-
-        hm_createmark elems 2 "by node" "$circle_node_ids_2"
-        hm_createmark nodes 2 "by elems" "[hm_getmark elems 2]"
-        set circle_node_ids_2 [hm_getmark nodes 2]
+        set new_node_ids []
+        foreach circle_node_ids_n $node_ids {
+            hm_createmark elems 1 "by node" "$circle_node_ids_n"
+            hm_createmark nodes 1 "by elems" "[hm_getmark elems 1]"
+            set circle_node_ids_n [hm_getmark nodes 1]
+            lappend new_node_ids "$circle_node_ids_n"
+        }
+    } else {
+        set new_node_ids $node_ids
     }
 
-        
-    hm_entityrecorder elems on
-    hm_entityrecorder nodes on
-        hm_createmark nodes 1 "$circle_node_ids_1"
-        *rigidlinkinodecalandcreate 1 0 0 123456
-    hm_entityrecorder nodes off
-    hm_entityrecorder elems off
-    set elem_circle_rb2_id_1 [hm_entityrecorder elems ids]
-    set node_circle_rb2_id_1 [hm_entityrecorder nodes ids]
-
-    hm_entityrecorder elems on
-    hm_entityrecorder nodes on
-        hm_createmark nodes 2 "$circle_node_ids_2"
-        *rigidlinkinodecalandcreate 2 0 0 123456
-    hm_entityrecorder nodes off
-    hm_entityrecorder elems off
-    set elem_circle_rb2_id_2 [hm_entityrecorder elems ids]
-    set node_circle_rb2_id_2 [hm_entityrecorder nodes ids]
-    
-    # puts "$elem_circle_rb2_id_1 $elem_circle_rb2_id_2"
-    # puts "$node_circle_rb2_id_1 $node_circle_rb2_id_2"
-
     if {$type_connect == 1} {
-        hm_createmark nodes 1 "$node_circle_rb2_id_1 $node_circle_rb2_id_2"
-        *rigidlinkinodecalandcreate 1 0 0 123456
+        set elem_circle_rb2_id_list []
+        set node_circle_rb2_id_list []
+        foreach circle_node_ids_n $new_node_ids {
+            hm_entityrecorder elems on
+            hm_entityrecorder nodes on
+                # hm_createmark nodes 1 "[string range $circle_node_ids_n 1 end-1]"
+                hm_createmark nodes 1 "$circle_node_ids_n"
+                *rigidlinkinodecalandcreate 1 0 0 123456
+            hm_entityrecorder nodes off
+            hm_entityrecorder elems off
+            set elem_circle_rb2_id_1 [hm_entityrecorder elems ids]
+            set node_circle_rb2_id_1 [hm_entityrecorder nodes ids]
+            lappend elem_circle_rb2_id_list "$elem_circle_rb2_id_1"
+            lappend node_circle_rb2_id_list "$node_circle_rb2_id_1"
+        }
+        # puts $elem_circle_rb2_id_list
+        # puts $node_circle_rb2_id_list
+        # puts [get_max_dis_by_nodes $node_circle_rb2_id_list]
+        if {$numShell != 1} {
+            hm_createmark nodes 1 "$node_circle_rb2_id_list"
+            *rigidlinkinodecalandcreate 1 0 0 123456
+        }
+        
+
     } elseif {$type_connect == 2} {
-        *createvector 1 0 0 -1
-        *barelementcreatewithoffsets $node_circle_rb2_id_1 $node_circle_rb2_id_2 1 0 0 0 0 "" 1 0 0 0 1 0 0 0
+        set sum_node_ids []
+        foreach circle_node_ids_n $new_node_ids {
+            # lappend sum_node_ids $circle_node_ids_n
+            # set sum_node_ids "$sum_node_ids [string range $circle_node_ids_n 1 end-1]"
+            set sum_node_ids "$sum_node_ids $circle_node_ids_n"
+        }
+        hm_createmark nodes 1 "$sum_node_ids"
+        *rigidlinkinodecalandcreate 1 0 0 123456
+
+
+    } elseif {$type_connect == 3} {
+        set elem_circle_rb2_id_list []
+        set node_circle_rb2_id_list []
+        foreach circle_node_ids_n $new_node_ids {
+            hm_entityrecorder elems on
+            hm_entityrecorder nodes on
+                # hm_createmark nodes 1 "[string range $circle_node_ids_n 1 end-1]"
+                hm_createmark nodes 1 "$circle_node_ids_n"
+                *rigidlinkinodecalandcreate 1 0 0 123456
+            hm_entityrecorder nodes off
+            hm_entityrecorder elems off
+            set elem_circle_rb2_id_1 [hm_entityrecorder elems ids]
+            set node_circle_rb2_id_1 [hm_entityrecorder nodes ids]
+            lappend elem_circle_rb2_id_list "$elem_circle_rb2_id_1"
+            lappend node_circle_rb2_id_list "$node_circle_rb2_id_1"
+        }
+
+        # puts $elem_circle_rb2_id_list
+        # puts $node_circle_rb2_id_list
+        # puts [get_max_dis_by_nodes $node_circle_rb2_id_list]
+        if {$numShell != 1} {
+            set center_node_ids [get_max_dis_by_nodes $node_circle_rb2_id_list]
+            for {set i 0} {$i < [expr [llength $center_node_ids]-1]} {incr i} {
+                set i_1 [expr $i + 1]
+                set center_node_1 [lindex $center_node_ids $i]
+                set center_node_2 [lindex $center_node_ids $i_1]
+                *createvector 1 0 0 -1
+                *barelementcreatewithoffsets $center_node_1 $center_node_2 1 0 0 0 0 "" 1 0 0 0 1 0 0 0
+            }
+        }
+        # *createvector 1 0 0 -1
+        # *barelementcreatewithoffsets $node_circle_rb2_id_1 $node_circle_rb2_id_2 1 0 0 0 0 "" 1 0 0 0 1 0 0 0
+
         # *startnotehistorystate {Updated Bar elements}
         #     *createmark elements 1 33643
         #     *attributeupdateintmark elements 1 4841 1 2 0 1
@@ -310,8 +370,6 @@ proc ::BoltHoleConnect::OkExit { args } {
 
     # hm版本
     set hm_version [lindex [split [hm_info -appinfo DISPLAYVERSION] .] 0]
-
-
 
 
     # ------------------------------------------
@@ -337,12 +395,100 @@ proc ::BoltHoleConnect::Quit { args } {
 proc ::BoltHoleConnect::fun_baseButton { args } {
     *createmarkpanel elems 1 "select the elems"
     set ::BoltHoleConnect::elem_ids [hm_getmark elems 1]
-    if {[llength $::BoltHoleConnect::elem_ids] != 2} {
+    if {[llength $::BoltHoleConnect::elem_ids] != $::BoltHoleConnect::numShell} {
         set ::BoltHoleConnect::elem_ids []
-        tk_messageBox -message "elems 必选,且只能选2个!!\n请重选!!!" -icon warning
+        tk_messageBox -message "elems 必选,且只能选 $::BoltHoleConnect::numShell 个!!\n请重选!!!" -icon warning
     }
     # puts $::BoltHoleConnect::elem_ids 
 }
+
+
+
+
+
+# 获取node的坐标
+proc get_loc_by_node {node_id} {
+    set x [hm_getvalue nodes id=$node_id dataname=x]
+    set y [hm_getvalue nodes id=$node_id dataname=y]
+    set z [hm_getvalue nodes id=$node_id dataname=z]
+    return "$x $y $z"
+}
+
+# 矢量 - 减
+proc v_sub {loc1 loc2} {
+    set x1 [lindex $loc1 0]
+    set y1 [lindex $loc1 1]
+    set z1 [lindex $loc1 2]
+
+    set x2 [lindex $loc2 0]
+    set y2 [lindex $loc2 1]
+    set z2 [lindex $loc2 2]
+
+    set x3 [expr $x1-$x2]
+    set y3 [expr $y1-$y2]
+    set z3 [expr $z1-$z2]
+    return "$x3 $y3 $z3"
+}
+
+# 矢量 - abs
+proc v_abs {loc} {
+    set x [lindex $loc 0]
+    set y [lindex $loc 1]
+    set z [lindex $loc 2]
+    set value [expr ($x**2+$y**2+$z**2)**0.5]
+    return $value
+}
+
+
+proc get_dis_by_node {node_id1 node_id2} {
+    set loc_1 [get_loc_by_node $node_id1]
+    set loc_2 [get_loc_by_node $node_id2]
+    set dis [v_abs [v_sub $loc_1 $loc_2]]
+    return $dis
+}
+
+
+proc get_max_dis_by_nodes {node_ids} {
+    list diss
+    set max_value 0
+    set cur_ids ""
+    foreach node_id1 $node_ids {
+        foreach node_id2 $node_ids {
+            set dis [get_dis_by_node $node_id1 $node_id2]
+            if {$dis > $max_value} {
+                set cur_ids "$node_id1 $node_id2"
+                set max_value $dis
+            }
+        }
+    }
+
+    set node_1 [lindex $cur_ids 0]
+    set node_dict ""
+    set dis_list ""
+    foreach node_n $node_ids {
+        if {$node_n == $node_1} {
+            continue
+        }
+        set dis [get_dis_by_node $node_1 $node_n]
+        lappend dis_list $dis
+        dict set node_dict $dis $node_n
+    }
+
+    set new_dis_list [lsort -real $dis_list]
+    # puts $new_dis_list
+    set new_node_ids $node_1
+    foreach dis $new_dis_list {
+        set node_id [dict get $node_dict $dis]
+        lappend new_node_ids $node_id
+    } 
+    
+    return $new_node_ids
+
+    # puts $max_value $cur_ids
+}
+
+
+
 
 
 ::BoltHoleConnect::GUI
