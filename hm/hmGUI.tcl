@@ -69,6 +69,8 @@ create_label_button 2 $line
 # -------------------
 set 	line "网格划分-处理-1"
 lappend line "{Elem_以solid复制} {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
+lappend line "{Elem_复制平移} {ElemCopyByTranslate/hmElemCopyByTranslate.tcl}"
+
 lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
 lappend line "{Mesh_孔周围_创建} {HoleMesh/hmHoleMeshUI.tcl}"
 lappend line "{Mesh_孔周围_自定义} {HoleMesh/hmHoleMeshUI2.tcl}"
@@ -89,8 +91,14 @@ lappend line "{Bolt_孔连接_CompBar2} {BoltHoleConnect/hmBoltHoleConnect_CompB
 lappend line "{Bolt_孔对称_校正} {BoltHoleCorrect/hmBoltHoleCorrect.tcl}"
 lappend line "{Bolt_孔对称_检查bar2} {BoltHoleCheck/hmBoltHoleCheck_bar2.tcl}"
 lappend line "{Bolt_螺栓孔_分类} {BoltHoleClassify/hmBoltHoleClassify.tcl}"
-
 create_label_button 5 $line
+
+# -------------------
+set 	line "网格划分-处理-4"
+# lappend line "{Bolt_孔连接_Shell} {BoltHoleConnect/hmBoltHoleConnect_Shell.tcl}"
+
+create_label_button 6 $line
+
 
 # -------------------
 set 	line "卡片创建"
@@ -99,7 +107,7 @@ lappend line "{模态分析设置} {hmModalSet.tcl}"
 lappend line "{ASET编号} {AsetNodeIdRename/hmAsetIdRename.tcl}"
 lappend line "{Node创建} {AsetNodeIdRename/hmNodeCreate.tcl}"
 lappend line "{ASET创建} {NodeConstrainCreate/hmNodeConstrainCreate.tcl}"
-create_label_button 6 $line
+create_label_button 7 $line
 
 # -------------------
 set 	line "材料相关"
@@ -108,7 +116,7 @@ lappend line "{Mat_去重_ENR} {Materials/hmMatEdit_ENR.tcl}"
 lappend line "{Prop_去重_SS} {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
 lappend line "{Mat_Rename} {Materials/hmMatRename.tcl}"
 lappend line "{Prop_Rename} {Materials/hmPropRename.tcl}"
-create_label_button 7 $line
+create_label_button 8 $line
 
 # -------------------
 set 	line "其他"
@@ -117,7 +125,8 @@ lappend line "{CircleForceLoad} {CircleForceLoad/hmCircleForceLoad.tcl}"
 lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
 lappend line "{删除-无用卡片} {hmDelEmptyEntity.tcl}"
 lappend line "{测试} {zing_NodeToSurf/hmNodeToSurf.tcl}"
-create_label_button 8 $line
+lappend line "{RigidConnectEdit} {RigidConnectEdit/hmRigidConnectEdit.tcl}"
+create_label_button 9 $line
 
 
 # -----------------------

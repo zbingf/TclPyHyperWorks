@@ -1,0 +1,209 @@
+ ************************************************************************
+ **                                                                    **
+ **                                                                    **
+ **                    Altair OptiStruct(TM) 2021.1                    **
+ **                                                                    **
+ **             Advanced Engineering Analysis, Design and              **
+ **        Optimization Software from Altair Engineering, Inc.         **
+ **                                                                    **
+ **   OptiStruct includes an enhanced proprietary version of NASTRAN   **
+ **                                                                    **
+ **                                                                    **
+ **             Windows 10  (Build 9200)  DESKTOP-T8TGPFU              **
+ **            16 CPU:  AMD Ryzen 7 3700X 8-Core Processor             **
+ **                    24223 MB RAM,  44492 MB swap                    **
+ **                                                                    **
+ ** Build: 1066780uwn33211_Ce64RB68UH14M:191080-000  46004004000000014 **
+ ************************************************************************
+ **  COPYRIGHT (C) 1996-2021                 Altair Engineering, Inc.  **
+ ** All Rights Reserved.  Copyright notice does not imply publication. **
+ **         Contains trade secrets of Altair Engineering, Inc.         **
+ ** Decompilation or disassembly of this software strictly prohibited. **
+ ************************************************************************
+ 
+  
+ *** OptiStruct defaults set from:
+   install config file: D:/software/Altair/2021.1/hwsolvers/optistruct.cfg.
+  
+  
+ NOTE # 9199
+ MSGLMT=STRICT is active, all messages will be printed.
+ You can suppress some less important warning messages by use of
+  MSGLMT=BRIEF or UNREF (in config file or in the input data).
+  
+ NOTE # 1929
+ Created RAM scratch area: total size 200 MB.
+  
+  
+ 
+
+************************************************************************
+
+OPTIMIZATION FILE AND PARAMETER INFORMATION :
+---------------------------------------------
+
+  FEM model file               : 
+     D:/github/TclPyHyperWorks/hm/RigidEdit/tests/test_for_tie_1mm_2019_02.fem
+  Output files prefix          : 
+     D:/github/TclPyHyperWorks/hm/RigidEdit/tests/test_for_tie_1mm_2019_02
+  Model read from files:
+ (*1)	    D:/github/TclPyHyperWorks/hm/RigidEdit/tests/test_for_tie_1mm_2019_02.fem
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+FINITE ELEMENT MODEL DATA INFORMATION :
+---------------------------------------
+
+  Total # of Grids (Structural)        :      8741
+  Total # of Elements                  :      8410
+  Total # of Rigid Elements            :         8
+  Total # of Rigid Element Constraints :        48
+  Total # of Degrees of Freedom        :     52446
+  (Structural)
+  Total # of Non-zero Stiffness Terms  :   1403709
+
+ 
+  Element Type Information
+  ------------------------
+
+   CQUAD4   Elements   :     8371     
+   CTRIA3   Elements   :       39     
+
+  Load and Boundary Information
+  -----------------------------
+
+
+  Material and Property Information
+  ---------------------------------
+
+   PSHELL Cards      :         1
+   MAT1   Cards      :         1
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+OPTIMIZATION PROBLEM PARAMETERS :
+---------------------------------
+
+ NO DESIGN MATERIAL OR DESIGN VARIABLES FOUND  : ANALYSIS ONLY
+
+   ---------------------------
+   Frequency Subcase Summary :
+   ---------------------------
+
+   ----------   --------  ---------------------  --------
+   Subcase ID    SPC ID   Preloading Subcase ID   MODE # 
+   ----------   --------  ---------------------  --------
+          1         None                               10
+   ----------   --------  ---------------------  --------
+
+   Run Type                        :   Analysis Only
+   Run at location                 : D:/github/TclPyHyperWorks/hm/RigidEdit/tests/
+   Scratch file directory          : D:/github/TclPyHyperWorks/hm/RigidEdit/tests/
+                                     Free space:   105.983 GB
+   Number of CPU processors        :          1
+
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+MEMORY ESTIMATION INFORMATION :
+-------------------------------
+
+ Solver Type is:  Sparse-Matrix Solver
+                  Direct Method
+                  Block Lanczos Eigenvalue Extraction
+ 
+ Memory (RAM) Allocated in Preprocessor                  :     800 MB
+   In addition a ramdisk area was allocated in memory    :     200 MB
+ Estimated Memory (RAM) for Out of Core Solution         :      87 MB
+ Estimated Memory (RAM) for In-Core Solution             :     186 MB
+ 
+DISK SPACE ESTIMATION INFORMATION :
+-----------------------------------
+
+ Estimated Disk Space for Output Data Files              :       6 MB
+ Estimated Scratch Disk Space for In-Core Solution       :     417 MB
+ Estimated Scratch Disk Space for Out of Core Solution   :     548 MB
+
+************************************************************************
+
+
+BEGINNING ANALYSIS SOLUTION ....
+
+
+************************************************************************
+
+ANALYSIS RESULTS :
+------------------
+
+  
+ITERATION   0
+  
+ *** INFORMATION # 3454
+ MPC, RBE# (and other rigids) and JOINTG constraints for
+ subcase 1 will be enforced with elimination of dependent dofs.
+  
+ (Scratch disk space usage for starting iteration = 54 MB)
+(Running in-core solution)
+
+Volume                              =  8.63746E+03   Mass     =  6.78041E-05
+
+                                                  Generalized   Generalized
+ Subcase  Mode    Frequency      Eigenvalue        Stiffness        Mass   
+       1      1   1.113333E-02   4.893389E-03     4.893389E-03   1.000000E+00
+       1      2   1.158299E-02   5.296649E-03     5.296649E-03   1.000000E+00
+       1      3   1.241135E-02   6.081323E-03     6.081323E-03   1.000000E+00
+       1      4   1.795009E-02   1.272017E-02     1.272017E-02   1.000000E+00
+       1      5   1.809838E-02   1.293121E-02     1.293121E-02   1.000000E+00
+       1      6   1.891452E-02   1.412376E-02     1.412376E-02   1.000000E+00
+       1      7   1.962560E+02   1.520567E+06     1.520567E+06   1.000000E+00
+       1      8   3.890180E+02   5.974467E+06     5.974467E+06   1.000000E+00
+       1      9   4.734331E+02   8.848648E+06     8.848648E+06   1.000000E+00
+       1     10   6.165392E+02   1.500656E+07     1.500656E+07   1.000000E+00
+
+
+************************************************************************
+  
+ ANALYSIS COMPLETED.
+  
+
+************************************************************************
+
+RESOURCE USAGE INFORMATION
+--------------------------
+
+ MAXIMUM MEMORY USED                                       800 MB
+   IN ADDITION    200 MB RAMDISK AREA WAS ALLOCATED IN MEMORY
+ MAXIMUM DISK SPACE USED                                     1 MB
+
+************************************************************************
+
+
+************************************************************************
+
+COMPUTE TIME INFORMATION
+------------------------
+
+ EXECUTION STARTED                         Sat Oct 01 00:00:29 2022    
+ EXECUTION COMPLETED                       Sat Oct 01 00:00:32 2022    
+ ELAPSED TIME                                         00:00:02
+ CPU TIME                                             00:00:04
+
+************************************************************************
+
+  
+                        ***** END OF REPORT *****
+  
+ For Useful OptiStruct Tips and Tricks, go to the URL:
+ http://www.altairhyperworks.com/tips.aspx
