@@ -1,9 +1,9 @@
-
+﻿
 REM 版本
-set version=2019
+set version=2021.1
 
-REM 线程数
-set nthread=24
+REM 控制命令
+set cmd_str="-nt 24 -len 10000"
 
 
 REM ============================
@@ -31,14 +31,14 @@ set run_dir=%cd%
 
 echo run_dir : %run_dir%
 echo bat_path : %bat_path%
-echo nthread : %nthread%
+echo cmd_str : %cmd_str%
 
 
 if not exist py_bat_opt_run.exe (
-	python py_bat_opt_run.py %bat_path% "%run_dir%" %nthread%
+	python py_bat_opt_run.py %bat_path% "%run_dir%" %cmd_str%
 	echo run-python
 ) else (
-	py_bat_opt_run.exe %bat_path% "%run_dir%" %nthread%
+	py_bat_opt_run.exe %bat_path% "%run_dir%" %cmd_str%
 	echo run-exe
 )
 

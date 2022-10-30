@@ -34,16 +34,17 @@ def search_fem_file(file_dir):
     return fem_paths
 
 
-def run_fem(opt_path, fem_path, nthread):
+def run_fem(opt_path, fem_path, cmd_str):
 
     # return subprocess.check_output([opt_path, fem_path, "-nthread", str(nthread)])
-    params = [opt_path, fem_path, "-nt", str(nthread)]
+    
+    params = [opt_path, fem_path] + [cmd for cmd in cmd_str.split(" ") if cmd]
     # params = [opt_path, os.path.basename(fem_path)]
     # print(params)
     return subprocess.check_output(params)
 
 
-def opt_run(opt_path, run_dir, is_break=False, nthread=4):
+def opt_run(opt_path, run_dir, is_break=False, cmd_str=""):
     """
         批处理调用Optistruct(opt_path)计算run_dir目录下的fem文件
         is_break : True没有fem文件会中断运行, False持续保持检测运算状态
@@ -114,7 +115,7 @@ def opt_run(opt_path, run_dir, is_break=False, nthread=4):
 
             # ----------------------
             # 运行 !!!!!!!!!!!!
-            str1 = run_fem(opt_path, new_fem_path, nthread).decode()
+            str1 = run_fem(opt_path, new_fem_path, cmd_str).decode()
             # print(str1)
             loginfo('运行结果: {}'.format(str1))
             os.chdir(run_dir)
@@ -156,7 +157,7 @@ class BatOptRunUI(TkUi):
             })
 
         self.frame_entry({
-            'frame':'nthread','var_name':'nthread','label_text':'nthread',
+            'frame':'cmd_str','var_name':'cmd_str','label_text':'控制设置',
             'label_width':15,'entry_width':30,
             })
 
@@ -174,7 +175,7 @@ class BatOptRunUI(TkUi):
         # 初始化设置
         self.vars['run_dir'].set(r'E:\AutoCal')
         self.vars['opt_path'].set('optistruct_v2021p1.bat')
-        self.vars['nthread'].set('4')
+        self.vars['cmd_str'].set('-nt 4 -len 500')
 
 
     def fun_run(self):
@@ -187,8 +188,8 @@ class BatOptRunUI(TkUi):
         params = self.get_vars_and_texts()
         run_dir = params['run_dir']
         opt_path = params['opt_path']
-        nthread = params['nthread']
-        opt_run(opt_path, run_dir, is_break=False, nthread=nthread)
+        cmd_str = params['cmd_str']
+        opt_run(opt_path, run_dir, is_break=False, cmd_str=cmd_str)
         
         self.print('计算结束')
 
@@ -215,11 +216,10 @@ if len(sys.argv) <= 1:
 else:
     opt_path = sys.argv[1]
     run_dir  =  sys.argv[2]
-    nthread = sys.argv[3]
+    cmd_str = sys.argv[3]
 
     print(opt_path)
     print(run_dir)
-    print(nthread)
-    nthread = int(nthread)
+    print(cmd_str)
 
-    opt_run(opt_path, run_dir, is_break=False, nthread=nthread)
+    opt_run(opt_path, run_dir, is_break=False, cmd_str=cmd_str)
