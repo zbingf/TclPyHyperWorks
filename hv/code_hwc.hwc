@@ -1,0 +1,24 @@
+result scalar legend values levelvalue="1 0"
+result scalar legend values levelvalue="2 100"
+result scalar legend values levelvalue="3 200"
+result scalar legend values levelvalue="4 300"
+result scalar legend values levelvalue="5 400"
+result scalar legend values levelvalue="6 500"
+result scalar legend values levelvalue="7 550"
+result scalar legend values levelvalue="8 600"
+result scalar legend values levelvalue="9 700"
+result scalar legend values levelvalue="10 750"
+
+
+
+animate frame 11
+
+
+save image window D:/temp/temp/tset.png
+
+
+open animation modelandresult D:/temp/temp/K9MD_front_antiroll_D50_20210825.op2 D:/temp/temp/K9MD_front_antiroll_D50_20210825.op2
+
+
+result scalar load type=Stress component=vonMises
+result scalar load type=Stress avgmode=advanced system=global

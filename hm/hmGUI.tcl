@@ -64,6 +64,8 @@ create_label_button 1 $line
 # -------------------
 set 	line "Solid"
 lappend line "{Comp分类_厚度测量} {hmSolidThickness.tcl}"
+lappend line "{Load_单位六分力创建} {LoadForce1N/hmLoadForce1N.tcl}"
+
 create_label_button 2 $line
 
 # -------------------
@@ -79,6 +81,7 @@ create_label_button 3 $line
 # -------------------
 set 	line "网格划分-处理-2"
 lappend line "{Tie_面对面_创建} {TieSurfToSurfCreate/hmTieSurfToSurfCreate.tcl}"
+lappend line "{Tie_点对面_自动} {TiePointToSurfCreate/hmTiePointCreate.tcl}"
 lappend line "{Tie_点对面_Select} {TiePointToSurfCreateSelect/hmTiePointToSurfCreateSelect.tcl}"
 lappend line "{基于Tie_检查_网格连接} {CheckElemAttachTie/hmCheckElemAttachTie.tcl}"
 lappend line "{bar2_平行Z轴_校正} {BoltHoleAxisZCorrect/hmBoltHoleAxisZCorrect.tcl}"
@@ -95,7 +98,7 @@ create_label_button 5 $line
 
 # -------------------
 set 	line "网格划分-处理-4"
-# lappend line "{Bolt_孔连接_Shell} {BoltHoleConnect/hmBoltHoleConnect_Shell.tcl}"
+lappend line "{Rigid_Solid_点_连接_Shell} {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
 
 create_label_button 6 $line
 
