@@ -1,5 +1,9 @@
+# 循环加载
+# version 1.0
+
 
 # source "D:/github/TclPyHyperWorks/hm_v2/CircleForceLoad/hmCircleForceLoad.tcl"
+
 
 # 路径定义
 set script_dir [file dirname [info script]]
@@ -17,16 +21,24 @@ package require SubTk 1.0
 
 proc create_circle_force_load {start_angle end_angle num value} {
 
+    set choice [tk_messageBox -type yesnocancel -default yes -message "是否计算" -icon question ]
+    if {$choice != yes} {return;}
+
+    tk_messageBox -message "选择加载点" 
     *createmarkpanel nodes 1
     set node_id [hm_getmark nodes 1]
     if {$node_id==""} { return; }
     set center_loc [get_loc_by_node $node_id]
 
+
+    tk_messageBox -message "选择初始加载矢量" 
     *createmarkpanel vectors 1
     set vector_id [hm_getmark vectors 1]
     if {$vector_id==""} { return; }
     set v_u [get_v_by_vector $vector_id]
 
+
+    tk_messageBox -message "选择法线矢量" 
     *createmarkpanel vectors 1 "surf_v"
     set vector_id [hm_getmark vectors 1]
     if {$vector_id==""} { return; }

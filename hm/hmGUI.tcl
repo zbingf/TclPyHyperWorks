@@ -98,7 +98,9 @@ create_label_button 5 $line
 
 # -------------------
 set 	line "网格划分-处理-4"
+lappend line "{Shell_Washer单圈改双圈} {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
 lappend line "{Rigid_Solid_点_连接_Shell} {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
+
 
 create_label_button 6 $line
 
@@ -146,6 +148,4 @@ for { set hloc 0 } { $hloc < 10 } { incr hloc 1 } {
 # -----------------------
 hm_framework addpanel .f "二次开发插件"
 hm_framework drawpanel .f
-
-
 
