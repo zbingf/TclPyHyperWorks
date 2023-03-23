@@ -98,14 +98,15 @@ create_label_button 5 $line
 
 # -------------------
 set 	line "网格划分-处理-4"
+lappend line "{Shell_Washer单圈改双圈} {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
 lappend line "{Rigid_Solid_点_连接_Shell} {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
-lappend line "{SurfNear2set} {ShellSurfToSurfSet/hmShellSurfToSurfSet.tcl}"
-lappend line "{washer单圈变双圈} {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
+
+
 create_label_button 6 $line
 
 
 # -------------------
-set 	line "MBD卡片创建"
+set 	line "卡片创建"
 lappend line "{mnf创建设置} {FlexBody/hmMnfSet.tcl}"
 lappend line "{模态分析设置} {hmModalSet.tcl}"
 lappend line "{ASET编号} {AsetNodeIdRename/hmAsetIdRename.tcl}"
@@ -114,7 +115,7 @@ lappend line "{ASET创建} {NodeConstrainCreate/hmNodeConstrainCreate.tcl}"
 create_label_button 7 $line
 
 # -------------------
-set 	line "MBD材料相关"
+set 	line "材料相关"
 lappend line "{一般材料创建} {Materials/hmMaterials.tcl}"
 lappend line "{Mat_去重_ENR} {Materials/hmMatEdit_ENR.tcl}"
 lappend line "{Prop_去重_SS} {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
@@ -123,7 +124,7 @@ lappend line "{Prop_Rename} {Materials/hmPropRename.tcl}"
 create_label_button 8 $line
 
 # -------------------
-set 	line "MBD其他"
+set 	line "其他"
 # lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
 lappend line "{CircleForceLoad} {CircleForceLoad/hmCircleForceLoad.tcl}"
 lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
@@ -147,6 +148,4 @@ for { set hloc 0 } { $hloc < 10 } { incr hloc 1 } {
 # -----------------------
 hm_framework addpanel .f "二次开发插件"
 hm_framework drawpanel .f
-
-
 
