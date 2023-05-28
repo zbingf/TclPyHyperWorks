@@ -39,7 +39,29 @@ def movefiles_dir(srcfiles, dstdir):
     return new_files
 
 
-def main_calc(opt_path, flexbody_path, base_fem_path, mrf_paths, base_folder_dir, set_id_range, set_limit=15000):
+def search_recalc_fems(root):
+    recalc_fems = []
+
+    h3ds,fems,fem2dir = [], [], {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        for filename in filenames:
+            if filename[-4:] == '.h3d':
+                h3ds.append(filename[:-4])
+            elif filename[-4:] == '.fem':
+                fem = filename[:-4]
+                fems.append(fem)
+                fem2dir[fem] = (dirpath)
+
+    for fem in fems:
+        if fem not in h3ds:
+            if '\\03_autocalc\\' in fem2dir[fem]:
+                # print(fem2dir[fem])
+                recalc_fems.append(os.path.join(fem2dir[fem], fem)+'.fem')
+
+    return recalc_fems
+
+
+def main_calc(opt_path, flexbody_path, base_fem_path, mrf_paths, base_folder_dir, set_id_range, set_limit=15000, max_thread=2):
 
     """
         + optistruct.bat 解算器调用文件
@@ -74,7 +96,17 @@ def main_calc(opt_path, flexbody_path, base_fem_path, mrf_paths, base_folder_dir
     fem_edit_paths = fatigue_fem_path_edit(fem_split_paths, flexbody_path, mrf_paths)
     fem_edit_paths = movefiles_dir(fem_edit_paths, base_autocalc_dir)
 
-    new_fem_paths = opt_run(opt_path, base_autocalc_dir, is_break=True)
+    # 求解 ==============
+    new_fem_paths = opt_run(opt_path, base_autocalc_dir, is_break=True, max_thread=max_thread)
+
+    for ncheck in range(10):
+        recalc_fems = search_recalc_fems(base_folder_dir)
+        if len(recalc_fems) > 0:
+            for recalc_fem in recalc_fems:
+                new_fem_paths.extend(opt_run(opt_path, os.path.dirname(recalc_fem), is_break=True, max_thread=max_thread))
+        else:
+            break
+
 
     h3d_paths = [path_n[:-3]+'h3d' for path_n in new_fem_paths]
     stat_paths = [path_n[:-3]+'stat' for path_n in new_fem_paths]
@@ -86,6 +118,9 @@ def main_calc(opt_path, flexbody_path, base_fem_path, mrf_paths, base_folder_dir
     stat_time_read(stat_paths, log_path)
 
     return h3d_paths, base_sush3d_dir
+
+
+
 
 
 class FatigueMainUI(TkUi):
@@ -146,6 +181,11 @@ class FatigueMainUI(TkUi):
             'button_width':15, 'entry_width':40,
             })
 
+        self.frame_entry({
+            'frame':'max_thread','var_name':'max_thread','label_text':'线程数',
+            'label_width':15,'entry_width':30,
+            })
+
         # self.frame_entry({
         #     'frame':'set_id_min','var_name':'set_id_min','label_text':'SetID min',
         #     'label_width':15,'entry_width':30,
@@ -179,6 +219,7 @@ class FatigueMainUI(TkUi):
         self.vars['isSetLimit'].set(True)
         self.vars['opt_path'].set('optistruct_v2021p1.bat')
         self.vars['hw_path'].set('hw.exe')
+        self.vars['max_thread'].set('2')
 
 
     def fun_run(self):
@@ -198,6 +239,7 @@ class FatigueMainUI(TkUi):
         set_limit = params['set_limit']
         model_path = params['model_path']
         hw_path = params['hw_path']
+        max_thread = int(params['max_thread'])
 
         code_path = os.getcwd()
 
@@ -205,7 +247,7 @@ class FatigueMainUI(TkUi):
 
         self.print('计算中')
         h3d_paths, base_sush3d_dir = main_calc(opt_path, flexbody_path, base_fem_path, 
-            mrf_paths, base_folder_dir, set_id_range, set_limit)
+            mrf_paths, base_folder_dir, set_id_range, set_limit, max_thread)
 
         self.print('\n\n----计算结束----\n\n开始调用hyperview\n\n')
         

@@ -9,7 +9,8 @@ import time
 import shutil
 import logging
 import pprint
-
+# import multiprocessing
+import threading
 
 
 def search_fem_file(file_dir):
@@ -27,7 +28,10 @@ def search_fem_file(file_dir):
 def run_fem(opt_path, fem_path):
     # cmd_str = "{} {}".format(opt_path, fem_path)
     # return subprocess.check_output(cmd_str)
-    return subprocess.check_output([opt_path, fem_path])
+    str_res = subprocess.check_output([opt_path, fem_path]).decode()
+    print(str_res)
+    # return subprocess.check_output([opt_path, fem_path])
+    return str_res
 
 
 # def waitting_file_copy_finish(fem_path):
@@ -49,9 +53,9 @@ def run_fem(opt_path, fem_path):
 #             sleep(1)
 #             break
 
-def opt_run(opt_path, run_dir, is_break=False):
+def opt_run(opt_path, run_dir, is_break=False, max_thread=2):
     """
-        批处理调用Optistruct(opt_path)计算run_dir目录下的fem文件
+        批处理调用Optistruct(opt_path)计算 run_dir 目录下的fem文件
 
         is_break : True没有fem文件会中断运行, False持续保持检测运算状态
     """
@@ -61,6 +65,8 @@ def opt_run(opt_path, run_dir, is_break=False):
     logger = logging.getLogger('opt_run')
     new_fem_paths = []
 
+
+    threads = []
     os.chdir(run_dir)
     run_n = 0
     while True:
@@ -85,17 +91,24 @@ def opt_run(opt_path, run_dir, is_break=False):
 
 
             fem_name = os.path.basename(fem_path)
-            cur_time = str(round(time.time()*10))
-            cur_dir_name = fem_name[:-4]+'_'+cur_time
-            cur_dir = os.path.join(run_dir, cur_dir_name)
+
+            # 子文件夹命名
+            for n_name in range(10):
+                cur_time = str(round(time.time()*10))[-4:]
+                cur_dir_name = fem_name[:-4]+'_'+cur_time
+                cur_dir = os.path.join(run_dir, cur_dir_name)
+                if not os.path.exists(cur_dir):
+                    break
+
             new_fem_path = os.path.join(cur_dir, fem_name)
 
-
+            # 文件夹创建，及更改工作路径
             os.mkdir(cur_dir)
             os.chdir(cur_dir)
             # shutil.copy(fem_path, new_fem_path)
             # os.remove(fem_path)
 
+            # 文件移动
             # 直接操作可操作则表示复制完成
             while 1:
                 if not os.path.exists(fem_path): break
@@ -117,14 +130,33 @@ def opt_run(opt_path, run_dir, is_break=False):
                 print(str1)
                 logger.info(str1)
 
-            # 运行
-            str1 = run_fem(opt_path, new_fem_path).decode()
-            print(str1)
+            # ===========
+            # 运行求解
+            # str1 = run_fem(opt_path, new_fem_path).decode()
+            # print(str1)
+            thread = threading.Thread(target=run_fem, args=(opt_path, new_fem_path))
+            thread.start()
+            threads.append(thread)
+            # max_thread = 2
+            while len(threads) >= max_thread:
+                for n, thread_n in enumerate(threads):
+                    if not thread_n.isAlive():
+                        del threads[n]
+                if len(threads) < max_thread:
+                    break
+                print(threads)
+                threads.pop().join()
+
             logger.info('运行结果: {}'.format(str1))
+
+            # 跳转主目录
             os.chdir(run_dir)
-            
+
             new_fem_paths.append(new_fem_path)
             time.sleep(1)
+
+        while threads:
+            threads.pop().join()
 
         time.sleep(1)
         run_n += 1
@@ -156,6 +188,11 @@ class BatOptRunUI(TkUi):
             'label_width':15,'entry_width':30,
             })
 
+        self.frame_entry({
+            'frame':'max_thread','var_name':'max_thread','label_text':'线程数',
+            'label_width':15,'entry_width':30,
+            })
+
         self.frame_buttons_RWR({
             'frame' : 'rrw',
             'button_run_name' : '运行',
@@ -170,6 +207,7 @@ class BatOptRunUI(TkUi):
         # 初始化设置
         self.vars['run_dir'].set(r'E:\AutoCal')
         self.vars['opt_path'].set('optistruct_v2021p1.bat')
+        self.vars['max_thread'].set('2')
 
 
     def fun_run(self):
@@ -182,7 +220,8 @@ class BatOptRunUI(TkUi):
         params = self.get_vars_and_texts()
         run_dir = params['run_dir']
         opt_path = params['opt_path']
-        opt_run(opt_path, run_dir, is_break=True)
+        max_thread = int(params['max_thread'])
+        opt_run(opt_path, run_dir, is_break=True, max_thread=max_thread)
         
         self.print('计算结束')
 

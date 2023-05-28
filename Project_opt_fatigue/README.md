@@ -121,3 +121,7 @@ hyperview
 	+ 修改fatigue_fem_fatdef_split_limit.py
 		+ set_id再检索范围内，但不在fatdef耐久计算卡片内时，绕过对应set_id
 		+ 在网格分割时，不再计算范围内的set不产生相应的fem文件
+
+* v10 
+  * 增加fem多线程计算
+  * 对漏算的fem文件(未产生响应h3d后处理文件)进行补算

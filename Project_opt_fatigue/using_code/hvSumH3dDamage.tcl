@@ -147,21 +147,47 @@ namespace eval ::hvSumH3dDamag {
 }
 
 # 主程序
+# proc main {} {
+		
+# 	set file_dir $::hvSumH3dDamag::file_dir
+
+# 	# set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
+# 	set exe_path   [format "%s/sub_get_h3d_files.exe" $file_dir]
+
+# 	set new_h3d_dir [get_dir "new h3d dir"]
+# 	set model_path [get_model_path]
+	
+# 	# set result_path [exec python $py_path]
+# 	set result_path [exec $exe_path]
+
+# 	main_sum_h3d_damage $new_h3d_dir $model_path $result_path
+# }
 proc main {} {
 		
 	set file_dir $::hvSumH3dDamag::file_dir
 
-	# set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
-	set exe_path   [format "%s/sub_get_h3d_files.exe" $file_dir]
-
 	set new_h3d_dir [get_dir "new h3d dir"]
 	set model_path [get_model_path]
-	
+
+    set status [catch {
+    	set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
+    	set result_path [exec python $py_path]
+        } res]
+    
+    if {$status} {
+    	set exe_path   [format "%s/sub_get_h3d_files.exe" $file_dir]
+    	set result_path [exec $exe_path]
+    }
+    
+	# set py_path   [format "%s/sub_get_h3d_files.py" $file_dir]
+	# set exe_path   [format "%s/sub_get_h3d_files.exe" $file_dir]
+
 	# set result_path [exec python $py_path]
-	set result_path [exec $exe_path]
+	# set result_path [exec $exe_path]
 
 	main_sum_h3d_damage $new_h3d_dir $model_path $result_path
 }
+
 
 # main_auto
 
