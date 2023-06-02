@@ -16,9 +16,11 @@ LOG_PATH = PY_FILE_NAME+'.log'
 
 
 tcl_path = '__temp.txt'
-cmd_path = 'hg2d_stress_tcl.txt'
+# cmd_path = 'hg2d_stress_tcl.txt'
+cmd_path = 'hg2d_stress_tcl_flexbody_h3d.txt'  # !!!!!!!!!!!!!!!!!!!!!
 
 
+# 根据节点找2D单元
 def fem_node2elems_2d(file_path):
 
     with open(file_path, 'r') as f:
@@ -47,6 +49,7 @@ def fem_node2elems_2d(file_path):
     return node2elems
 
 
+# 命令生成
 def tcl_command_create(file_path, element_ids):
 
     if isinstance(element_ids, int):
@@ -61,7 +64,7 @@ def tcl_command_create(file_path, element_ids):
     f = open(tcl_path, 'w')
     file_path = file_path.replace('\\\\', '/')
 
-    id_str = ' , '.join(['E'+str(element_id) for element_id in element_ids])
+    id_str = ','.join(['E'+str(element_id) for element_id in element_ids])
 
     new_cmd_str = cmd_str.replace('#file_path#', file_path).replace('#id_str#', id_str)
     new_cmd_str = new_cmd_str.replace('#xy_path#', file_path[:-4]+f'_xy_data.txt')
@@ -81,30 +84,30 @@ class ModalStressTclUi(TkUi):
 
         self.frame_loadpath({
             'frame':'result_file', 'var_name':'result_file', 'path_name':'result_file(h3d,op2..)',
-            'path_type':'.*', 'button_name':'result_file(h3d,op2..)',
+            'path_type':'.*', 'button_name':'result_file\neg:(h3d,op2..)',
             'button_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'element_ids', 'var_name':'element_ids', 'label_text':'element_ids',
+            'frame':'element_ids', 'var_name':'element_ids', 'label_text':'element_ids\n单元ID',
             'label_width':20, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'fem_path', 'var_name':'fem_path', 'path_name':'fem_path',
-            'path_type':'.fem', 'button_name':'fem_path',
+            'path_type':'.fem', 'button_name':'fem_path\n源文件',
             'button_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'node_ids', 'var_name':'node_ids', 'label_text':'node_ids',
+            'frame':'node_ids', 'var_name':'node_ids', 'label_text':'node_ids\n节点ID\n[根据节点找单元ID]',
             'label_width':20, 'entry_width':40,
             })
 
 
         self.frame_buttons_RWR({
             'frame' : 'rrw',
-            'button_run_name' : '运行',
+            'button_run_name' : 'TCL命令生成',
             'button_write_name' : '保存',
             'button_read_name' : '读取',
             'button_width' : 15,

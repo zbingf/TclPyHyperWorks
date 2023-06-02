@@ -58,7 +58,9 @@ def get_target_modal_channel(element_data, channels):
         new_element_data[name] = {}
         for key in element_data[name]:
             list1 = element_data[name][key]
-            new_element_data[name][key] = [list1[channel] for channel in channels]
+            if channels[1] == None:
+                end_modal = len(list1)
+            new_element_data[name][key] = [list1[channel] for channel in range(channels[0],end_modal)]
     
     return new_element_data
 
@@ -72,7 +74,7 @@ def linear_superposition(element_data, rpc_data):
         ls_element_data[name] = {}
         for key in element_data[name]:
             list1 = []
-            for n_line in range(nlen):
+            for n_line in range(nlen): # 时域点位置
                 value = 0
                 for n_modal in range(len(rpc_data)):
                     value += element_data[name][key][n_modal]*rpc_data[n_modal][n_line]
@@ -138,12 +140,24 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
 
     # 模态通道选择
     if modal_channels != None:
-        if isinstance(modal_channels, int):
-            modal_channels = [modal_channels]
+        if isinstance(modal_channels[0], int):
+            start_modal = modal_channels[0]
+        else:
+            start_modal = 0
+
+        if isinstance(modal_channels[1], int):
+            end_modal = modal_channels[1]
+        else:
+            end_modal = None
+
+        modal_channels = [start_modal, end_modal]
         new_element_data = get_target_modal_channel(element_data, modal_channels)
     else:
         new_element_data = element_data
 
+    print(new_element_data)
+
+    # 线性叠加 数据
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
 
     sign_vonmises_data = get_sign_vonmises_2d(ls_element_data, nlen)
@@ -168,23 +182,23 @@ class ElemSignVonmisesUi(TkUi):
 
         self.frame_loadpaths({
             'frame':'ms_files', 'var_name':'ms_files', 'path_name':'modal stress XY-DATA',
-            'path_type':'.*', 'button_name':'modal stress XY-DATA',
+            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取',
             'button_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels',
+            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None',
             'label_width':20, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'rpc_path', 'var_name':'rpc_path', 'path_name':'rpc_path',
-            'path_type':'.*', 'button_name':'rpc_path',
+            'path_type':'.*', 'button_name':'rpc_path\n[模态坐标]',
             'button_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels',
+            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9',
             'label_width':20, 'entry_width':30,
             })
 
