@@ -1,5 +1,7 @@
 """
     XY_data读取 及 数据处理
+    线性叠加应力,求解SignVonmises
+    
 """
 
 import tk_ui
@@ -160,6 +162,7 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
     # 线性叠加 数据
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
 
+    # 计算带方向的米塞斯应力
     sign_vonmises_data = get_sign_vonmises_2d(ls_element_data, nlen)
 
     f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')

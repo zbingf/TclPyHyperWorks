@@ -1,8 +1,48 @@
 """
-
     XY_data读取 及 数据处理
-
+    线性叠加应力,求解SignVonmises
+    
 """
+
+import shell_angle_x
+
+calc_shell_angle = shell_angle_x.calc_shell_angle
+change_stress = shell_angle_x.change_stress
+csv_elem_vs = shell_angle_x.csv_elem_vs
+
+
+# 带方向米塞斯应力计算-2D
+def get_vchange_xx_stress(ls_element_data, nlen, thetas):
+    # 
+    # 数据长度 nlen
+
+    vchange_xx_data = {}
+
+    face_types = ['Z1', 'Z2']
+    for name in ls_element_data:
+
+        theta = thetas[name[1:]]
+        vchange_xx_data[name] = {}
+
+        for face_type in face_types:
+            list1 = []
+            for n in range(nlen):
+                xy = ls_element_data[name][('XY',face_type)][n]
+                xx = ls_element_data[name][('XX',face_type)][n]
+                yy = ls_element_data[name][('YY',face_type)][n]
+
+                new_xx, new_yy, new_xy = change_stress(xx, yy, xy, theta)
+                
+                
+                list1.append(new_xx)
+
+            vchange_xx_data[name][face_type] = list1
+
+    return vchange_xx_data
+
+
+
+
 
 import tk_ui
 TkUi = tk_ui.TkUi
@@ -14,33 +54,6 @@ import re
 import os
 import os.path
 import copy
-
-def fem_node2elems_2d(file_path):
-
-    with open(file_path, 'r') as f:
-        lines = [line for line in f.read().split('\n') if line and '$' not in line]
-
-    node2elems = {}
-    for line in lines:
-        if 'CQUAD4' in line:
-            list_elem = [value for value in line.split(' ') if value]
-            elem_id = int(list_elem[1])
-            node_ids = [int(value) for value in list_elem[-4:]]
-
-        elif 'CTRIA3' in line:
-            list_elem = [value for value in line.split(' ') if value]
-            elem_id = int(list_elem[1])
-            node_ids = [int(value) for value in list_elem[-3:]]
-
-        else:
-            continue
-
-        for node_id in node_ids:
-            if node_id not in node2elems: node2elems[node_id] = []
-            if elem_id not in node2elems[node_id]:
-                node2elems[node_id].append(elem_id)
-
-    return node2elems
 
 
 def xy_data_read(file_path):
@@ -88,7 +101,12 @@ def get_target_modal_channel(element_data, channels):
         new_element_data[name] = {}
         for key in element_data[name]:
             list1 = element_data[name][key]
-            new_element_data[name][key] = [list1[channel] for channel in channels]
+            if channels[1] == None:
+                end_modal = len(list1)
+                # print(list1)
+            else:
+                end_modal = channels[1]+1
+            new_element_data[name][key] = [list1[channel] for channel in range(channels[0],end_modal)]
     
     return new_element_data
 
@@ -98,11 +116,12 @@ def linear_superposition(element_data, rpc_data):
 
     ls_element_data = {}
     nlen = len(rpc_data[0])
+
     for name in element_data:
         ls_element_data[name] = {}
         for key in element_data[name]:
             list1 = []
-            for n_line in range(nlen):
+            for n_line in range(nlen): # 时域点位置
                 value = 0
                 for n_modal in range(len(rpc_data)):
                     value += element_data[name][key][n_modal]*rpc_data[n_modal][n_line]
@@ -113,144 +132,109 @@ def linear_superposition(element_data, rpc_data):
     return ls_element_data, nlen
 
 
-# 带方向米塞斯应力计算-2D
-def get_sign_vonmises_2d(ls_element_data, nlen):
-    # 
-    # 数据长度 nlen
-
-    sign_vonmises_data = {}
-
-    face_types = ['Z1', 'Z2']
-    for name in ls_element_data:
-        sign_vonmises_data[name] = {}
-
-        for face_type in face_types:
-            list1 = []
-            for n in range(nlen):
-                xy = ls_element_data[name][('XY',face_type)][n]
-                xx = ls_element_data[name][('XX',face_type)][n]
-                yy = ls_element_data[name][('YY',face_type)][n]
-
-                p1 = (xx+yy)/2 + ( ((xx-yy)/2)**2 + xy**2 )**0.5
-                p3 = (xx+yy)/2 - ( ((xx-yy)/2)**2 + xy**2 )**0.5
-                if abs(p1) < abs(p3):
-                    p1, p3 = p3, p1
-                p2 = 0
-
-                vonmises = (((p1-p2)**2+(p2-p3)**2+(p3-p1)**2)/2)**0.5
-
-                if p1 < 0:
-                    vonmises = -vonmises
-
-                list1.append(vonmises)
-
-            sign_vonmises_data[name][face_type] = list1
-
-    return sign_vonmises_data
-
-
 # 主函数
-def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels, fem_path, node_ids):
+def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_path, fem_path):
 
     name2 = os.path.basename(rpc_path)
     csv_path  = file_path+f'.{name2}.result.csv'
+
+    target_elem_ids, target_vs = csv_elem_vs(v_path)
+    thetas = calc_shell_angle(fem_path, target_elem_ids, target_vs)
 
     # rsp数据
     rpc_obj = RpcFile(rpc_path, 'test')
     rpc_obj.read_file()
     rpc_obj.set_select_channels(rpc_channels)
-    # rpc_data = rpc_obj.get_data()
     rpc_data = [copy.deepcopy(line) for line in rpc_obj.get_data()]
     rpc_samplerate = rpc_obj.get_samplerate()
-
+    # print(len(rpc_data))
     element_data = xy_data_read(file_path)
     
 
     # 模态通道选择
     if modal_channels != None:
-        if isinstance(modal_channels, int):
-            modal_channels = [modal_channels]
+        if isinstance(modal_channels[0], int):
+            start_modal = modal_channels[0]
+        else:
+            start_modal = 0
+
+        if isinstance(modal_channels[1], int):
+            end_modal = modal_channels[1]
+        else:
+            end_modal = None
+
+        modal_channels = [start_modal, end_modal]
         new_element_data = get_target_modal_channel(element_data, modal_channels)
     else:
         new_element_data = element_data
 
+    # print(new_element_data)
+
+    # 线性叠加 数据
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
-    sign_vonmises_data = get_sign_vonmises_2d(ls_element_data, nlen)
 
-    # ===========================
-    # node ======================
-    node2elems = fem_node2elems_2d(fem_path)
-    node_data = {}
-    for node_id in node_ids:
-        node_data[node_id] = {}
-        n_elems = len(node2elems[node_id])
-        # print("node_id: ",node_id)
-        # print("n_elems: ",node2elems[node_id])
-        for elem_id in node2elems[node_id]:
-            element_data_n = sign_vonmises_data[f'E{elem_id}']
+    # 计算应力
+    stress_data = get_vchange_xx_stress(ls_element_data, nlen, thetas)
 
-            for key in element_data_n:
-                if key not in node_data[node_id]:
-                    node_data[node_id][key] = []
-                    for value in element_data_n[key]:
-                        node_data[node_id][key].append(value/n_elems)
-                    continue
-                for loc, value in enumerate(element_data_n[key]):
-                    node_data[node_id][key][loc] += value/n_elems
-    sign_vonmises_data = node_data
-
-    # ===========================
-    # CSV  ======================
     f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')
-    for name in sign_vonmises_data:
-        f.write(f'{name}_SignVonMises(Z1),{name}_SignVonMises(Z2),')
+    for name in stress_data:
+        f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2),')
     f.write('\n')
 
+    n_name = len(stress_data.keys())
     for loc in range(nlen):
-        for name in sign_vonmises_data:
-            value_z1, value_z2 = sign_vonmises_data[name]['Z1'][loc], sign_vonmises_data[name]['Z2'][loc]
-            f.write(f'{value_z1},{value_z2},')
+        f.write( str(loc/rpc_samplerate) +',')
+        for n, name in enumerate(stress_data):
+            value_z1, value_z2 = stress_data[name]['Z1'][loc], stress_data[name]['Z2'][loc]
+            if n == n_name-1:
+                f.write(f'{value_z1},{value_z2}')
+            else:
+                f.write(f'{value_z1},{value_z2},')
+
         f.write('\n')
     f.close()
 
 
-class NodeSignVonmisesUi(TkUi):
+class ElemVxxStressUi(TkUi):
 
     def __init__(self, title, frame=None):
         super().__init__(title, frame=frame)
 
         self.frame_loadpaths({
             'frame':'ms_files', 'var_name':'ms_files', 'path_name':'modal stress XY-DATA',
-            'path_type':'.*', 'button_name':'modal stress XY-DATA',
+            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取',
             'button_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels',
+            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None \n数值为模态阶数',
             'label_width':20, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'rpc_path', 'var_name':'rpc_path', 'path_name':'rpc_path',
-            'path_type':'.*', 'button_name':'rpc_path',
+            'path_type':'.*', 'button_name':'rpc_path\n[模态坐标]',
             'button_width':20, 'entry_width':40,
             })
 
-        self.frame_entry({
-            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels',
-            'label_width':20, 'entry_width':30,
+        self.frame_loadpath({
+            'frame':'v_path', 'var_name':'v_path', 'path_name':'v_path',
+            'path_type':'.*', 'button_name':'v_path\n[应变方向设置]',
+            'button_width':20, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'fem_path', 'var_name':'fem_path', 'path_name':'fem_path',
-            'path_type':'.fem', 'button_name':'fem_path',
+            'path_type':'.*', 'button_name':'fem_path\n[应变方向设置]',
             'button_width':20, 'entry_width':40,
             })
 
+
         self.frame_entry({
-            'frame':'node_ids', 'var_name':'node_ids', 'label_text':'node_ids',
-            'label_width':20, 'entry_width':40,
+            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9 \n【0值起始】',
+            'label_width':20, 'entry_width':30,
             })
+
 
         self.frame_buttons_RWR({
             'frame' : 'rrw',
@@ -275,15 +259,16 @@ class NodeSignVonmisesUi(TkUi):
         rpc_path = params['rpc_path']
         modal_channels = params['modal_channels']
         rpc_channels   = params['rpc_channels']
+        v_path = params['v_path']
         fem_path = params['fem_path']
-        node_ids = params['node_ids']
+
 
         if isinstance(ms_files, str): ms_files = [ms_files]
 
         for ms_file in ms_files:
-            sign_vonmises_cal(ms_file, modal_channels, rpc_path, rpc_channels, fem_path, node_ids)
+            vchange_xx_stress_cal(ms_file, modal_channels, rpc_path, rpc_channels, v_path, fem_path)
 
-        # print(sign_vonmises_data)
+        # print(stress_data)
 
         self.print('计算完成')
 
@@ -291,4 +276,4 @@ class NodeSignVonmisesUi(TkUi):
 
 if __name__=='__main__':
     
-    NodeSignVonmisesUi('Node-SignVonmisesUi').run()
+    ElemVxxStressUi('ELEM-VxxStressUi').run()

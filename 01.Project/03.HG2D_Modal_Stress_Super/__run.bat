@@ -1,0 +1,1 @@
+"hw.exe" /clientconfig "D:\github\TclPyHyperWorks\Project_HG2D_Modal_Stress_Super\hwplot.dat" -tcl "D:\github\TclPyHyperWorks\Project_HG2D_Modal_Stress_Super\hvAutoRun.tcl"

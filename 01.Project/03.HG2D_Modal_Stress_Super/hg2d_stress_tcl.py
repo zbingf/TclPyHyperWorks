@@ -11,13 +11,17 @@ import re
 import os
 import logging
 import os.path
+import subprocess
+import time
+
 PY_FILE_NAME = os.path.basename(__file__).replace('.py', '')
 LOG_PATH = PY_FILE_NAME+'.log'
 
 
-tcl_path = '__temp.txt'
-# cmd_path = 'hg2d_stress_tcl.txt'
-cmd_path = 'hg2d_stress_tcl_flexbody_h3d.txt'  # !!!!!!!!!!!!!!!!!!!!!
+tcl_path = '__temp.tcl'
+cmd_path = 'hg2d_stress_tcl.txt'
+dat_path = 'hwplot.dat'
+# cmd_path = 'hg2d_stress_tcl_flexbody_h3d.txt'
 
 
 # 根据节点找2D单元
@@ -50,7 +54,7 @@ def fem_node2elems_2d(file_path):
 
 
 # 命令生成
-def tcl_command_create(file_path, element_ids):
+def tcl_command_create(file_path, element_ids, cmd_path, subcase, datatype):
 
     if isinstance(element_ids, int):
         element_ids = [element_ids]
@@ -65,14 +69,17 @@ def tcl_command_create(file_path, element_ids):
     file_path = file_path.replace('\\\\', '/')
 
     id_str = ','.join(['E'+str(element_id) for element_id in element_ids])
-
+    print(id_str)
     new_cmd_str = cmd_str.replace('#file_path#', file_path).replace('#id_str#', id_str)
     new_cmd_str = new_cmd_str.replace('#xy_path#', file_path[:-4]+f'_xy_data.txt')
+    new_cmd_str = new_cmd_str.replace('#subcase#', subcase)
+    new_cmd_str = new_cmd_str.replace('#datatype#', datatype)
+
     print(new_cmd_str)
     f.write(new_cmd_str+'\n\n')
 
     f.close()
-    os.popen(tcl_path)
+    # os.popen(tcl_path)
 
     return None
 
@@ -86,6 +93,16 @@ class ModalStressTclUi(TkUi):
             'frame':'result_file', 'var_name':'result_file', 'path_name':'result_file(h3d,op2..)',
             'path_type':'.*', 'button_name':'result_file\neg:(h3d,op2..)',
             'button_width':20, 'entry_width':40,
+            })
+
+        self.frame_entry({
+            'frame':'subcase', 'var_name':'subcase', 'label_text':'subcase',
+            'label_width':20, 'entry_width':40,
+            })
+
+        self.frame_entry({
+            'frame':'datatype', 'var_name':'datatype', 'label_text':'datatype',
+            'label_width':20, 'entry_width':40,
             })
 
         self.frame_entry({
@@ -105,6 +122,13 @@ class ModalStressTclUi(TkUi):
             })
 
 
+        self.frame_loadpath({
+            'frame':'hw_path', 'var_name':'hw_path', 'path_name':'hw exe file',
+            'path_type':'.exe', 'button_name':'hw.exe 路径',
+            'button_width':15, 'entry_width':40,
+            })
+
+
         self.frame_buttons_RWR({
             'frame' : 'rrw',
             'button_run_name' : 'TCL命令生成',
@@ -117,6 +141,11 @@ class ModalStressTclUi(TkUi):
         self.frame_note()
 
 
+        self.vars['subcase'].set('CMS FlexBody')
+        self.vars['datatype'].set('Stress (Flexbody Elements)')
+        self.vars['hw_path'].set('hw.exe')
+
+
     def fun_run(self):
 
         self.print('开始计算')
@@ -127,9 +156,13 @@ class ModalStressTclUi(TkUi):
         element_ids = params['element_ids']
         fem_path    = params['fem_path']
         node_ids    = params['node_ids']
+        subcase     = params['subcase']
+        datatype    = params['datatype']
+        hw_path     = params['hw_path']
 
+        # print(element_ids)
         if isinstance(node_ids, str) or node_ids==None or not node_ids:
-            tcl_command_create(result_file, element_ids)
+            tcl_command_create(result_file, element_ids, cmd_path, subcase, datatype)
         else:
             if isinstance(node_ids, int): node_ids = [node_ids]
             new_element_ids = []
@@ -137,7 +170,24 @@ class ModalStressTclUi(TkUi):
             for node_id in node_ids:
                 new_element_ids.extend(node2elems[node_id])
 
-            tcl_command_create(result_file, new_element_ids)
+            tcl_command_create(result_file, new_element_ids, cmd_path, subcase, datatype)
+
+
+        code_path = os.getcwd()
+        run_bat_path = os.path.join(code_path, '__run.bat')
+        dat_path1 = os.path.join(code_path, dat_path)
+        tcl_path1 = os.path.join(code_path, 'hvAutoRun.tcl')
+
+        bat_str = f'"{hw_path}" /clientconfig "{dat_path1}" -tcl "{tcl_path1}"'
+        with open(run_bat_path, 'w', encoding='utf-8') as f:
+            f.write(bat_str)
+
+        # =============
+        # 运行bat文件进行后处理
+        print('run_bat_path', run_bat_path)
+        proc = subprocess.Popen(run_bat_path)
+
+
 
         self.print('计算完成')
 

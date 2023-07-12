@@ -9,27 +9,27 @@
 + tcl
 
 ### 模块
-+ hm : hypermesh相关二次开发
-+ hv : hyperview相关二次开发
-+ hg2d: hypergraph 2d相关二次开发
 
-+ Project_opt_fatigue: optistruct fatigue相关二次开发
-+ Project_feon_learning: 有限元框架Feon学习
-+ Project_Platform_ARB: 稳定杆计算平台开发研究
-+ Project_StrainPoint: 应变测点评估
-+ Project_OptAutoRun: 监控并自动Optistruct运行fem文件
++ 00.Example: 参考代码
++ 01.Project 子项目 [综合应用类]
+  + 00.CmfRead:  hm自生成代码文件的数据读取解析
+  + 01.AutoRun: 自运行挂机程序
+  + 02.Opt_Fatigue:  optistruct fatigue 求解优化程序
+  + 03.HG2D_Modal_Stress_Super:  虚拟应力数据读取[模态坐标线性应力叠加]
+  + 20.feon_learning: 有限元框架Feon学习
+  + 21.Platform_ARB: 稳定杆计算平台开发研究
 
++ 02.hm : hypermesh相关二次开发
++ 02.hm_v2: 暂停
++ 03.hv : hyperview相关二次开发
+  + hvStrainPoint: 应变测点评估, 后处理输出 ing
++ 04.hg2d: hypergraph 2d相关二次开发
 + tests : 部分测试用文件存放
 
 
 ### 文件
-+ py_cmf_read : hypermesh 命令解析
-+ py_cmf_read_2021 : hypermesh 命令解析 2021
 + py_file_del : 计算文件删除
 + py_zip : 压缩文件, 用于备份
-+ codes_hm_example : tcl相关代码
-+ codes_hmSources : tcl相关代码
-+ codes_tcl : tcl相关代码
 + ing_py_funForTCLtest : tcl调用python测试
 + ing_py_hmBatRun : 外部调用 hmbatch.exe
 
