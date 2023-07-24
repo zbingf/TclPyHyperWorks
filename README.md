@@ -16,9 +16,10 @@
   + 01.AutoRun: 自运行挂机程序
   + 02.Opt_Fatigue:  optistruct fatigue 求解优化程序
   + 03.HG2D_Modal_Stress_Super:  虚拟应力数据读取[模态坐标线性应力叠加]
+  + 04.FatigueElemToNcodeGroup:  生成Ncode的UserGroup用于耐久计算材料属性赋予
   + 20.feon_learning: 有限元框架Feon学习
-  + 21.Platform_ARB: 稳定杆计算平台开发研究
-
++ 21.Platform_ARB: 稳定杆计算平台开发研究
+  
 + 02.hm : hypermesh相关二次开发
 + 02.hm_v2: 暂停
 + 03.hv : hyperview相关二次开发
