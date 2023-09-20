@@ -64,7 +64,7 @@ create_label_button 1 $line
 # -------------------
 set 	line "Solid"
 lappend line "{Comp分类_厚度测量 } {hmSolidThickness.tcl}"
-lappend line "{Load_单位六分力创建 } {LoadForce1N/hmLoadForce1N.tcl}"
+lappend line "{Load_单位六分力加载3.1 } {LoadForce1N/hmLoadForce1N.tcl}"
 
 create_label_button 2 $line
 
