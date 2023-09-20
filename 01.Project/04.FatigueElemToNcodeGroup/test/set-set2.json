@@ -1,0 +1,1 @@
+{"fem_path": "D:/github/TclPyHyperWorks/01.Project/04.FatigueElemToNcodeGroup/test/lca_flexbody.fem", "asc_path": "D:/github/TclPyHyperWorks/01.Project/04.FatigueElemToNcodeGroup/test/set2.asc", "set_id": "2", "fun_lambda": "lambda propname: propname.split('_')[0]", "suffix": "_D"}

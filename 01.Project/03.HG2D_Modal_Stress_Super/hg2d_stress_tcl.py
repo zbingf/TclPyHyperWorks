@@ -32,12 +32,12 @@ def fem_node2elems_2d(file_path):
 
     node2elems = {}
     for line in lines:
-        if 'CQUAD4' in line:
+        if 'CQUAD4' in line[:6]:
             list_elem = [value for value in line.split(' ') if value]
             elem_id = int(list_elem[1])
             node_ids = [int(value) for value in list_elem[-4:]]
 
-        elif 'CTRIA3' in line:
+        elif 'CTRIA3' in lineline[:6]:
             list_elem = [value for value in line.split(' ') if value]
             elem_id = int(list_elem[1])
             node_ids = [int(value) for value in list_elem[-3:]]
@@ -69,7 +69,7 @@ def tcl_command_create(file_path, element_ids, cmd_path, subcase, datatype):
     file_path = file_path.replace('\\\\', '/')
 
     id_str = ','.join(['E'+str(element_id) for element_id in element_ids])
-    print(id_str)
+
     new_cmd_str = cmd_str.replace('#file_path#', file_path).replace('#id_str#', id_str)
     new_cmd_str = new_cmd_str.replace('#xy_path#', file_path[:-4]+f'_xy_data.txt')
     new_cmd_str = new_cmd_str.replace('#subcase#', subcase)
@@ -160,7 +160,6 @@ class ModalStressTclUi(TkUi):
         datatype    = params['datatype']
         hw_path     = params['hw_path']
 
-        # print(element_ids)
         if isinstance(node_ids, str) or node_ids==None or not node_ids:
             tcl_command_create(result_file, element_ids, cmd_path, subcase, datatype)
         else:

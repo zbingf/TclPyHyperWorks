@@ -55,81 +55,81 @@ for { set i 1 } { $i < 10 } { incr i 1 } {
 
 # -------------------
 set 	line "Comp编辑"
-lappend line "{Comp-加前缀} {Component/hmCompNameEdit.tcl;comp_edit front}"
-lappend line "{Comp-加后缀} {Component/hmCompNameEdit.tcl;comp_edit rear}"
-lappend line "{Comp-替换} {Component/hmCompNameEdit.tcl;comp_edit replace}"
-lappend line "{Comp-去重} {Component/hmCompEdit.tcl}"
+lappend line "{Comp-加前缀 } {Component/hmCompNameEdit.tcl;comp_edit front}"
+lappend line "{Comp-加后缀 } {Component/hmCompNameEdit.tcl;comp_edit rear}"
+lappend line "{Comp-替换 } {Component/hmCompNameEdit.tcl;comp_edit replace}"
+lappend line "{Comp-去重 } {Component/hmCompEdit.tcl}"
 create_label_button 1 $line
 
 # -------------------
 set 	line "Solid"
-lappend line "{Comp分类_厚度测量} {hmSolidThickness.tcl}"
-lappend line "{Load_单位六分力创建} {LoadForce1N/hmLoadForce1N.tcl}"
+lappend line "{Comp分类_厚度测量 } {hmSolidThickness.tcl}"
+lappend line "{Load_单位六分力创建 } {LoadForce1N/hmLoadForce1N.tcl}"
 
 create_label_button 2 $line
 
 # -------------------
 set 	line "网格划分-处理-1"
-lappend line "{Elem_以solid复制} {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
-lappend line "{Elem_复制平移} {ElemCopyByTranslate/hmElemCopyByTranslate.tcl}"
+lappend line "{Elem_以solid复制 } {ElemCopyBySolid/hmElemCopyBySolid.tcl}"
+lappend line "{Elem_复制平移 } {ElemCopyByTranslate/hmElemCopyByTranslate.tcl}"
 
-lappend line "{Beam_矩形钢_创建} {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
-lappend line "{Mesh_孔周围_创建} {HoleMesh/hmHoleMeshUI.tcl}"
-lappend line "{Mesh_孔周围_自定义} {HoleMesh/hmHoleMeshUI2.tcl}"
+lappend line "{Beam_矩形钢_创建 } {BeamRectangularBox/hmBeamRectangularBoxPoint16.tcl}"
+lappend line "{Mesh_孔周围_创建 } {HoleMesh/hmHoleMeshUI.tcl}"
+lappend line "{Mesh_孔周围_自定义 } {HoleMesh/hmHoleMeshUI2.tcl}"
 create_label_button 3 $line
 
 # -------------------
 set 	line "网格划分-处理-2"
-lappend line "{Tie_面对面_创建} {TieSurfToSurfCreate/hmTieSurfToSurfCreate.tcl}"
-lappend line "{Tie_点对面_自动} {TiePointToSurfCreate/hmTiePointCreate.tcl}"
-lappend line "{Tie_点对面_Select} {TiePointToSurfCreateSelect/hmTiePointToSurfCreateSelect.tcl}"
-lappend line "{基于Tie_检查_网格连接} {CheckElemAttachTie/hmCheckElemAttachTie.tcl}"
-lappend line "{bar2_平行Z轴_校正} {BoltHoleAxisZCorrect/hmBoltHoleAxisZCorrect.tcl}"
+lappend line "{Tie_面对面_创建 } {TieSurfToSurfCreate/hmTieSurfToSurfCreate.tcl}"
+lappend line "{Tie_点对面_自动 } {TiePointToSurfCreate/hmTiePointCreate.tcl}"
+lappend line "{Tie_点对面_Select } {TiePointToSurfCreateSelect/hmTiePointToSurfCreateSelect.tcl}"
+lappend line "{基于Tie_检查_网格连接 } {CheckElemAttachTie/hmCheckElemAttachTie.tcl}"
+lappend line "{bar2_平行Z轴_校正 } {BoltHoleAxisZCorrect/hmBoltHoleAxisZCorrect.tcl}"
 create_label_button 4 $line
 
 # -------------------
 set 	line "网格划分-处理-3"
-lappend line "{Bolt_孔连接_Shell} {BoltHoleConnect/hmBoltHoleConnect_Shell.tcl}"
-lappend line "{Bolt_孔连接_CompBar2} {BoltHoleConnect/hmBoltHoleConnect_CompBar2.tcl}"
-lappend line "{Bolt_孔对称_校正} {BoltHoleCorrect/hmBoltHoleCorrect.tcl}"
-lappend line "{Bolt_孔对称_检查bar2} {BoltHoleCheck/hmBoltHoleCheck_bar2.tcl}"
-lappend line "{Bolt_螺栓孔_分类} {BoltHoleClassify/hmBoltHoleClassify.tcl}"
+lappend line "{Bolt_孔连接_Shell } {BoltHoleConnect/hmBoltHoleConnect_Shell.tcl}"
+lappend line "{Bolt_孔连接_CompBar2 } {BoltHoleConnect/hmBoltHoleConnect_CompBar2.tcl}"
+lappend line "{Bolt_孔对称_校正 } {BoltHoleCorrect/hmBoltHoleCorrect.tcl}"
+lappend line "{Bolt_孔对称_检查bar2 } {BoltHoleCheck/hmBoltHoleCheck_bar2.tcl}"
+lappend line "{Bolt_螺栓孔_分类 } {BoltHoleClassify/hmBoltHoleClassify.tcl}"
 create_label_button 5 $line
 
 # -------------------
 set 	line "网格划分-处理-4"
-lappend line "{Rigid_Solid_点_连接_Shell} {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
-lappend line "{SurfNear2set} {ShellSurfToSurfSet/hmShellSurfToSurfSet.tcl}"
-lappend line "{washer单圈变双圈} {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
+lappend line "{Rigid_Solid_点_连接_Shell } {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
+lappend line "{SurfNear2set } {ShellSurfToSurfSet/hmShellSurfToSurfSet.tcl}"
+lappend line "{washer单圈变双圈 } {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
 create_label_button 6 $line
 
 
 # -------------------
 set 	line "MBD卡片创建"
-lappend line "{mnf创建设置} {FlexBody/hmMnfSet.tcl}"
-lappend line "{模态分析设置} {hmModalSet.tcl}"
-lappend line "{ASET编号} {AsetNodeIdRename/hmAsetIdRename.tcl}"
-lappend line "{Node创建} {AsetNodeIdRename/hmNodeCreate.tcl}"
-lappend line "{ASET创建} {NodeConstrainCreate/hmNodeConstrainCreate.tcl}"
+lappend line "{mnf创建设置 } {FlexBody/hmMnfSet.tcl}"
+lappend line "{模态分析设置 } {hmModalSet.tcl}"
+lappend line "{ASET编号 } {AsetNodeIdRename/hmAsetIdRename.tcl}"
+lappend line "{Node创建 } {AsetNodeIdRename/hmNodeCreate.tcl}"
+lappend line "{ASET创建 } {NodeConstrainCreate/hmNodeConstrainCreate.tcl}"
 create_label_button 7 $line
 
 # -------------------
 set 	line "MBD材料相关"
-lappend line "{一般材料创建} {Materials/hmMaterials.tcl}"
-lappend line "{Mat_去重_ENR} {Materials/hmMatEdit_ENR.tcl}"
-lappend line "{Prop_去重_SS} {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
-lappend line "{Mat_Rename} {Materials/hmMatRename.tcl}"
-lappend line "{Prop_Rename} {Materials/hmPropRename.tcl}"
+lappend line "{一般材料创建 } {Materials/hmMaterials.tcl}"
+lappend line "{Mat_去重_ENR } {Materials/hmMatEdit_ENR.tcl}"
+lappend line "{Prop_去重_SS } {Materials/hmPropertyEdit_Pshell_Psolid.tcl}"
+lappend line "{Mat_Rename } {Materials/hmMatRename.tcl}"
+lappend line "{Prop_Rename } {Materials/hmPropRename.tcl}"
 create_label_button 8 $line
 
 # -------------------
 set 	line "MBD其他"
 # lappend line "{悬架提载创建} {hmSusLoadSet.tcl}"
-lappend line "{CircleForceLoad} {CircleForceLoad/hmCircleForceLoad.tcl}"
-lappend line "{模态叠加相关UI} {TransientLoad/hmGUI.tcl}"
-lappend line "{删除-无用卡片} {hmDelEmptyEntity.tcl}"
-lappend line "{测试} {zing_NodeToSurf/hmNodeToSurf.tcl}"
-lappend line "{RigidConnectEdit} {RigidConnectEdit/hmRigidConnectEdit.tcl}"
+lappend line "{CircleForceLoad } {CircleForceLoad/hmCircleForceLoad.tcl}"
+lappend line "{模态叠加相关UI } {TransientLoad/hmGUI.tcl}"
+lappend line "{删除-无用卡片 } {hmDelEmptyEntity.tcl}"
+lappend line "{测试 } {zing_NodeToSurf/hmNodeToSurf.tcl}"
+lappend line "{RigidConnectEdit } {RigidConnectEdit/hmRigidConnectEdit.tcl}"
 create_label_button 9 $line
 
 

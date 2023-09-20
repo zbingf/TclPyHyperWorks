@@ -1,0 +1,293 @@
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:08:01 31-Jul-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:11:24 31-Jul-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:15:08 31-Jul-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:19:45 31-Jul-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:48:02 31-Jul-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 21:23:21 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:20:17 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202306_01_VirtualStrain_SHEEL/T_result.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202306_01_VirtualStrain_SHEEL\T_result.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:20:43 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:33:32 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202308_01_VirtualStrain_SHEEL\T-TEST1.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:44:55 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-02.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 22:55:40 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m10.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:11:46 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m28.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:25:56 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m28-R.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:28:04 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m28.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch job failed while translating the ascii input file
+Translation of Ascii input file failed
+Location: NATAsciiReader::TranslateFile
+Code: 0x01090643
+Conversion of Ascii input file to time series failed
+Location: NATAsciiReader::TranslateToTimeSeries
+Code: 0x01090649
+Files already exist for test : d:\00_CAE_project\202308_01_VirtualStrain_SHEEL\T-TEST1-m28.rsp
+Location: NATAsciiReader::CheckOverwrite
+Code: 0x01090653
+
+ ** Batch job FAILED
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:29:02 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m28.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:30:19 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m10.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK
+
+--------------------------------------------------------------------------------
+
+Program: 
+Started: 23:32:26 01-Aug-2023
+
+ASCII Translate
+
+Command Line: /inp=D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m2.csv /conv=TimeSeries /SetupFile=D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats /prog=1
+
+Batch Job Completed Successfully
+
+Batch job completed OK

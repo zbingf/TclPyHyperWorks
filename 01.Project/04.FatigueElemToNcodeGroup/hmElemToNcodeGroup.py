@@ -36,7 +36,7 @@ def read_fem_set(fem_path):
     f = open(fem_path, 'r')
     
     set2elems = {}
-    elem2set  = {}
+    # elem2set  = {}
 
     is_set = False
     lines  = []
@@ -75,12 +75,12 @@ def read_fem_set(fem_path):
                 n_len = round(len(line)/8)
                 for n in range(1, n_len):
                     elem_id = get_line_n(line, n)
-                    if elem_id in elem2set: 
-                        print_str = 'elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id)
-                        logger.info(print_str)
-                        print(print_str)
+                    # if elem_id in elem2set: 
+                    #     print_str = 'elem_id在不同set_id中存在: {} ; set_id: {} ; current set_id: {} 覆盖;'.format(elem_id, elem2set[elem_id], set_id)
+                    #     # logger.info(print_str)
+                    #     print(print_str)
                     
-                    elem2set[elem_id] = set_id
+                    # elem2set[elem_id] = set_id
                     elem_ids.append(elem_id)
             
             else: # 中断set读取
@@ -117,7 +117,7 @@ def read_fem_set(fem_path):
 
     data = {
         'set2elems': set2elems,
-        'elem2set': elem2set,
+        # 'elem2set': elem2set,
         'lines' : lines,
         'set2line' : set2line,
         'prop2elem' : prop2elem,
@@ -128,7 +128,7 @@ def read_fem_set(fem_path):
     return data
 
 
-def set_group_by_setid(fem_path, set_id):
+def set_group_by_setid(fem_path, set_id, suffix=None):
     global propname2matname
     data = read_fem_set(fem_path)
 
@@ -145,7 +145,7 @@ def set_group_by_setid(fem_path, set_id):
     for prop_id in prop2name:
         # mat_name = prop2name[prop_id].split('_')[2]
         mat_name = propname2matname(prop2name[prop_id])
-
+        if suffix != None: mat_name += suffix
         if mat_name not in matname2prop: matname2prop[mat_name]=[]
         matname2prop[mat_name].append(prop_id)
         prop2matname[prop_id] = mat_name
@@ -173,7 +173,7 @@ def set_group_by_setid(fem_path, set_id):
 
 
 
-def main_by_Setid(fem_path, asc_path, set_id, fun_lambda=None):
+def main_by_Setid(fem_path, asc_path, set_id, fun_lambda=None, suffix=None):
 
     global propname2matname
 
@@ -183,9 +183,11 @@ def main_by_Setid(fem_path, asc_path, set_id, fun_lambda=None):
         propname2matname = eval(fun_lambda)
         
 
-    matname2elem = set_group_by_setid(fem_path=fem_path, set_id=set_id)
+    matname2elem = set_group_by_setid(fem_path=fem_path, set_id=set_id, suffix=suffix)
 
-    print(sum([len(matname2elem[name]) for name in matname2elem]))
+    
+    cal_elem_num = sum([len(matname2elem[name]) for name in matname2elem])
+    print('辨识的elem单元数量: {}'.format(cal_elem_num))
 
     # asc_path = 'temp_set.asc'
     f = open(asc_path, 'w')
@@ -197,6 +199,8 @@ def main_by_Setid(fem_path, asc_path, set_id, fun_lambda=None):
             f.write(elem_id+'\n')
 
     f.close()
+    
+    return cal_elem_num
 
 
 if __name__=='__main__':

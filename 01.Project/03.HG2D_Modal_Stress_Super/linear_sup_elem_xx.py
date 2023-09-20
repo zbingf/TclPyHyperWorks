@@ -4,7 +4,20 @@
     
 """
 
+import tk_ui
+TkUi = tk_ui.TkUi
+
+import rsp_read
+RpcFile = rsp_read.RpcFile
+
+import re
+import os
+import os.path
+import copy
+
 import shell_angle_x
+
+import pprint
 
 calc_shell_angle = shell_angle_x.calc_shell_angle
 change_stress = shell_angle_x.change_stress
@@ -31,29 +44,14 @@ def get_vchange_xx_stress(ls_element_data, nlen, thetas):
                 xx = ls_element_data[name][('XX',face_type)][n]
                 yy = ls_element_data[name][('YY',face_type)][n]
 
-                new_xx, new_yy, new_xy = change_stress(xx, yy, xy, theta)
-                
+                new_xx = change_stress(xx, yy, xy, theta) #2.5/180*3.141592654
+                # print(xx, new_xx) 
                 
                 list1.append(new_xx)
 
             vchange_xx_data[name][face_type] = list1
 
     return vchange_xx_data
-
-
-
-
-
-import tk_ui
-TkUi = tk_ui.TkUi
-
-import rsp_read
-RpcFile = rsp_read.RpcFile
-
-import re
-import os
-import os.path
-import copy
 
 
 def xy_data_read(file_path):
@@ -103,9 +101,9 @@ def get_target_modal_channel(element_data, channels):
             list1 = element_data[name][key]
             if channels[1] == None:
                 end_modal = len(list1)
-                # print(list1)
             else:
                 end_modal = channels[1]+1
+
             new_element_data[name][key] = [list1[channel] for channel in range(channels[0],end_modal)]
     
     return new_element_data
@@ -116,7 +114,6 @@ def linear_superposition(element_data, rpc_data):
 
     ls_element_data = {}
     nlen = len(rpc_data[0])
-
     for name in element_data:
         ls_element_data[name] = {}
         for key in element_data[name]:
@@ -133,13 +130,13 @@ def linear_superposition(element_data, rpc_data):
 
 
 # 主函数
-def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_path, fem_path):
+def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_path, fem_path, csv_path):
 
     name2 = os.path.basename(rpc_path)
-    csv_path  = file_path+f'.{name2}.result.csv'
+    # csv_path  = file_path+f'.{name2}.result.csv'
 
     target_elem_ids, target_vs = csv_elem_vs(v_path)
-    thetas = calc_shell_angle(fem_path, target_elem_ids, target_vs)
+    thetas, records = calc_shell_angle(fem_path, target_elem_ids, target_vs)
 
     # rsp数据
     rpc_obj = RpcFile(rpc_path, 'test')
@@ -147,9 +144,8 @@ def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_p
     rpc_obj.set_select_channels(rpc_channels)
     rpc_data = [copy.deepcopy(line) for line in rpc_obj.get_data()]
     rpc_samplerate = rpc_obj.get_samplerate()
-    # print(len(rpc_data))
+
     element_data = xy_data_read(file_path)
-    
 
     # 模态通道选择
     if modal_channels != None:
@@ -174,14 +170,23 @@ def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_p
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
 
     # 计算应力
+    print(thetas)
     stress_data = get_vchange_xx_stress(ls_element_data, nlen, thetas)
 
-    f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')
-    for name in stress_data:
-        f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2),')
-    f.write('\n')
-
+    # 数据写入
     n_name = len(stress_data.keys())
+
+    # f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')
+    f = open(csv_path, 'w')
+    f.write('time,')
+    for n, name in enumerate(stress_data):
+        if n == n_name-1:
+            f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2)')
+        else:
+            f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2),')
+
+    f.write('\n')
+    
     for loc in range(nlen):
         f.write( str(loc/rpc_samplerate) +',')
         for n, name in enumerate(stress_data):
@@ -193,6 +198,103 @@ def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_p
 
         f.write('\n')
     f.close()
+
+    change_csv_to_rsp(csv_path, rpc_samplerate)
+
+    record_to_tcl(records, '__test.tcl')
+    pprint.pprint(records)
+    
+    return None
+
+
+def record_to_tcl(records, tcl_path):
+    # record = {
+    #         'V_x'： {'0':center, '1':v_one(B_startx)},
+    #         'V_s': {'0':center, '1':v_one(P1_velem)},
+    #         'V_t': {'0':center, '1':v_one(t_v)},
+    #         'theta': -theta,
+    #     }
+
+    str_tcl = """
+    hm_entityrecorder nodes on
+        *createnode $loc1 0 0 0
+    hm_entityrecorder nodes off
+    set node_id [hm_entityrecorder nodes ids]
+    *createmark nodes 1 $node_id
+
+    *vectorcreate 1 $loc2 0
+
+    """
+
+    str_tcl2 = """
+    *createmark elements 1 $elems
+    *numbersmark elements 1 1
+    """
+
+    f = open(tcl_path, 'w')
+
+    for num in records:
+        record = records[num]
+        for v in record:
+            if 'V_' in v:
+                s1 = str_tcl.replace('$loc1', 
+                    ' '.join([str(n) for n in record[v]['0']])
+                    )
+                s2 = s1.replace('$loc2', 
+                    ' '.join([str(n) for n in record[v]['1']])
+                    )
+                f.write(s2)
+                f.write('\n')
+    
+    f.write(str_tcl2.replace('$elems', ' '.join(list(records.keys()))))
+
+    f.close()
+    return None
+
+
+def change_csv_to_rsp(csv_path, samplerate):
+
+    ATS_RSP = """<AsciiTranslateSetup>
+       <Version>1</Version>
+       <ConvertTo>1</ConvertTo>
+       <CreateLogFile>0</CreateLogFile>
+       <NumberOfHeaderLines>1</NumberOfHeaderLines>
+       <NumberOfChannels>-1</NumberOfChannels>
+       <LineNumberForChannelTitles>1</LineNumberForChannelTitles>
+       <LineNumberForUnits>0</LineNumberForUnits>
+       <TabSeparated>0</TabSeparated>
+       <CommaSeparated>1</CommaSeparated>
+       <SpaceSeparated>0</SpaceSeparated>
+       <SemiColonSeparated>0</SemiColonSeparated>
+       <FixedWidth>0</FixedWidth>
+       <DecimalCharacter>1</DecimalCharacter>
+       <IncludeExclude>0</IncludeExclude>
+       <ColumnList></ColumnList>
+       <HeaderToMetadata>0</HeaderToMetadata>
+       <AutoDetectSampleRate>0</AutoDetectSampleRate>
+       <SampleRate>#SampleRate#</SampleRate>
+       <XaxisBase>0</XaxisBase>
+       <XaxisTitle>Time</XaxisTitle>
+       <XaxisUnits>Seconds</XaxisUnits>
+       <OutputNamingMethod>2</OutputNamingMethod>
+       <OutputTestName>temp</OutputTestName>
+       <OutputNamingText></OutputNamingText>
+       <OutputFormat>3</OutputFormat>
+    </AsciiTranslateSetup>
+    """
+
+    ats_path = 'RSP_1V1.ats'
+    with open(ats_path, 'w') as f:
+        f.write(ATS_RSP.replace('#SampleRate#', str(samplerate)))
+    ats_path = os.path.abspath(ats_path)
+
+    str_cmd = 'asciitranslate.exe /inp="{}" /conv="TimeSeries" /SetupFile="{}" /prog=1'.format(csv_path, ats_path)
+
+    with open('test.bat', 'w') as f:
+        f.write(str_cmd)
+    os.system('test.bat')
+
+    return None
 
 
 class ElemVxxStressUi(TkUi):
@@ -207,7 +309,7 @@ class ElemVxxStressUi(TkUi):
             })
 
         self.frame_entry({
-            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None \n数值为模态阶数',
+            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None',
             'label_width':20, 'entry_width':40,
             })
 
@@ -229,12 +331,16 @@ class ElemVxxStressUi(TkUi):
             'button_width':20, 'entry_width':40,
             })
 
-
         self.frame_entry({
-            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9 \n【0值起始】',
+            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9',
             'label_width':20, 'entry_width':30,
             })
 
+        self.frame_savepath({
+            'frame':'csv_path', 'var_name':'csv_path', 'path_name':'csv_path',
+            'path_type':'.csv', 'button_name':'csv_path\n[输出结果]',
+            'button_width':20, 'entry_width':40,
+            })
 
         self.frame_buttons_RWR({
             'frame' : 'rrw',
@@ -261,16 +367,17 @@ class ElemVxxStressUi(TkUi):
         rpc_channels   = params['rpc_channels']
         v_path = params['v_path']
         fem_path = params['fem_path']
-
+        csv_path = params['csv_path']
 
         if isinstance(ms_files, str): ms_files = [ms_files]
 
         for ms_file in ms_files:
-            vchange_xx_stress_cal(ms_file, modal_channels, rpc_path, rpc_channels, v_path, fem_path)
+            vchange_xx_stress_cal(ms_file, modal_channels, rpc_path, rpc_channels, v_path, fem_path, csv_path)
 
         # print(stress_data)
 
         self.print('计算完成')
+
 
 
 
