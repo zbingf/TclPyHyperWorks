@@ -56,6 +56,8 @@ hypermesh 2021.1
   + 修正loadstep中单位力多加载的问题
 
 
++ LoadForce1N_V3.3  - 待验证
+  + 增加rigid节点自动检索耦合的功能
 
 
 

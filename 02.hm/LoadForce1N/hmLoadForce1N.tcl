@@ -1,7 +1,14 @@
 # 单位力创建
 # 六分力
 # zbingf
-# version 1.1
+# version 3.3
+# 20230921
+
+# csv 模板
+# a,200.000,-410.000,250.000
+# b,200.000,410.000,250.000
+# c,5.000,-275.000,250.000
+# d,5.000,275.000,250.000
 
 
 set filepath [file dirname [info script]]
@@ -100,12 +107,20 @@ proc hmLoadForce1N {} {
 		set num [expr $num + 1]
 		lappend node_ids [hardpoint_load $num $line]
 	}
-		
-	eval *createmark nodes 2 $node_ids
-	*rigidlinkinodecalandcreate 2 0 0 123456
 	close $f_obj
 
+
+	eval *createmark nodes 2 $node_ids
+	
+	hm_entityrecorder elems on
+		*rigidlinkinodecalandcreate 2 0 0 123456
+	hm_entityrecorder elems off
+
+	set rb2_id [hm_entityrecorder elems ids]
+
+
 	puts "========End hmLoadForce1N========="
+	return $rb2_id
 }
 
 
@@ -127,7 +142,7 @@ if {$choice == yes} {
 
 
 
-set str_csv "是否清楚temp node"
+set str_csv "是否清除temp node"
 set choice [tk_messageBox -type yesnocancel -default yes -message $str_csv -icon question ]
 if {$choice == yes} {
 	*nodecleartempmark 
@@ -136,7 +151,9 @@ if {$choice == yes} {
 
 set str_csv "需csv文件:\nname1,x1,y1,z1\nname2,x2,y2,z2\n是否开始加载单位力"
 set choice [tk_messageBox -type yesnocancel -default yes -message $str_csv -icon question ]
-if {$choice == yes} { hmLoadForce1N }
+if {$choice == yes} {
+	set rb2_id [hmLoadForce1N]
+}
 
 
 
@@ -171,3 +188,132 @@ if {$choice == yes} {
 
 	
 }
+
+
+
+# --------------------------------
+# rb2自动连接
+
+# 判定是否是RBE2
+proc sub_isRBE2 {elem_id} {
+    set type_name [hm_getvalue elems id=$elem_id dataname=typename]
+    if {$type_name == "RBE2"} {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+# 检索 RBE2
+proc sub_search_rbe2 {elem_ids} {
+    set rbe2_ids []
+    foreach elem_id $elem_ids {
+        if {[sub_isRBE2 $elem_id]} {
+            lappend rbe2_ids $elem_id
+        }
+    }
+    return $rbe2_ids
+}
+
+
+
+# 获取rigid主节点
+proc get_rigid_indep_id {rigid_id} {
+
+    set list_id [hm_getvalue elems id=$rigid_id dataname=nodes]
+
+    set indep_node_id [lindex $list_id 0]
+
+    return $indep_node_id
+}
+
+
+proc get_rigid_dep_id {rigid_id} {
+
+    set list_id [hm_getvalue elems id=$rigid_id dataname=nodes]
+
+    set dep_node_ids [lrange $list_id 1 end]
+
+    return $dep_node_ids
+}
+
+
+# 获取node 对应坐标
+proc get_node_locs {node_id} {
+    set x [hm_getvalue nodes id=$node_id dataname=x]
+    set y [hm_getvalue nodes id=$node_id dataname=y]
+    set z [hm_getvalue nodes id=$node_id dataname=z]
+    return "$x $y $z"
+}
+
+
+
+
+
+set str_csv "是否进行rigid 与 rigid 的 耦合"
+set choice [tk_messageBox -type yesnocancel -default yes -message $str_csv -icon question ]
+if {$choice == yes} {
+
+	set dep_node_ids [get_rigid_dep_id $rb2_id]
+
+	eval *createmark node 1 $dep_node_ids
+	# set r 5
+
+	set r [hm_getfloat "nearby search radius:" "Please specify a radius" 5.0]
+
+
+	hm_getnearbyentities inputentitytype=nodes inputentitymark=1 outputentitytypes={elems} outputentitymark=2 radius=$r nearby_search_method=sphere
+	set elem_ids [hm_getmark elems 2]
+	# puts "elem_ids: $elem_ids"
+	set elem_rigid_ids [sub_search_rbe2 $elem_ids]
+	puts "elem_rigid_ids: $elem_rigid_ids"
+
+
+	# for elem_rigid_id in get_rigid_indep_id:
+
+	# foreach elem_id $elem_rigid_ids {
+	# 	# if {$rb2_id == $elem_id} { continue }
+	# 	puts $elem_id
+
+	# }
+
+	*clearmark elems 1
+	eval *createmark elems 1 $elem_rigid_ids
+	catch {
+		*equivalence elems 1 $r 1 0 0	
+	}
+	puts "耦合rigid"
+
+
+	# *clearmark elems 1
+	# *createmark elems 1 $rb2_id
+	# catch { *deletemark elems 1	}
+	# puts "删除rigid $rb2_id"
+
+
+	# 清除temp node
+	*nodecleartempmark 
+	puts "清除temp node"
+
+
+	*EntityPreviewEmpty loadcols 1
+	# set loadcols_id [hm_getmark loadcols 1]
+	if {[ llength [hm_getmark loadcols 1] ] > 0} {
+		tk_messageBox -message "纯在空loadcols\n耦合可能不完全!!!" -icon warning
+	} else {
+		*clearmark elems 1
+		*createmark elems 1 $rb2_id
+		catch { *deletemark elems 1	}
+		puts "删除rigid $rb2_id"
+	}
+
+}
+
+
+
+
+
+
+
+
+
