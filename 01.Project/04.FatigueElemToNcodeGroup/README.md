@@ -12,3 +12,9 @@ set格式要求: $HMSETTYPE "regular";
 需使用Hm Export导出fem!!!
 
 关注输出数据是否完整;
+
+
+
+2023.11.13
+
+​	更新 hmElemToNcodeGroup.py

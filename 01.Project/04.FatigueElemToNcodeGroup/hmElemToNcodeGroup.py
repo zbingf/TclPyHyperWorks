@@ -71,7 +71,13 @@ def read_fem_set(fem_path):
             continue
 
         if is_set: # set设置范围
-            if cline[0] == '+': # 续接 set
+            if len(cline)<1:
+                set2line[set_id]['end'] = n_read
+                is_set = False
+                set2elems[set_id] = elem_ids
+                elem_ids = []
+
+            elif cline[0] == '+': # 续接 set
                 n_len = round(len(line)/8)
                 for n in range(1, n_len):
                     elem_id = get_line_n(line, n)

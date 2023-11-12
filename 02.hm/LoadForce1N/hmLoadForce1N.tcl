@@ -166,12 +166,17 @@ if {$choice == yes} {
 		*cardcreate "PARAM"
 		*cardcreate "OUTPUT"
 	}
+	# catch {*cardcreate "GLOBAL_OUTPUT_REQUEST"}
 
 	*createmark cards 1 "PARAM"
 	set card_param_id [hm_getmark cards 1]
 
 	*createmark cards 1 "OUTPUT"
 	set card_output_id [hm_getmark cards 1]
+
+	# *createmark cards 1 "GLOBAL_OUTPUT_REQUEST"
+	# set card_greq_id [hm_getmark cards 1]	
+
 
 	*setvalue cards id=1 STATUS=2 412=1
 	*setvalue cards id=$card_param_id STATUS=2 413="-2"
@@ -185,8 +190,10 @@ if {$choice == yes} {
 	*setvalue cards id=$card_output_id STATUS=2 ROW=1 3851= {OP2}
 	*setvalue cards id=$card_output_id STATUS=2 ROW=1 3852= {ALL}
 	*setvalue cards id=$card_output_id STATUS=2 ROW=1 3854= {        }
-
 	
+
+	# *setvalue cards id=$card_greq_id STATUS=2 2938=1
+	# *setvalue cards id=$card_greq_id STATUS=2 ROW=0 2939= {NO}
 }
 
 
