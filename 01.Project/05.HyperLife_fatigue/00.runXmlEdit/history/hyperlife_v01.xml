@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HyperLifeInput profile="Basic" version="2021.1.0.28">
+  <Preferences>
+    <RainflowDataOutput>True</RainflowDataOutput>
+    <EventWiseResult>False</EventWiseResult>
+  </Preferences>
+
+  <InputFiles>
+    <ModelFile>E:/00_program/K9MD_Q4/K9MD_dw0353_Static_rev01_211220_modal_superposion.h3d</ModelFile>
+    <ResultFile>E:/00_program/K9MD_Q4/K9MD_dw0353_Static_rev01_211220_modal_superposion.h3d</ResultFile>
+  </InputFiles>
+  
+  <UserSet></UserSet>
+
+  <DerivedLoadcase>D:/04_FastCalc/K9MD_HyperLife/congfig_test.cfg</DerivedLoadcase>
+
+  <ModelConfig type="SN" unit="MPA">
+    <method>Uni Axial</method>
+    <stresscombination>Abs Max Principal</stresscombination>
+    <survivalfactor>0.5</survivalfactor>
+    <correction>GOODMAN</correction>
+    <layer>Worst</layer>
+    <typeofloading>Time Series</typeofloading>
+  </ModelConfig>
+
+  <MaterialSetup type="SN">
+    <UserMaterialFile></UserMaterialFile>
+    <ExcludeSets></ExcludeSets>
+  </MaterialSetup>
+
+  <!-- <LoadMapFile type="dcy">D:/04_FastCalc/K9MD_HyperLife/event.dcy</LoadMapFile> -->
+  <LoadMap>
+    <!--Please uncomment the "LoadMapFile" tag below to create Load Map via DCY file-->
+    <!-- <LoadMapFile type="dcy"></LoadMapFile> -->
+    <!-- <LoadMapFile type="dcy">D:/04_FastCalc/K9MD_HyperLife/event.dcy</LoadMapFile> -->
+    <!--if Loadmap support is via dcy below tags of "LoadMap" will be ignored-->
+    <Channel>
+      <!--  -->
+      <tabfat id="1" type="Time Data">D:/04_FastCalc/K9MD_HyperLife/Q_1.rsp</tabfat>
+      <tabfat id="2" type="Time Data">D:/04_FastCalc/K9MD_HyperLife/Q_2.rsp</tabfat>
+    </Channel>
+    <FatigeEvents>
+      <Event Configuration="superposition" Gate="0" id="1" name="xml_run_1">
+      	<!-- block  -->
+      	<!-- tabfatId req file ID -->
+      	<!-- subcase  -->
+        <Fatload LDM="1" Offset="0" Scale="1" block="4" resultfile="" sim="1" subcase="1" tabfatId="1" tabfatName=""></Fatload>
+        <Fatload LDM="1" Offset="0" Scale="1" block="5" resultfile="" sim="1" subcase="2" tabfatId="1" tabfatName=""></Fatload>
+        <Fatload LDM="1" Offset="0" Scale="1" block="6" resultfile="" sim="1" subcase="3" tabfatId="1" tabfatName=""></Fatload>
+      </Event>
+
+      <Event Configuration="superposition" Gate="0" id="2" name="xml_run_2">
+        <Fatload LDM="1" Offset="0" Scale="1" block="7" resultfile="" sim="1" subcase="1" tabfatId="2" tabfatName=""></Fatload>
+        <Fatload LDM="1" Offset="0" Scale="1" block="8" resultfile="" sim="1" subcase="2" tabfatId="2" tabfatName=""></Fatload>
+        <Fatload LDM="1" Offset="0" Scale="1" block="9" resultfile="" sim="1" subcase="3" tabfatId="2" tabfatName=""></Fatload>
+      </Event>
+
+    </FatigeEvents>
+  </LoadMap>
+
+  <Evaluate>
+    <runname>loadcase</runname>
+    <numprocessor>22</numprocessor>
+  </Evaluate>
+
+</HyperLifeInput>

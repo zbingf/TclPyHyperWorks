@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HyperLifeInput profile="Basic" version="2021.1.0.28">
+  <Preferences>
+    <RainflowDataOutput>True</RainflowDataOutput>
+    <EventWiseResult>False</EventWiseResult>
+  </Preferences>
+
+  <InputFiles>
+    <ModelFile>#ModelFile#</ModelFile>
+    <ResultFile>#ResultFile#</ResultFile>
+  </InputFiles>
+  
+  <UserSet></UserSet>
+
+  <DerivedLoadcase>#DerivedLoadcase#</DerivedLoadcase>
+
+  <ModelConfig type="SN" unit="MPA">
+    <method>Uni Axial</method>
+    <stresscombination>Abs Max Principal</stresscombination>
+    <survivalfactor>0.5</survivalfactor>
+    <correction>GOODMAN</correction>
+    <layer>Worst</layer>
+    <typeofloading>Time Series</typeofloading>
+  </ModelConfig>
+
+  <MaterialSetup type="SN">
+    <UserMaterialFile></UserMaterialFile>
+    <ExcludeSets></ExcludeSets>
+  </MaterialSetup>
+
+  <LoadMap>
+    <Channel>
+      
+#Channel#
+
+    </Channel>
+    <FatigeEvents>
+
+#FatigeEvents#
+
+    </FatigeEvents>
+  </LoadMap>
+
+  <Evaluate>
+    <runname>loadcase</runname>
+    <numprocessor>22</numprocessor>
+  </Evaluate>
+
+</HyperLifeInput>
