@@ -1,6 +1,8 @@
 # source D:/github/TclPyHyperWorks/opt_fatigue/fatigue_search_node_ids.tcl
 # 视角view记录操作
 # hyperview 2021.1
+# Version 0.2   2023/12/04
+# 	增加遍历视角
 
 namespace eval ::hvViewRecord {
     variable view_name 
@@ -104,6 +106,13 @@ proc ::hvViewRecord::GUI { args } {
     # grid $recess.button_04 -row 8 -column 0 -padx 2 -pady 2 -sticky nw
     grid $recess.frame_01.button_04
 
+
+	button $recess.frame_01.button_05 \
+        -text "遍历视角-保存图片" \
+        -command ::hvViewRecord::view_all \
+        -width 16 -font {MS 10}
+    # grid $recess.button_04 -row 8 -column 0 -padx 2 -pady 2 -sticky nw
+    grid $recess.frame_01.button_05
 
     # ===================
     ::hwt::RemoveDefaultButtonBinding $recess
@@ -307,5 +316,27 @@ proc ::hvViewRecord::remove_view {} {
 	return 1
 }
 
+
+proc ::hvViewRecord::view_all {} {
+	variable view_list
+
+	set choice [tk_messageBox -type yesnocancel -default yes -message "是否遍历视角保存图片" -icon question]
+	if {$choice != yes} {return}
+
+	set png_path [tk_getSaveFile  -title "图片保存路径及前缀"]
+
+	
+
+	set len_list [llength $view_list]
+
+	# set cur_view_list
+	foreach view_n $view_list {
+		hwc view restore $view_n
+		# hwc save image page "$png_path_$view_n.PNG"
+		hwc save image page [format "%s_%s.PNG" $png_path $view_n]
+	}
+
+
+}
 
 ::hvViewRecord::GUI

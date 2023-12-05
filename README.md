@@ -17,6 +17,8 @@
   + 02.Opt_Fatigue:  optistruct fatigue 求解优化程序
   + 03.HG2D_Modal_Stress_Super:  虚拟应力数据读取[模态坐标线性应力叠加]
   + 04.FatigueElemToNcodeGroup:  生成Ncode的UserGroup用于耐久计算材料属性赋予
+  + 05.HyperLife_fatigue:  Hyperlife 耐久计算支持
+  + 06.MV_DataTo4Post:  Motionview四立柱加载支持, 台架信号转换
   + 20.feon_learning: 有限元框架Feon学习
 + 21.Platform_ARB: 稳定杆计算平台开发研究
   
@@ -43,3 +45,17 @@
 
 hmGUI界面
 ![hmGUI](./README/figure_hmGUI.png)
+
+
+
+
+
+## 更新
+
+2023/12/04
+
++ 增加 05.HyperLife_fatigue:  Hyperlife 耐久计算支持
+
++ 增加06.MV_DataTo4Post:  Motionview四立柱加载支持, 台架信号转换
+
++ 更新 hv/hvViewRecord 增加遍历视角,图像存储
