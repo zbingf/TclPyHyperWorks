@@ -25,11 +25,12 @@ def search_fem_file(file_dir):
     return fem_paths
 
 
-def run_fem(opt_path, fem_path):
+def run_fem(opt_path, fem_path, logger):
     # cmd_str = "{} {}".format(opt_path, fem_path)
     # return subprocess.check_output(cmd_str)
     str_res = subprocess.check_output([opt_path, fem_path]).decode()
     print(str_res)
+    logger.info(str_res)
     # return subprocess.check_output([opt_path, fem_path])
     return str_res
 
@@ -134,7 +135,7 @@ def opt_run(opt_path, run_dir, is_break=False, max_thread=2):
             # 运行求解
             # str1 = run_fem(opt_path, new_fem_path).decode()
             # print(str1)
-            thread = threading.Thread(target=run_fem, args=(opt_path, new_fem_path))
+            thread = threading.Thread(target=run_fem, args=(opt_path, new_fem_path, logger))
             thread.start()
             threads.append(thread)
             # max_thread = 2

@@ -212,6 +212,7 @@ class FatigueMainUI(TkUi):
             })
 
         self.frame_note()
+        self.frame_ui_runs()
 
         # 初始化设置
         self.vars['set_limit'].set(15000)
