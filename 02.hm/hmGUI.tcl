@@ -62,9 +62,11 @@ lappend line "{Comp-去重 } {Component/hmCompEdit.tcl}"
 create_label_button 1 $line
 
 # -------------------
-set 	line "Solid"
+set 	line "Solid&Surf"
 lappend line "{Comp分类_厚度测量 } {hmSolidThickness.tcl}"
+lappend line "{Surf_以solid复制 } {SurfCopyBySolid/hmSurfCopyBySolid.tcl}"
 lappend line "{Load_单位六分力加载3.1 } {LoadForce1N/hmLoadForce1N.tcl}"
+
 
 create_label_button 2 $line
 
@@ -101,6 +103,7 @@ set 	line "网格划分-处理-4"
 lappend line "{Rigid_Solid_点_连接_Shell } {RigidSolidPointLinkShell/hmRigidSolidPointLinkShell.tcl}"
 lappend line "{SurfNear2set } {ShellSurfToSurfSet/hmShellSurfToSurfSet.tcl}"
 lappend line "{washer单圈变双圈 } {BoltHoleConnect/hmBoltHoleRigidEditDoubleWasher.tcl}"
+lappend line "{rigid扩展node孔面 } {hmRigidAppendHoleFaceNode.tcl}"
 create_label_button 6 $line
 
 
