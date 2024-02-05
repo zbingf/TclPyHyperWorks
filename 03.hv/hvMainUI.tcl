@@ -40,22 +40,30 @@ proc ::hvMainUI::GUI { args } {
     button $recess.button_01 \
         -text "视角View管理" \
         -command ::hvMainUI::fun_01 \
-        -width 16 -font {MS 10}
+        -width 22 -font {MS 10}
     grid $recess.button_01 -row 2 -column 0 -padx 2 -pady 2 -sticky nw
 
     # ===================
     button $recess.button_02 \
         -text "FatigueLimit" \
         -command ::hvMainUI::fun_02 \
-        -width 16 -font {MS 10}
+        -width 22 -font {MS 10}
     grid $recess.button_02 -row 3 -column 0 -padx 2 -pady 2 -sticky nw
 
     # ===================
     button $recess.button_03 \
         -text "CurElemSearch" \
         -command ::hvMainUI::fun_03 \
-        -width 16 -font {MS 10}
+        -width 22 -font {MS 10}
     grid $recess.button_03 -row 4 -column 0 -padx 2 -pady 2 -sticky nw
+
+    # ===================
+    button $recess.button_04 \
+        -text "自动导出ElemId损伤" \
+        -command ::hvMainUI::fun_04 \
+        -width 22 -font {MS 10}
+    grid $recess.button_04 -row 5 -column 0 -padx 2 -pady 2 -sticky nw
+
 
     # ===================
     ::hwt::RemoveDefaultButtonBinding $recess
@@ -87,5 +95,14 @@ proc ::hvMainUI::fun_03 {args} {
     eval $cmd_str
 }
 
+proc ::hvMainUI::fun_04 {args} {
+    set cmd_str [format "source %s/%s/%s" $::hvMainUI::file_dir hvDamageOutput hvDamageElemIdOutput.tcl]
+    puts $cmd_str
+    eval $cmd_str
+
+}
+
+
 
 ::hvMainUI::GUI
+# source "D:/github/TclPyHyperWorks/03.hv/hvMainUI.tcl"

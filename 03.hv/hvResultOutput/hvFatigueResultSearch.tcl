@@ -72,7 +72,7 @@ proc ::hvFatigueResultSearch::GUI { args } {
     entry $recess.entry3 -width 16 -textvariable ::hvFatigueResultSearch::value_limit
     grid $recess.entry3 -row 6 -column 1 -padx 2 -pady 2 -sticky nw
 
-    label $recess.entryLabel4 -text "Dis Limit"
+    label $recess.entryLabel4 -text "单元距离限制Dis Limit"
     grid $recess.entryLabel4 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry4 -width 16 -textvariable ::hvFatigueResultSearch::dis_limit
     grid $recess.entry4 -row 7 -column 1 -padx 2 -pady 2 -sticky nw
@@ -82,8 +82,6 @@ proc ::hvFatigueResultSearch::GUI { args } {
     # ttk::scrollbar $recess.listbox_01 \
     #     -listvariable ::hvFatigueResultSearch::view_list
     # grid $recess.listbox_01 -row 8 -column 1 -padx 2 -pady 2 -sticky nw
-
-    
 
 
     # ===================

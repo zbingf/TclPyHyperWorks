@@ -71,7 +71,7 @@ proc ::hvElemSearch::GUI { args } {
     # entry $recess.entry3 -width 16 -textvariable ::hvElemSearch::value_limit
     # grid $recess.entry3 -row 6 -column 1 -padx 2 -pady 2 -sticky nw
 
-    label $recess.entryLabel4 -text "Dis Limit"
+    label $recess.entryLabel4 -text "单元距离限制Dis Limit"
     grid $recess.entryLabel4 -row 7 -column 0 -padx 2 -pady 2 -sticky nw
     entry $recess.entry4 -width 16 -textvariable ::hvElemSearch::dis_limit
     grid $recess.entry4 -row 7 -column 1 -padx 2 -pady 2 -sticky nw
@@ -114,6 +114,7 @@ proc ::hvElemSearch::Quit { args } {
 }
 
 
+# 设置结果路径
 proc ::hvElemSearch::set_result_path {} {
     variable file_dir
     variable result_path
@@ -121,13 +122,15 @@ proc ::hvElemSearch::set_result_path {} {
 }
 
 
+# 设置fem路径,用于读取element数据,并筛选
 proc ::hvElemSearch::set_fem_path {} {
     variable file_dir
     variable fem_path
     set fem_path [tk_getOpenFile -title "保存路径"  -filetypes {"2021.1 fem .fem"} -defaultextension fem  -initialdir $file_dir]
 }
 
-# 
+
+# 导出指定损伤路径
 proc ::hvElemSearch::output_cur_query {csv_path} {
     
     catch { hwi CloseStack }
