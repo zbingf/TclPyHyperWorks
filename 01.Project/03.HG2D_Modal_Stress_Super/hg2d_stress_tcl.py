@@ -89,6 +89,11 @@ class ModalStressTclUi(TkUi):
     def __init__(self, title, frame=None):
         super().__init__(title, frame=frame)
 
+        self.frame_label_only({
+            'label_text':'-------------\n读取后处理文件\n导出指定单元应力数据\n调用:hg2d_stress_tcl.txt\n调用:hwplot.dat\n-------------',
+            'label_width':15,
+            })
+
         self.frame_loadpath({
             'frame':'result_file', 'var_name':'result_file', 'path_name':'result_file(h3d,op2..)',
             'path_type':'.*', 'button_name':'result_file\neg:(h3d,op2..)',
@@ -117,15 +122,15 @@ class ModalStressTclUi(TkUi):
             })
 
         self.frame_entry({
-            'frame':'node_ids', 'var_name':'node_ids', 'label_text':'node_ids\n节点ID\n[根据节点找单元ID]',
+            'frame':'node_ids', 'var_name':'node_ids', 'label_text':'node_ids\n节点ID\n[根据节点找单元ID]\n[可不选]',
             'label_width':20, 'entry_width':40,
             })
 
 
         self.frame_loadpath({
             'frame':'hw_path', 'var_name':'hw_path', 'path_name':'hw exe file',
-            'path_type':'.exe', 'button_name':'hw.exe 路径',
-            'button_width':15, 'entry_width':40,
+            'path_type':'.exe', 'button_name':'hw.exe 路径\n后台调用\n需有环境变量索引',
+            'button_width':20, 'entry_width':40,
             })
 
 

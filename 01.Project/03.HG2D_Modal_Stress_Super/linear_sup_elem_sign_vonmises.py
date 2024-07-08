@@ -62,6 +62,8 @@ def get_target_modal_channel(element_data, channels):
             list1 = element_data[name][key]
             if channels[1] == None:
                 end_modal = len(list1)
+            else:
+                end_modal = channels[1]+1
             new_element_data[name][key] = [list1[channel] for channel in range(channels[0],end_modal)]
     
     return new_element_data
@@ -69,7 +71,10 @@ def get_target_modal_channel(element_data, channels):
 
 # 叠加计算
 def linear_superposition(element_data, rpc_data):
-
+    # print('element_data')
+    # print(element_data)
+    # print('rpc_data')
+    # print(len(rpc_data))
     ls_element_data = {}
     nlen = len(rpc_data[0])
     for name in element_data:
@@ -123,11 +128,61 @@ def get_sign_vonmises_2d(ls_element_data, nlen):
     return sign_vonmises_data
 
 
+def change_csv_to_rsp(csv_path, samplerate):
+
+    ATS_RSP = """<AsciiTranslateSetup>
+       <Version>1</Version>
+       <ConvertTo>1</ConvertTo>
+       <CreateLogFile>0</CreateLogFile>
+       <NumberOfHeaderLines>1</NumberOfHeaderLines>
+       <NumberOfChannels>-1</NumberOfChannels>
+       <LineNumberForChannelTitles>1</LineNumberForChannelTitles>
+       <LineNumberForUnits>0</LineNumberForUnits>
+       <TabSeparated>0</TabSeparated>
+       <CommaSeparated>1</CommaSeparated>
+       <SpaceSeparated>0</SpaceSeparated>
+       <SemiColonSeparated>0</SemiColonSeparated>
+       <FixedWidth>0</FixedWidth>
+       <DecimalCharacter>1</DecimalCharacter>
+       <IncludeExclude>0</IncludeExclude>
+       <ColumnList></ColumnList>
+       <HeaderToMetadata>0</HeaderToMetadata>
+       <AutoDetectSampleRate>0</AutoDetectSampleRate>
+       <SampleRate>#SampleRate#</SampleRate>
+       <XaxisBase>0</XaxisBase>
+       <XaxisTitle>Time</XaxisTitle>
+       <XaxisUnits>Seconds</XaxisUnits>
+       <OutputNamingMethod>2</OutputNamingMethod>
+       <OutputTestName>temp</OutputTestName>
+       <OutputNamingText></OutputNamingText>
+       <OutputFormat>3</OutputFormat>
+    </AsciiTranslateSetup>
+    """
+
+    ats_path = 'RSP_1V1.ats'
+    with open(ats_path, 'w') as f:
+        f.write(ATS_RSP.replace('#SampleRate#', str(samplerate)))
+    ats_path = os.path.abspath(ats_path)
+
+    str_cmd = 'asciitranslate.exe /inp="{}" /conv="TimeSeries" /SetupFile="{}" /prog=1'.format(csv_path, ats_path)
+
+    with open('test.bat', 'w') as f:
+        f.write(str_cmd)
+    os.system('test.bat')
+    
+    os.remove('test.bat')
+    os.remove(ats_path)
+
+    return None
+
+
+
 # 主函数
-def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
+def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels, csv_path):
 
     name2 = os.path.basename(rpc_path)
-    csv_path  = file_path+f'.{name2}.result.csv'
+    # csv_path  = file_path+f'.{name2}.result.csv'
+    csv_path = csv_path[:-4]+f'_{name2}.csv'
 
     
     # rsp数据
@@ -157,7 +212,7 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
     else:
         new_element_data = element_data
 
-    print(new_element_data)
+    # print(new_element_data)
 
     # 线性叠加 数据
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
@@ -165,17 +220,25 @@ def sign_vonmises_cal(file_path, modal_channels, rpc_path, rpc_channels):
     # 计算带方向的米塞斯应力
     sign_vonmises_data = get_sign_vonmises_2d(ls_element_data, nlen)
 
-    f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')
+    n_name = len(sign_vonmises_data.keys())
+
+    # csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv'
+    f = open(csv_path, 'w')
     for name in sign_vonmises_data:
         f.write(f'{name}_SignVonMises(Z1),{name}_SignVonMises(Z2),')
     f.write('\n')
 
     for loc in range(nlen):
-        for name in sign_vonmises_data:
+        for loc_name, name in enumerate(sign_vonmises_data):
             value_z1, value_z2 = sign_vonmises_data[name]['Z1'][loc], sign_vonmises_data[name]['Z2'][loc]
-            f.write(f'{value_z1},{value_z2},')
+            if loc_name == n_name-1:
+                f.write(f'{value_z1},{value_z2}')
+            else:
+                f.write(f'{value_z1},{value_z2},')
         f.write('\n')
     f.close()
+
+    change_csv_to_rsp(csv_path, rpc_samplerate)
 
 
 class ElemSignVonmisesUi(TkUi):
@@ -183,27 +246,40 @@ class ElemSignVonmisesUi(TkUi):
     def __init__(self, title, frame=None):
         super().__init__(title, frame=frame)
 
+        self.frame_label_only({
+            'label_text':'-------------\nSignVonmises应力\n-------------',
+            'label_width':15,
+            })
+
         self.frame_loadpaths({
             'frame':'ms_files', 'var_name':'ms_files', 'path_name':'modal stress XY-DATA',
-            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取',
-            'button_width':20, 'entry_width':40,
+            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取\nH3D应力结果',
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None',
-            'label_width':20, 'entry_width':40,
+            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None\nH3D起始0阶故直接填写阶数范围',
+            'label_width':30, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'rpc_path', 'var_name':'rpc_path', 'path_name':'rpc_path',
             'path_type':'.*', 'button_name':'rpc_path\n[模态坐标]',
-            'button_width':20, 'entry_width':40,
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9',
-            'label_width':20, 'entry_width':30,
+            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9\n起始0位',
+            'label_width':30, 'entry_width':30,
             })
+
+
+        self.frame_savepath({
+            'frame':'csv_path', 'var_name':'csv_path', 'path_name':'csv_path',
+            'path_type':'.csv', 'button_name':'csv_path\n[输出结果]\n充当前缀',
+            'button_width':30, 'entry_width':40,
+            })
+
 
         self.frame_buttons_RWR({
             'frame' : 'rrw',
@@ -228,11 +304,12 @@ class ElemSignVonmisesUi(TkUi):
         rpc_path = params['rpc_path']
         modal_channels = params['modal_channels']
         rpc_channels   = params['rpc_channels']
+        csv_path = params['csv_path']
 
         if isinstance(ms_files, str): ms_files = [ms_files]
 
         for ms_file in ms_files:
-            sign_vonmises_cal(ms_file, modal_channels, rpc_path, rpc_channels)
+            sign_vonmises_cal(ms_file, modal_channels, rpc_path, rpc_channels, csv_path)
 
         # print(sign_vonmises_data)
 

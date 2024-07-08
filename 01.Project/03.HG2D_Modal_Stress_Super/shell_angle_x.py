@@ -14,6 +14,8 @@ get_line_n = lambda line, n: line[8*n:8*(n+1)].strip()
 dis_loc    = lambda loc1, loc2: ((loc1[0]-loc2[0])**2 + (loc1[1]-loc2[1])**2 + (loc1[2]-loc2[2])**2)**0.5
 v_abs      = lambda loc1: (loc1[0]**2 + loc1[1]**2 + loc1[2]**2)**0.5
 v_one      = lambda loc1: [loc1[0]/v_abs(loc1), loc1[1]/v_abs(loc1), loc1[2]/v_abs(loc1)]
+v_round    = lambda loc1, num: [round(n, num) for n in loc1]
+
 
 
 RAD_2_DEG = 180/math.pi
@@ -55,11 +57,18 @@ def angle_2vector(base_v_loc, target_v_loc):
     base_abs = v_abs(base_v_loc)
     target_abs = v_abs(target_v_loc)
     a_dot_b = v_multi_dot(base_v_loc, target_v_loc)
+    # 向量夹角余弦值
     value = a_dot_b / (base_abs*target_abs)
     if value > 1: value = 1
     if value < -1: value = -1
 
+    # 大于0, 锐角
+    # 小于0, 钝角
     angle_rad = math.acos(value)
+
+    if angle_rad < 0:
+        angle_rad = math.pi + angle_rad
+
     return angle_rad
 
 #
@@ -121,41 +130,72 @@ def calc_shell_angle(fem_path, target_elem_ids, target_vs):
     grid_dic, elem_dic = read_data(fem_path)
 
     thetas = {}
+    thetas_deg = {}
     records = {}
     for elem_id, t_v in zip(target_elem_ids,target_vs):
-        
+        # t_v 贴片方向
         r_ids = elem_dic[str(elem_id)]
         p0 = grid_dic[r_ids[0]]
         p1 = grid_dic[r_ids[1]]
         p2 = grid_dic[r_ids[2]]
 
+        # 单元前三点中心
         center = [(p0[0]+p1[0]+p2[0])/3, (p0[1]+p1[1]+p2[1])/3, (p0[2]+p1[2]+p2[2])/3]
+
         # print(r_ids)
         # print(p0, p1, p2)
         # 
+
+        # XX 方向的向量
         B_startx = v_sub(p1,p0)
+
+        # elem的法向量
         P1_velem = get_v_element([p0,p1,p2])
         # print(B_startx)
         # print(P1_velem)
         
+        # center = v_round(center, 4)
+        # B_startx = v_round(B_startx, 4)
+        # t_v = v_round(t_v, 4)
+
+        # 贴片方向与单元法向的 叉乘得到垂直向量
         P2 = v_multi_x(t_v, P1_velem)
+        
+
         P3 = v_multi_x(B_startx, P2)
         # print(P1_velem, B_startx, P2, t_v, P3)
-
+        # print('angle_2vector:====')
         # print(angle_2vector(B_startx, P2)*RAD_2_DEG)
+        # print('angle_2vector:====')
         if v_multi_dot(P1_velem, v_multi_x(B_startx, P2))>0:
-
-            theta = 90 + angle_2vector(B_startx, P2)*RAD_2_DEG
+            # 法向通向, t_x监测方向与B_startx 夹角介于 [-90,90]之间
+            if angle_2vector(B_startx, P2)*RAD_2_DEG >= 90:
+                # 
+                theta = angle_2vector(B_startx, P2)*RAD_2_DEG - 90
+            else:
+                # 监测位置夹角位于[-90,0]区间, 反向为钝角
+                theta = angle_2vector(B_startx, P2)*RAD_2_DEG + 90
         else:
-            theta = -90 - angle_2vector(B_startx, P2)*RAD_2_DEG
+            # 法向反向, t_x监测方向与B_startx 夹角介于 [90,270]之间
+            if angle_2vector(B_startx, P2)*RAD_2_DEG >= 90:
+                # [90,180]
+                theta = (180 - angle_2vector(B_startx, P2)*RAD_2_DEG) + 90 
+            else:
+                # [180,270]
+                theta = 90 - angle_2vector(B_startx, P2)*RAD_2_DEG
+
         # print(theta)
-        if theta < -90:
-            theta += 180
+        # if theta < -90:
+        #     theta += 180
             
-        theta = -theta
-
+        # theta = -theta
+        theta = 0
         thetas[str(elem_id)] = theta/RAD_2_DEG
+        thetas_deg[str(elem_id)] = theta
 
+
+        V_t_new = v_rotate_point(P1_velem, B_startx, theta/RAD_2_DEG)
+        
         # record = {
         #     'V_x'： {'0':center, '1':v_add(center,v_one(B_startx))},
         #     'V_s': {'0':center, '1':v_add(center,v_one(P1_velem))},
@@ -165,27 +205,57 @@ def calc_shell_angle(fem_path, target_elem_ids, target_vs):
 
         record = {
             'V_x': {'0':center, '1':v_multi_c(v_one(B_startx), 5)},
-            'V_s':{'0':center, '1':v_multi_c(v_one(P1_velem), 5)},
+            'V_s':{'0':center, '1':v_multi_c(v_one(P1_velem), 6)},
             'V_t': {'0':center, '1':v_multi_c(v_one(t_v), 10)},
+            'V_t_new': {'0':center, '1':v_multi_c(v_one(V_t_new), 8)},
             'theta': theta,
         }
 
         records[str(elem_id)] = record
 
     # 弧度输出 rad
-    return thetas, records
+    return thetas, thetas_deg, records
+
+
+
+# 点-绕轴旋转
+def v_rotate_point(vector, point_loc, rad):
+    vector_one = v_one(vector)
+    P_cos = v_multi_c(point_loc, math.cos(rad))
+    A_x_P_sin = v_multi_c(v_multi_x(vector_one, point_loc), math.sin(rad))
+    A_dot_P = v_multi_dot(vector_one, point_loc)
+    A_A_dot_P_theta = v_multi_c(vector_one, A_dot_P*(1-math.cos(rad)))
+    new_loc = v_add(v_add(P_cos, A_x_P_sin), A_A_dot_P_theta)
+
+    return new_loc
+
+
+def change_strain(xx, yy, xy, theta, E, v):
+    # 弹性模量 E Mpa
+    # 泊松比 v
+    # theta rad
+
+    ex = (1-v**2)/E * (xx - v/(1-v)*yy)
+    ey = (1-v**2)/E * (yy - v/(1-v)*xx)
+    txy = 2*(1+v)/E * xy
+    e_theta = (ex+ey)/2 + (ex-ey)*math.cos(2*theta)/2 + txy*math.sin(2*theta)/2
+    # e_45 = (ex + ey + txy)/2
+    # txy = 
+    
+    # e_theta = (ex+ey)/2 + (ex-ey)*math.cos(2*theta)/2 + txy*math.sin(2*theta)
+    # e_theta = ex*math.cos(theta)**2 + 2*txy*math.cos(theta)*math.sin(theta)+ey*math.sin(theta)**2
+
+
+    return e_theta*1e6
 
 
 def change_stress(xx, yy, xy, theta):
     # theta 弧度输入
+    
+    # new_xx = (xx+yy)/2 + (xx-yy)/2*math.cos(2*theta) - xy*math.sin(2*theta)
+    new_xx = (xx+yy)/2 + (xx-yy)/2*math.cos(2*theta) + xy*math.sin(2*theta)
 
-    new_xx = (xx+yy)/2 + (xx-yy)/2*math.cos(2*theta) - xy*math.sin(2*theta)
-    # new_xx = (xx+yy)/2 - (xx-yy)/2*math.cos(2*theta) + xy*math.sin(2*theta)
-
-    # new_xy = (xx-yy)/2*math.sin(2*theta) + xy*math.cos(2*theta)
-    # new_yy = (xx+yy)/2 - (xx-yy)/2*math.cos(2*theta) + xy*math.sin(2*theta)
-
-    # return new_xx, new_yy, new_xy
+    
     return new_xx
 
 
@@ -207,11 +277,12 @@ def csv_elem_vs(csv_path, isStr=False):
     lines = [line for line in lines if line]
 
     target_elem_ids = []
-    target_vs = []
+    target_vs = [] # 贴片方向
     for line in lines[1:]:
         values = [value.replace(' ','') for value in line.split(',') if value]
         target_elem_ids.append(int(values[0]))
         target_vs.append([float(value) for value in values[1:4]])
+
 
     return target_elem_ids, target_vs
 
@@ -219,6 +290,18 @@ def csv_elem_vs(csv_path, isStr=False):
 
 
 if __name__ == '__main__':
+
+    center = [1,1,3]
+    P1_velem = [0,0,1]
+    B_startx = [1,0,0]
+    theta = 90
+    V_t_new = v_sub(v_rotate_point(v_add(P1_velem, center), v_add(B_startx, center), theta/RAD_2_DEG), center)
+    print(V_t_new)
+    V_t_new = v_sub(v_rotate_point(P1_velem, v_add(B_startx, center), theta/RAD_2_DEG), center)
+    print(V_t_new)
+    V_t_new = v_rotate_point(P1_velem, B_startx, theta/RAD_2_DEG)
+    print(V_t_new)
+
 
     import time
     

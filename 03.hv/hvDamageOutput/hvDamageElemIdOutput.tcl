@@ -115,8 +115,8 @@ proc ::hvElemDamageOutput::fun_calcButton { args } {
         # load subcase
         hwc result subcase "Loadcase 1"
         # set type
-        hwc result scalar load type=Stress component=vonMises layer=Max
-        # hwc result scalar load type=Damage
+        # hwc result scalar load type=Stress component=vonMises layer=Max
+        hwc result scalar load type=Damage
         # csv path
         set csv_path "$result_path.csv"
         puts "csv_path: $csv_path"

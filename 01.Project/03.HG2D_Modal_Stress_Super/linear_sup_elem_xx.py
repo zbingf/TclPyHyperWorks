@@ -21,6 +21,7 @@ import pprint
 
 calc_shell_angle = shell_angle_x.calc_shell_angle
 change_stress = shell_angle_x.change_stress
+change_strain = shell_angle_x.change_strain
 csv_elem_vs = shell_angle_x.csv_elem_vs
 
 
@@ -30,28 +31,34 @@ def get_vchange_xx_stress(ls_element_data, nlen, thetas):
     # 数据长度 nlen
 
     vchange_xx_data = {}
+    vchange_xx_data_strain = {}
 
     face_types = ['Z1', 'Z2']
     for name in ls_element_data:
 
         theta = thetas[name[1:]]
         vchange_xx_data[name] = {}
+        vchange_xx_data_strain[name] = {}
 
         for face_type in face_types:
             list1 = []
+            list_strain = []
             for n in range(nlen):
                 xy = ls_element_data[name][('XY',face_type)][n]
                 xx = ls_element_data[name][('XX',face_type)][n]
                 yy = ls_element_data[name][('YY',face_type)][n]
 
                 new_xx = change_stress(xx, yy, xy, theta) #2.5/180*3.141592654
+                new_xx_strain = change_strain(xx, yy, xy, theta, 210000, 0.3) 
                 # print(xx, new_xx) 
                 
                 list1.append(new_xx)
+                list_strain.append(new_xx_strain)
 
             vchange_xx_data[name][face_type] = list1
+            vchange_xx_data_strain[name][face_type] = list_strain
 
-    return vchange_xx_data
+    return vchange_xx_data, vchange_xx_data_strain
 
 
 def xy_data_read(file_path):
@@ -109,6 +116,40 @@ def get_target_modal_channel(element_data, channels):
     return new_element_data
 
 
+def single_gauge(elem_id, topbottom, ori_str, angleoffset=0):
+
+    single_gauge = '<StrainGauge AngleOffset="#angleoffset#" ID="Gauge_#elem_id#_#Z#" Location="#elem_id#" LocationType="ElementCentroid" Orientation="#ori_str#" ResultsFrom="OneSurface" ShellSurface="#topbottom#" Type="Single"/>'
+
+    single_gauge = single_gauge.replace('#elem_id#', elem_id)
+    if topbottom == "Top":
+        single_gauge = single_gauge.replace('#Z#', 'Z2')
+    else:
+        single_gauge = single_gauge.replace('#Z#', 'Z1')
+
+    single_gauge = single_gauge.replace('#topbottom#', topbottom)
+    single_gauge = single_gauge.replace('#ori_str#', ori_str)
+    single_gauge = single_gauge.replace('#angleoffset#', str(angleoffset))
+
+    return single_gauge
+
+def asg_xx_create(records, thetas_deg):
+    # 根据数据创建XX方向的矢量测点
+    list1 = []
+    for elem_id in records:
+        ori_str = ','.join([str(n) for n in records[elem_id]['V_x']['1']])
+        angleoffset = thetas_deg[elem_id]
+        line1 = single_gauge(elem_id, "Bottom", ori_str, 360-angleoffset)
+        line2 = single_gauge(elem_id, "Top", ori_str, angleoffset)
+        list1.append(line1)
+        list1.append(line2)
+
+    f = open('__xx.asg', 'w') 
+    f.write('<Gauges>\n')
+    for line in list1:
+        f.write(line)
+        f.write('\n')
+    f.write('</Gauges>')
+
 # 叠加计算
 def linear_superposition(element_data, rpc_data):
 
@@ -128,6 +169,39 @@ def linear_superposition(element_data, rpc_data):
 
     return ls_element_data, nlen
 
+def result_csv_write(csv_path, stress_data, nlen, isStress=True):
+
+    # 数据写入
+    n_name = len(stress_data.keys())
+    f = open(csv_path, 'w')
+
+    for n, name in enumerate(stress_data):
+        if n == n_name-1:
+            if isStress:
+                f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2)')
+            else:
+                f.write(f'{name}_VxxStrain(Z1),{name}_VxxStrain(Z2)')
+        else:
+            if isStress:
+                f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2),')
+            else:
+                f.write(f'{name}_VxxStrain(Z1),{name}_VxxStrain(Z2),')
+
+    f.write('\n')
+    
+    for loc in range(nlen):
+        # f.write( str(loc/rpc_samplerate) +',')
+        for n, name in enumerate(stress_data):
+            value_z1, value_z2 = stress_data[name]['Z1'][loc], stress_data[name]['Z2'][loc]
+            if n == n_name-1:
+                f.write(f'{value_z1},{value_z2}')
+            else:
+                f.write(f'{value_z1},{value_z2},')
+
+        f.write('\n')
+    f.close()
+
+
 
 # 主函数
 def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_path, fem_path, csv_path):
@@ -136,8 +210,9 @@ def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_p
     # csv_path  = file_path+f'.{name2}.result.csv'
 
     target_elem_ids, target_vs = csv_elem_vs(v_path)
-    thetas, records = calc_shell_angle(fem_path, target_elem_ids, target_vs)
-
+    thetas, thetas_deg, records = calc_shell_angle(fem_path, target_elem_ids, target_vs)
+    asg_xx_create(records, thetas_deg)
+    # print(thetas_deg, records)
     # rsp数据
     rpc_obj = RpcFile(rpc_path, 'test')
     rpc_obj.read_file()
@@ -170,36 +245,15 @@ def vchange_xx_stress_cal(file_path, modal_channels, rpc_path, rpc_channels, v_p
     ls_element_data, nlen = linear_superposition(new_element_data, rpc_data)
 
     # 计算应力
-    print(thetas)
-    stress_data = get_vchange_xx_stress(ls_element_data, nlen, thetas)
-
-    # 数据写入
-    n_name = len(stress_data.keys())
-
-    # f = open(csv_path[:-4]+f'_{rpc_samplerate:0.0f}Hz.csv', 'w')
-    f = open(csv_path, 'w')
-    f.write('time,')
-    for n, name in enumerate(stress_data):
-        if n == n_name-1:
-            f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2)')
-        else:
-            f.write(f'{name}_VxxStress(Z1),{name}_VxxStress(Z2),')
-
-    f.write('\n')
-    
-    for loc in range(nlen):
-        f.write( str(loc/rpc_samplerate) +',')
-        for n, name in enumerate(stress_data):
-            value_z1, value_z2 = stress_data[name]['Z1'][loc], stress_data[name]['Z2'][loc]
-            if n == n_name-1:
-                f.write(f'{value_z1},{value_z2}')
-            else:
-                f.write(f'{value_z1},{value_z2},')
-
-        f.write('\n')
-    f.close()
-
-    change_csv_to_rsp(csv_path, rpc_samplerate)
+    # print(thetas)
+    stress_data, strain_data = get_vchange_xx_stress(ls_element_data, nlen, thetas)
+    # stress_data = strain_data
+    stress_path = csv_path[:-4]+'_stress.csv'
+    strain_path = csv_path[:-4]+'_strain.csv'
+    result_csv_write(stress_path, stress_data, nlen, isStress=True)
+    result_csv_write(strain_path, strain_data, nlen, isStress=False)
+    change_csv_to_rsp(stress_path, rpc_samplerate)
+    change_csv_to_rsp(strain_path, rpc_samplerate)
 
     record_to_tcl(records, '__test.tcl')
     pprint.pprint(records)
@@ -293,6 +347,9 @@ def change_csv_to_rsp(csv_path, samplerate):
     with open('test.bat', 'w') as f:
         f.write(str_cmd)
     os.system('test.bat')
+    
+    os.remove('test.bat')
+    os.remove(ats_path)
 
     return None
 
@@ -302,44 +359,50 @@ class ElemVxxStressUi(TkUi):
     def __init__(self, title, frame=None):
         super().__init__(title, frame=frame)
 
-        self.frame_loadpaths({
-            'frame':'ms_files', 'var_name':'ms_files', 'path_name':'modal stress XY-DATA',
-            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取',
-            'button_width':20, 'entry_width':40,
+        self.frame_label_only({
+            'label_text':'-------------\n指定应变方向应力\n-------------',
+            'label_width':15,
             })
 
+        self.frame_loadpaths({
+            'frame':'ms_files', 'var_name':'ms_files', 'path_name':'modal stress XY-DATA',
+            'path_type':'.*', 'button_name':'Modal Stress XY-DATA\n文件读取\nH3D应力结果',
+            'button_width':30, 'entry_width':40,
+            })
+
+
         self.frame_entry({
-            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None',
-            'label_width':20, 'entry_width':40,
+            'frame':'modal_channels', 'var_name':'modal_channels', 'label_text':'modal_channels\nRange[截断范围]\neg:7,None\nH3D起始0阶故直接填写阶数范围',
+            'label_width':30, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'rpc_path', 'var_name':'rpc_path', 'path_name':'rpc_path',
             'path_type':'.*', 'button_name':'rpc_path\n[模态坐标]',
-            'button_width':20, 'entry_width':40,
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'v_path', 'var_name':'v_path', 'path_name':'v_path',
             'path_type':'.*', 'button_name':'v_path\n[应变方向设置]',
-            'button_width':20, 'entry_width':40,
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_loadpath({
             'frame':'fem_path', 'var_name':'fem_path', 'path_name':'fem_path',
-            'path_type':'.*', 'button_name':'fem_path\n[应变方向设置]',
-            'button_width':20, 'entry_width':40,
+            'path_type':'.*', 'button_name':'fem_path\n[应变方向设置]\nfem文件路径',
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_entry({
-            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9',
-            'label_width':20, 'entry_width':30,
+            'frame':'rpc_channels', 'var_name':'rpc_channels', 'label_text':'rpc_channels\neg: None or 7,8,9\n起始0位',
+            'label_width':30, 'entry_width':30,
             })
 
         self.frame_savepath({
             'frame':'csv_path', 'var_name':'csv_path', 'path_name':'csv_path',
-            'path_type':'.csv', 'button_name':'csv_path\n[输出结果]',
-            'button_width':20, 'entry_width':40,
+            'path_type':'.csv', 'button_name':'csv_path\n[输出结果]\n充当前缀',
+            'button_width':30, 'entry_width':40,
             })
 
         self.frame_buttons_RWR({

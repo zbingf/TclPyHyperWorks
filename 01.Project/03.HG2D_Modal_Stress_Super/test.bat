@@ -1,1 +1,0 @@
-asciitranslate.exe /inp="D:/00_CAE_project/202308_01_VirtualStrain_SHEEL/T-TEST1-m2.csv" /conv="TimeSeries" /SetupFile="D:\github\TclPyHyperWorks\01.Project\03.HG2D_Modal_Stress_Super\RSP_1V1.ats" /prog=1
